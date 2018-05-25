@@ -8,7 +8,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #import <Helpers/Helpers.h>
 
-@class BLEPeripheralConnection, BLECentralManager;
+@class BLEPeripheralConnection, BLEPeripheralServicesDiscovery, BLECentralManager;
 
 
 
@@ -22,11 +22,11 @@
 @protocol BLEPeripheralConnectionDelegate <HLPOperationDelegate, CBCentralManagerDelegate>
 
 @optional
-- (void)connectionDidUpdateState:(BLEPeripheralConnection *)connection;
-- (void)connectionDidUpdateProgress:(BLEPeripheralConnection *)connection;
+- (void)BLEPeripheralConnectionDidUpdateState:(BLEPeripheralConnection *)connection;
+- (void)BLEPeripheralConnectionDidUpdateProgress:(BLEPeripheralConnection *)connection;
 
-- (void)connectionDidBegin:(BLEPeripheralConnection *)connection;
-- (void)connectionDidEnd:(BLEPeripheralConnection *)connection;
+- (void)BLEPeripheralConnectionDidBegin:(BLEPeripheralConnection *)connection;
+- (void)BLEPeripheralConnectionDidEnd:(BLEPeripheralConnection *)connection;
 
 @end
 
@@ -41,6 +41,38 @@
 @property (readonly) NSTimeInterval timeout;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout;
+
+@end
+
+
+
+
+
+
+
+
+
+
+@protocol BLEPeripheralServicesDiscoveryDelegate <HLPOperationDelegate, CBPeripheralDelegate>
+
+@optional
+- (void)BLEPeripheralServicesDiscoveryDidUpdateState:(BLEPeripheralServicesDiscovery *)discovery;
+- (void)BLEPeripheralServicesDiscoveryDidUpdateProgress:(BLEPeripheralServicesDiscovery *)discovery;
+
+- (void)BLEPeripheralServicesDiscoveryDidBegin:(BLEPeripheralServicesDiscovery *)discovery;
+- (void)BLEPeripheralServicesDiscoveryDidEnd:(BLEPeripheralServicesDiscovery *)discovery;
+
+@end
+
+
+
+@interface BLEPeripheralServicesDiscovery : HLPOperation <BLEPeripheralServicesDiscoveryDelegate>
+
+@property (readonly) SurrogateArray<BLEPeripheralServicesDiscoveryDelegate> *delegates;
+@property (readonly) CBPeripheral *peripheral;
+@property (readonly) NSArray<CBUUID *> *services;
+
+- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral services:(NSArray<CBUUID *> *)services;
 
 @end
 

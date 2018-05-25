@@ -80,18 +80,88 @@
 - (void)updateState:(HLPOperationState)state {
     [super updateState:state];
     
-    [self.delegates connectionDidUpdateState:self];
+    [self.delegates BLEPeripheralConnectionDidUpdateState:self];
     if (state == HLPOperationStateDidBegin) {
-        [self.delegates connectionDidBegin:self];
+        [self.delegates BLEPeripheralConnectionDidBegin:self];
     } else if (state == HLPOperationStateDidEnd) {
-        [self.delegates connectionDidEnd:self];
+        [self.delegates BLEPeripheralConnectionDidEnd:self];
     }
 }
 
 - (void)updateProgress:(uint64_t)completedUnitCount {
     [super updateProgress:completedUnitCount];
     
-    [self.delegates connectionDidUpdateProgress:self];
+    [self.delegates BLEPeripheralConnectionDidUpdateProgress:self];
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface BLEPeripheralServicesDiscovery ()
+
+@property CBPeripheral *peripheral;
+@property NSArray<CBUUID *> *services;
+
+@end
+
+
+
+@implementation BLEPeripheralServicesDiscovery
+
+@dynamic delegates;
+
+- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral services:(NSArray<CBUUID *> *)services {
+    self = super.init;
+    if (self) {
+        self.peripheral = peripheral;
+        self.services = services;
+        
+        self.progress.totalUnitCount = services.count;
+        
+        peripheral.delegate = self.delegates;
+    }
+    return self;
+}
+
+- (void)main {
+    [self.peripheral discoverServices:self.services];
+}
+
+#pragma mark - Peripheral
+
+- (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
+    if (error) {
+        [self.errors addObject:error];
+    }
+    
+    dispatch_group_leave(self.group);
+}
+
+#pragma mark - Helpers
+
+- (void)updateState:(HLPOperationState)state {
+    [super updateState:state];
+    
+    [self.delegates BLEPeripheralServicesDiscoveryDidUpdateState:self];
+    if (state == HLPOperationStateDidBegin) {
+        [self.delegates BLEPeripheralServicesDiscoveryDidBegin:self];
+    } else if (state == HLPOperationStateDidEnd) {
+        [self.delegates BLEPeripheralServicesDiscoveryDidEnd:self];
+    }
+}
+
+- (void)updateProgress:(uint64_t)completedUnitCount {
+    [super updateProgress:completedUnitCount];
+    
+    [self.delegates BLEPeripheralServicesDiscoveryDidUpdateProgress:self];
 }
 
 @end
