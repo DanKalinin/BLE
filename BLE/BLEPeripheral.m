@@ -114,8 +114,32 @@
     return self;
 }
 
+- (void)start {
+    [self.states removeAllObjects];
+    [self.errors removeAllObjects];
+    
+    [self.peripheralsByIdentifier removeAllObjects];
+    [self.peripheralsByName removeAllObjects];
+    
+    [self updateState:HLPOperationStateDidBegin];
+}
+
 - (void)cancel {
     [self.manager stopScan];
+    
+    [self updateState:HLPOperationStateDidEnd];
+}
+
+- (BLEPeripheralConnection *)connectPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *,id> *)options timeout:(NSTimeInterval)timeout {
+    BLEPeripheralConnection *connection = [BLEPeripheralConnection.alloc initWithPeripheral:peripheral options:options timeout:timeout];
+    [self addOperation:connection];
+    return connection;
+}
+
+- (BLEPeripheralConnection *)connectPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *,id> *)options timeout:(NSTimeInterval)timeout completion:(VoidBlock)completion {
+    BLEPeripheralConnection *connection = [self connectPeripheral:peripheral options:options timeout:timeout];
+    connection.completionBlock = completion;
+    return connection;
 }
 
 #pragma mark - Central manager
