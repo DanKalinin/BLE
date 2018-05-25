@@ -19,7 +19,7 @@
 
 
 
-@protocol BLEPeripheralConnectionDelegate <HLPOperationDelegate, CBPeripheralDelegate>
+@protocol BLEPeripheralConnectionDelegate <HLPOperationDelegate, CBCentralManagerDelegate>
 
 @end
 
@@ -30,9 +30,10 @@
 @property (readonly) BLECentralManager *parent;
 @property (readonly) SurrogateArray<BLEPeripheralConnectionDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
+@property (readonly) NSDictionary<NSString *, id> *options;
 @property (readonly) NSTimeInterval timeout;
 
-- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral timeout:(NSTimeInterval)timeout;
+- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout;
 
 @end
 
@@ -54,8 +55,11 @@
 @interface BLECentralManager : HLPOperation <BLECentralManagerDelegate>
 
 @property (readonly) SurrogateArray<BLECentralManagerDelegate> *delegates;
+@property (readonly) NSDictionary<NSString *, id> *options;
 @property (readonly) CBCentralManager *manager;
 @property (readonly) NSMutableDictionary<NSUUID *, CBPeripheral *> *peripheralsByIdentifier;
 @property (readonly) NSMutableDictionary<NSString *, CBPeripheral *> *peripheralsByName;
+
+- (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options;
 
 @end
