@@ -21,6 +21,13 @@
 
 @protocol BLEPeripheralConnectionDelegate <HLPOperationDelegate, CBCentralManagerDelegate>
 
+@optional
+- (void)connectionDidUpdateState:(BLEPeripheralConnection *)connection;
+- (void)connectionDidUpdateProgress:(BLEPeripheralConnection *)connection;
+
+- (void)connectionDidBegin:(BLEPeripheralConnection *)connection;
+- (void)connectionDidEnd:(BLEPeripheralConnection *)connection;
+
 @end
 
 

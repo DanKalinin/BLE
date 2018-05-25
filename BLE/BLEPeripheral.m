@@ -75,6 +75,25 @@
     
 }
 
+#pragma mark - Helpers
+
+- (void)updateState:(HLPOperationState)state {
+    [super updateState:state];
+    
+    [self.delegates connectionDidUpdateState:self];
+    if (state == HLPOperationStateDidBegin) {
+        [self.delegates connectionDidBegin:self];
+    } else if (state == HLPOperationStateDidEnd) {
+        [self.delegates connectionDidEnd:self];
+    }
+}
+
+- (void)updateProgress:(uint64_t)completedUnitCount {
+    [super updateProgress:completedUnitCount];
+    
+    [self.delegates connectionDidUpdateProgress:self];
+}
+
 @end
 
 
