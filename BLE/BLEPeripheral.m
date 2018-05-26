@@ -39,23 +39,62 @@
     return self;
 }
 
-#pragma mark - Helpers
+@end
 
-- (void)updateState:(HLPOperationState)state {
-    [super updateState:state];
-    
-    [self.delegates BLEPeripheralOperationDidUpdateState:self];
-    if (state == HLPOperationStateDidBegin) {
-        [self.delegates BLEPeripheralOperationDidBegin:self];
-    } else if (state == HLPOperationStateDidEnd) {
-        [self.delegates BLEPeripheralOperationDidEnd:self];
+
+
+
+
+
+
+
+
+
+@interface BLEPeripheralServiceOperation ()
+
+@property CBService *service;
+
+@end
+
+
+
+@implementation BLEPeripheralServiceOperation
+
+- (instancetype)initWithService:(CBService *)service {
+    self = [super initWithPeripheral:service.peripheral];
+    if (self) {
+        self.service = service;
     }
+    return self;
 }
 
-- (void)updateProgress:(uint64_t)completedUnitCount {
-    [super updateProgress:completedUnitCount];
-    
-    [self.delegates BLEPeripheralOperationDidUpdateProgress:self];
+@end
+
+
+
+
+
+
+
+
+
+
+@interface BLEPeripheralCharacteristicOperation ()
+
+@property CBCharacteristic *characteristic;
+
+@end
+
+
+
+@implementation BLEPeripheralCharacteristicOperation
+
+- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic {
+    self = [super initWithService:characteristic.service];
+    if (self) {
+        self.characteristic = characteristic;
+    }
+    return self;
 }
 
 @end
@@ -85,7 +124,6 @@
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout {
     self = [super initWithPeripheral:peripheral];
     if (self) {
-        self.peripheral = peripheral;
         self.options = options;
         self.timeout = timeout;
     }
@@ -171,7 +209,6 @@
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral services:(NSArray<CBUUID *> *)services {
     self = [super initWithPeripheral:peripheral];
     if (self) {
-        self.peripheral = peripheral;
         self.services = services;
         
         self.progress.totalUnitCount = services.count;
@@ -225,7 +262,6 @@
 
 @interface BLEPeripheralCharacteristicsDiscovery ()
 
-@property CBService *service;
 @property NSArray<CBUUID *> *characteristics;
 
 @end
@@ -237,9 +273,8 @@
 @dynamic delegates;
 
 - (instancetype)initWithService:(CBService *)service characteristics:(NSArray<CBUUID *> *)characteristics {
-    self = [super initWithPeripheral:service.peripheral];
+    self = [super initWithService:service];
     if (self) {
-        self.service = service;
         self.characteristics = characteristics;
         
         self.progress.totalUnitCount = characteristics.count;

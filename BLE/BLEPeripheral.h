@@ -21,13 +21,6 @@
 
 @protocol BLEPeripheralOperationDelegate <HLPOperationDelegate, CBPeripheralDelegate>
 
-@optional
-- (void)BLEPeripheralOperationDidUpdateState:(BLEPeripheralOperation *)operation;
-- (void)BLEPeripheralOperationDidUpdateProgress:(BLEPeripheralOperation *)operation;
-
-- (void)BLEPeripheralOperationDidBegin:(BLEPeripheralOperation *)operation;
-- (void)BLEPeripheralOperationDidEnd:(BLEPeripheralOperation *)operation;
-
 @end
 
 
@@ -68,7 +61,7 @@
 
 
 
-@interface BLEPeripheralCharacteristicOperation : BLEPeripheralOperation
+@interface BLEPeripheralCharacteristicOperation : BLEPeripheralServiceOperation
 
 @property (readonly) CBCharacteristic *characteristic;
 
@@ -161,10 +154,9 @@
 
 
 
-@interface BLEPeripheralCharacteristicsDiscovery : BLEPeripheralOperation <BLEPeripheralCharacteristicsDiscoveryDelegate>
+@interface BLEPeripheralCharacteristicsDiscovery : BLEPeripheralServiceOperation <BLEPeripheralCharacteristicsDiscoveryDelegate>
 
 @property (readonly) SurrogateArray<BLEPeripheralCharacteristicsDiscoveryDelegate> *delegates;
-@property (readonly) CBService *service;
 @property (readonly) NSArray<CBUUID *> *characteristics;
 
 - (instancetype)initWithService:(CBService *)service characteristics:(NSArray<CBUUID *> *)characteristics;
