@@ -8,7 +8,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #import <Helpers/Helpers.h>
 
-@class BLEPeripheralOperation, BLEServiceOperation, BLECharacteristicOperation, BLEPeripheralConnection, BLEServicesDiscovery, BLECharacteristicsDiscovery, BLECharacteristicReading, BLECentralManager;
+@class BLEPeripheralOperation, BLEServiceOperation, BLECharacteristicOperation, BLEPeripheralConnection, BLEPeripheralDisconnection, BLEServicesDiscovery, BLECharacteristicsDiscovery, BLECharacteristicReading, BLEL2CAPChannelOpening, BLECentralManager;
 
 
 
@@ -94,7 +94,6 @@
 
 @optional
 - (void)BLEPeripheralConnectionDidUpdateState:(BLEPeripheralConnection *)connection;
-- (void)BLEPeripheralConnectionDidUpdateProgress:(BLEPeripheralConnection *)connection;
 
 - (void)BLEPeripheralConnectionDidBegin:(BLEPeripheralConnection *)connection;
 - (void)BLEPeripheralConnectionDidEnd:(BLEPeripheralConnection *)connection;
@@ -122,11 +121,29 @@
 
 
 
+@protocol BLEPeripheralDisconnectionDelegate <BLEPeripheralOperationDelegate>
+
+@end
+
+
+
+@interface BLEPeripheralDisconnection : BLEPeripheralOperation <BLEPeripheralDisconnectionDelegate>
+
+@end
+
+
+
+
+
+
+
+
+
+
 @protocol BLEServicesDiscoveryDelegate <BLEPeripheralOperationDelegate>
 
 @optional
 - (void)BLEServicesDiscoveryDidUpdateState:(BLEServicesDiscovery *)discovery;
-- (void)BLEServicesDiscoveryDidUpdateProgress:(BLEServicesDiscovery *)discovery;
 
 - (void)BLEServicesDiscoveryDidBegin:(BLEServicesDiscovery *)discovery;
 - (void)BLEServicesDiscoveryDidEnd:(BLEServicesDiscovery *)discovery;
@@ -157,7 +174,6 @@
 
 @optional
 - (void)BLECharacteristicsDiscoveryDidUpdateState:(BLECharacteristicsDiscovery *)discovery;
-- (void)BLECharacteristicsDiscoveryDidUpdateProgress:(BLECharacteristicsDiscovery *)discovery;
 
 - (void)BLECharacteristicsDiscoveryDidBegin:(BLECharacteristicsDiscovery *)discovery;
 - (void)BLECharacteristicsDiscoveryDidEnd:(BLECharacteristicsDiscovery *)discovery;
@@ -188,7 +204,6 @@
 
 @optional
 - (void)BLECharacteristicReadingDidUpdateState:(BLECharacteristicReading *)reading;
-- (void)BLECharacteristicReadingDidUpdateProgress:(BLECharacteristicReading *)reading;
 
 - (void)BLECharacteristicReadingDidBegin:(BLECharacteristicReading *)reading;
 - (void)BLECharacteristicReadingDidEnd:(BLECharacteristicReading *)reading;
@@ -200,6 +215,30 @@
 @interface BLECharacteristicReading : BLECharacteristicOperation
 
 @property (readonly) SurrogateArray<BLECharacteristicReadingDelegate> *delegates;
+
+@end
+
+
+
+
+
+
+
+
+
+
+@protocol BLEL2CAPChannelOpeningDelegate <BLEPeripheralOperationDelegate>
+
+@end
+
+
+
+@interface BLEL2CAPChannelOpening : BLEPeripheralOperation <BLEL2CAPChannelOpeningDelegate>
+
+@property (readonly) SurrogateArray<BLEL2CAPChannelOpeningDelegate> *delegates;
+@property (readonly) CBL2CAPPSM psm;
+
+- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral psm:(CBL2CAPPSM)psm;
 
 @end
 
@@ -231,6 +270,9 @@
 - (BLEPeripheralConnection *)connectPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout;
 - (BLEPeripheralConnection *)connectPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout completion:(VoidBlock)completion;
 
+- (BLEPeripheralDisconnection *)disconnectPeripheral:(CBPeripheral *)peripheral;
+- (BLEPeripheralDisconnection *)disconnectPeripheral:(CBPeripheral *)peripheral completion:(VoidBlock)completion;
+
 - (BLEServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services;
 - (BLEServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services completion:(VoidBlock)completion;
 
@@ -239,5 +281,8 @@
 
 - (BLECharacteristicReading *)readCharacteristic:(CBCharacteristic *)characteristic;
 - (BLECharacteristicReading *)readCharacteristic:(CBCharacteristic *)characteristic completion:(VoidBlock)completion;
+
+- (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm;
+- (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm completion:(VoidBlock)completion;
 
 @end

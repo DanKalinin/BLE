@@ -177,12 +177,6 @@
     }
 }
 
-- (void)updateProgress:(uint64_t)completedUnitCount {
-    [super updateProgress:completedUnitCount];
-    
-    [self.delegates BLEPeripheralConnectionDidUpdateProgress:self];
-}
-
 @end
 
 
@@ -210,8 +204,6 @@
     self = [super initWithPeripheral:peripheral];
     if (self) {
         self.services = services;
-        
-        self.progress.totalUnitCount = services.count;
     }
     return self;
 }
@@ -243,12 +235,6 @@
     }
 }
 
-- (void)updateProgress:(uint64_t)completedUnitCount {
-    [super updateProgress:completedUnitCount];
-    
-    [self.delegates BLEServicesDiscoveryDidUpdateProgress:self];
-}
-
 @end
 
 
@@ -276,8 +262,6 @@
     self = [super initWithService:service];
     if (self) {
         self.characteristics = characteristics;
-        
-        self.progress.totalUnitCount = characteristics.count;
     }
     return self;
 }
@@ -297,12 +281,6 @@
     } else if (state == HLPOperationStateDidEnd) {
         [self.delegates BLECharacteristicsDiscoveryDidEnd:self];
     }
-}
-
-- (void)updateProgress:(uint64_t)completedUnitCount {
-    [super updateProgress:completedUnitCount];
-    
-    [self.delegates BLECharacteristicsDiscoveryDidUpdateProgress:self];
 }
 
 @end
@@ -329,6 +307,45 @@
 - (void)main {
     [self.peripheral readValueForCharacteristic:self.characteristic];
 }
+
+#pragma mark - Helpers
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface BLEL2CAPChannelOpening ()
+
+@property CBL2CAPPSM psm;
+
+@end
+
+
+
+@implementation BLEL2CAPChannelOpening
+
+@dynamic delegates;
+
+- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral psm:(CBL2CAPPSM)psm {
+    self = [super initWithPeripheral:peripheral];
+    if (self) {
+        self.psm = psm;
+    }
+    return self;
+}
+
+- (void)main {
+    [self.peripheral openL2CAPChannel:self.psm];
+}
+
+#pragma mark - Helpers
 
 @end
 
@@ -397,6 +414,18 @@
     return connection;
 }
 
+- (BLEPeripheralDisconnection *)disconnectPeripheral:(CBPeripheral *)peripheral {
+    BLEPeripheralDisconnection *disconnection = [BLEPeripheralDisconnection.alloc initWithPeripheral:peripheral];
+    [self addOperation:disconnection];
+    return disconnection;
+}
+
+- (BLEPeripheralDisconnection *)disconnectPeripheral:(CBPeripheral *)peripheral completion:(VoidBlock)completion {
+    BLEPeripheralDisconnection *disconnection = [self disconnectPeripheral:peripheral];
+    disconnection.completionBlock = completion;
+    return disconnection;
+}
+
 - (BLEServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services {
     BLEServicesDiscovery *discovery = [BLEServicesDiscovery.alloc initWithPeripheral:peripheral services:services];
     [self addOperation:discovery];
@@ -431,6 +460,18 @@
     BLECharacteristicReading *reading = [self readCharacteristic:characteristic];
     reading.completionBlock = completion;
     return reading;
+}
+
+- (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm {
+    BLEL2CAPChannelOpening *opening = [BLEL2CAPChannelOpening.alloc initWithPeripheral:peripheral psm:psm];
+    [self addOperation:opening];
+    return opening;
+}
+
+- (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm completion:(VoidBlock)completion {
+    BLEL2CAPChannelOpening *opening = [self peripheral:peripheral openL2CAPChannel:psm];
+    opening.completionBlock = completion;
+    return opening;
 }
 
 #pragma mark - Central manager
