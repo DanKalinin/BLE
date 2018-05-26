@@ -231,6 +231,18 @@
     return connection;
 }
 
+- (BLEPeripheralServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services {
+    BLEPeripheralServicesDiscovery *discovery = [BLEPeripheralServicesDiscovery.alloc initWithPeripheral:peripheral services:services];
+    [self addOperation:discovery];
+    return discovery;
+}
+
+- (BLEPeripheralServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services completion:(VoidBlock)completion {
+    BLEPeripheralServicesDiscovery *discovery = [self peripheral:peripheral discoverServices:services];
+    discovery.completionBlock = completion;
+    return discovery;
+}
+
 #pragma mark - Central manager
 
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
