@@ -51,6 +51,40 @@
 
 
 
+@interface BLEPeripheralServiceOperation : BLEPeripheralOperation
+
+@property (readonly) CBService *service;
+
+- (instancetype)initWithService:(CBService *)service;
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface BLEPeripheralCharacteristicOperation : BLEPeripheralOperation
+
+@property (readonly) CBCharacteristic *characteristic;
+
+- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic;
+
+@end
+
+
+
+
+
+
+
+
+
+
 @protocol BLEPeripheralConnectionDelegate <BLEPeripheralOperationDelegate>
 
 @optional
@@ -134,6 +168,21 @@
 @property (readonly) NSArray<CBUUID *> *characteristics;
 
 - (instancetype)initWithService:(CBService *)service characteristics:(NSArray<CBUUID *> *)characteristics;
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface BLEPeripheralCharacteristicReading : BLEPeripheralOperation
+
+- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic;
 
 @end
 
