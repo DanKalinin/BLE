@@ -5,7 +5,7 @@
 //  Created by Dan Kalinin on 5/25/18.
 //
 
-#import "BLEPeripheral.h"
+#import "BLECentralManager.h"
 
 
 
@@ -50,7 +50,7 @@
 
 
 
-@interface BLEPeripheralServiceOperation ()
+@interface BLEServiceOperation ()
 
 @property CBService *service;
 
@@ -58,7 +58,7 @@
 
 
 
-@implementation BLEPeripheralServiceOperation
+@implementation BLEServiceOperation
 
 - (instancetype)initWithService:(CBService *)service {
     self = [super initWithPeripheral:service.peripheral];
@@ -79,7 +79,7 @@
 
 
 
-@interface BLEPeripheralCharacteristicOperation ()
+@interface BLECharacteristicOperation ()
 
 @property CBCharacteristic *characteristic;
 
@@ -87,7 +87,7 @@
 
 
 
-@implementation BLEPeripheralCharacteristicOperation
+@implementation BLECharacteristicOperation
 
 - (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic {
     self = [super initWithService:characteristic.service];
@@ -194,7 +194,7 @@
 
 
 
-@interface BLEPeripheralServicesDiscovery ()
+@interface BLEServicesDiscovery ()
 
 @property NSArray<CBUUID *> *services;
 
@@ -202,7 +202,7 @@
 
 
 
-@implementation BLEPeripheralServicesDiscovery
+@implementation BLEServicesDiscovery
 
 @dynamic delegates;
 
@@ -235,18 +235,18 @@
 - (void)updateState:(HLPOperationState)state {
     [super updateState:state];
     
-    [self.delegates BLEPeripheralServicesDiscoveryDidUpdateState:self];
+    [self.delegates BLEServicesDiscoveryDidUpdateState:self];
     if (state == HLPOperationStateDidBegin) {
-        [self.delegates BLEPeripheralServicesDiscoveryDidBegin:self];
+        [self.delegates BLEServicesDiscoveryDidBegin:self];
     } else if (state == HLPOperationStateDidEnd) {
-        [self.delegates BLEPeripheralServicesDiscoveryDidEnd:self];
+        [self.delegates BLEServicesDiscoveryDidEnd:self];
     }
 }
 
 - (void)updateProgress:(uint64_t)completedUnitCount {
     [super updateProgress:completedUnitCount];
     
-    [self.delegates BLEPeripheralServicesDiscoveryDidUpdateProgress:self];
+    [self.delegates BLEServicesDiscoveryDidUpdateProgress:self];
 }
 
 @end
@@ -260,7 +260,7 @@
 
 
 
-@interface BLEPeripheralCharacteristicsDiscovery ()
+@interface BLECharacteristicsDiscovery ()
 
 @property NSArray<CBUUID *> *characteristics;
 
@@ -268,7 +268,7 @@
 
 
 
-@implementation BLEPeripheralCharacteristicsDiscovery
+@implementation BLECharacteristicsDiscovery
 
 @dynamic delegates;
 
@@ -291,18 +291,18 @@
 - (void)updateState:(HLPOperationState)state {
     [super updateState:state];
     
-    [self.delegates BLEPeripheralCharacteristicsDiscoveryDidUpdateState:self];
+    [self.delegates BLECharacteristicsDiscoveryDidUpdateState:self];
     if (state == HLPOperationStateDidBegin) {
-        [self.delegates BLEPeripheralCharacteristicsDiscoveryDidBegin:self];
+        [self.delegates BLECharacteristicsDiscoveryDidBegin:self];
     } else if (state == HLPOperationStateDidEnd) {
-        [self.delegates BLEPeripheralCharacteristicsDiscoveryDidEnd:self];
+        [self.delegates BLECharacteristicsDiscoveryDidEnd:self];
     }
 }
 
 - (void)updateProgress:(uint64_t)completedUnitCount {
     [super updateProgress:completedUnitCount];
     
-    [self.delegates BLEPeripheralCharacteristicsDiscoveryDidUpdateProgress:self];
+    [self.delegates BLECharacteristicsDiscoveryDidUpdateProgress:self];
 }
 
 @end
@@ -316,13 +316,13 @@
 
 
 
-@interface BLEPeripheralCharacteristicReading ()
+@interface BLECharacteristicReading ()
 
 @end
 
 
 
-@implementation BLEPeripheralCharacteristicReading
+@implementation BLECharacteristicReading
 
 @dynamic delegates;
 
@@ -397,28 +397,40 @@
     return connection;
 }
 
-- (BLEPeripheralServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services {
-    BLEPeripheralServicesDiscovery *discovery = [BLEPeripheralServicesDiscovery.alloc initWithPeripheral:peripheral services:services];
+- (BLEServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services {
+    BLEServicesDiscovery *discovery = [BLEServicesDiscovery.alloc initWithPeripheral:peripheral services:services];
     [self addOperation:discovery];
     return discovery;
 }
 
-- (BLEPeripheralServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services completion:(VoidBlock)completion {
-    BLEPeripheralServicesDiscovery *discovery = [self peripheral:peripheral discoverServices:services];
+- (BLEServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services completion:(VoidBlock)completion {
+    BLEServicesDiscovery *discovery = [self peripheral:peripheral discoverServices:services];
     discovery.completionBlock = completion;
     return discovery;
 }
 
-- (BLEPeripheralCharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics {
-    BLEPeripheralCharacteristicsDiscovery *discovery = [BLEPeripheralCharacteristicsDiscovery.alloc initWithService:service characteristics:characteristics];
+- (BLECharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics {
+    BLECharacteristicsDiscovery *discovery = [BLECharacteristicsDiscovery.alloc initWithService:service characteristics:characteristics];
     [self addOperation:discovery];
     return discovery;
 }
 
-- (BLEPeripheralCharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics completion:(VoidBlock)completion {
-    BLEPeripheralCharacteristicsDiscovery *discovery = [self service:service discoverCharacteristics:characteristics];
+- (BLECharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics completion:(VoidBlock)completion {
+    BLECharacteristicsDiscovery *discovery = [self service:service discoverCharacteristics:characteristics];
     discovery.completionBlock = completion;
     return discovery;
+}
+
+- (BLECharacteristicReading *)readCharacteristic:(CBCharacteristic *)characteristic {
+    BLECharacteristicReading *reading = [BLECharacteristicReading.alloc initWithCharacteristic:characteristic];
+    [self addOperation:reading];
+    return reading;
+}
+
+- (BLECharacteristicReading *)readCharacteristic:(CBCharacteristic *)characteristic completion:(VoidBlock)completion {
+    BLECharacteristicReading *reading = [self readCharacteristic:characteristic];
+    reading.completionBlock = completion;
+    return reading;
 }
 
 #pragma mark - Central manager
