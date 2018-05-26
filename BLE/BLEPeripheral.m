@@ -282,6 +282,10 @@
     return self;
 }
 
+- (void)main {
+    [self.peripheral discoverCharacteristics:self.characteristics forService:self.service];
+}
+
 #pragma mark - Helpers
 
 - (void)updateState:(HLPOperationState)state {
@@ -299,6 +303,31 @@
     [super updateProgress:completedUnitCount];
     
     [self.delegates BLEPeripheralCharacteristicsDiscoveryDidUpdateProgress:self];
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface BLEPeripheralCharacteristicReading ()
+
+@end
+
+
+
+@implementation BLEPeripheralCharacteristicReading
+
+@dynamic delegates;
+
+- (void)main {
+    [self.peripheral readValueForCharacteristic:self.characteristic];
 }
 
 @end

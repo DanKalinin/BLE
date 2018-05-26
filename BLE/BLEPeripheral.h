@@ -8,7 +8,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #import <Helpers/Helpers.h>
 
-@class BLEPeripheralOperation, BLEPeripheralConnection, BLEPeripheralServicesDiscovery, BLEPeripheralCharacteristicsDiscovery, BLECentralManager;
+@class BLEPeripheralOperation, BLEPeripheralServiceOperation, BLEPeripheralCharacteristicOperation, BLEPeripheralConnection, BLEPeripheralServicesDiscovery, BLEPeripheralCharacteristicsDiscovery, BLEPeripheralCharacteristicReading, BLECentralManager;
 
 
 
@@ -25,7 +25,7 @@
 
 
 
-@interface BLEPeripheralOperation : HLPOperation
+@interface BLEPeripheralOperation : HLPOperation <BLEPeripheralOperationDelegate>
 
 @property (readonly) BLECentralManager *parent;
 @property (readonly) SurrogateArray<BLEPeripheralOperationDelegate> *delegates;
@@ -44,7 +44,13 @@
 
 
 
-@interface BLEPeripheralServiceOperation : BLEPeripheralOperation
+@protocol BLEPeripheralServiceOperationDelegate <BLEPeripheralOperationDelegate>
+
+@end
+
+
+
+@interface BLEPeripheralServiceOperation : BLEPeripheralOperation <BLEPeripheralServiceOperationDelegate>
 
 @property (readonly) CBService *service;
 
@@ -61,7 +67,13 @@
 
 
 
-@interface BLEPeripheralCharacteristicOperation : BLEPeripheralServiceOperation
+@protocol BLEPeripheralCharacteristicOperationDelegate <BLEPeripheralServiceOperationDelegate>
+
+@end
+
+
+
+@interface BLEPeripheralCharacteristicOperation : BLEPeripheralServiceOperation <BLEPeripheralCharacteristicOperationDelegate>
 
 @property (readonly) CBCharacteristic *characteristic;
 
@@ -141,7 +153,7 @@
 
 
 
-@protocol BLEPeripheralCharacteristicsDiscoveryDelegate <BLEPeripheralOperationDelegate>
+@protocol BLEPeripheralCharacteristicsDiscoveryDelegate <BLEPeripheralServiceOperationDelegate>
 
 @optional
 - (void)BLEPeripheralCharacteristicsDiscoveryDidUpdateState:(BLEPeripheralCharacteristicsDiscovery *)discovery;
@@ -172,9 +184,22 @@
 
 
 
-@interface BLEPeripheralCharacteristicReading : BLEPeripheralOperation
+@protocol BLEPeripheralCharacteristicReadingDelegate <BLEPeripheralCharacteristicOperationDelegate>
 
-- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic;
+@optional
+- (void)BLEPeripheralCharacteristicReadingDidUpdateState:(BLEPeripheralCharacteristicReading *)reading;
+- (void)BLEPeripheralCharacteristicReadingDidUpdateProgress:(BLEPeripheralCharacteristicReading *)reading;
+
+- (void)BLEPeripheralCharacteristicReadingDidBegin:(BLEPeripheralCharacteristicReading *)reading;
+- (void)BLEPeripheralCharacteristicReadingDidEnd:(BLEPeripheralCharacteristicReading *)reading;
+
+@end
+
+
+
+@interface BLEPeripheralCharacteristicReading : BLEPeripheralCharacteristicOperation
+
+@property (readonly) SurrogateArray<BLEPeripheralCharacteristicReadingDelegate> *delegates;
 
 @end
 
