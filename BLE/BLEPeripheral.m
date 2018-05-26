@@ -16,9 +16,61 @@
 
 
 
-@interface BLEPeripheralConnection ()
+@interface BLEPeripheralOperation ()
 
 @property CBPeripheral *peripheral;
+
+@end
+
+
+
+@implementation BLEPeripheralOperation
+
+@dynamic parent;
+@dynamic delegates;
+
+- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral {
+    self = super.init;
+    if (self) {
+        self.peripheral = peripheral;
+        
+        peripheral.delegate = self.delegates;
+    }
+    return self;
+}
+
+#pragma mark - Helpers
+
+- (void)updateState:(HLPOperationState)state {
+    [super updateState:state];
+    
+    [self.delegates BLEPeripheralOperationDidUpdateState:self];
+    if (state == HLPOperationStateDidBegin) {
+        [self.delegates BLEPeripheralOperationDidBegin:self];
+    } else if (state == HLPOperationStateDidEnd) {
+        [self.delegates BLEPeripheralOperationDidEnd:self];
+    }
+}
+
+- (void)updateProgress:(uint64_t)completedUnitCount {
+    [super updateProgress:completedUnitCount];
+    
+    [self.delegates BLEPeripheralOperationDidUpdateProgress:self];
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface BLEPeripheralConnection ()
+
 @property NSDictionary<NSString *, id> *options;
 @property NSTimeInterval timeout;
 
@@ -28,11 +80,10 @@
 
 @implementation BLEPeripheralConnection
 
-@dynamic parent;
 @dynamic delegates;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout {
-    self = super.init;
+    self = [super initWithPeripheral:peripheral];
     if (self) {
         self.peripheral = peripheral;
         self.options = options;
@@ -107,7 +158,6 @@
 
 @interface BLEPeripheralServicesDiscovery ()
 
-@property CBPeripheral *peripheral;
 @property NSArray<CBUUID *> *services;
 
 @end
@@ -119,14 +169,12 @@
 @dynamic delegates;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral services:(NSArray<CBUUID *> *)services {
-    self = super.init;
+    self = [super initWithPeripheral:peripheral];
     if (self) {
         self.peripheral = peripheral;
         self.services = services;
         
         self.progress.totalUnitCount = services.count;
-        
-        peripheral.delegate = self.delegates;
     }
     return self;
 }
@@ -162,6 +210,60 @@
     [super updateProgress:completedUnitCount];
     
     [self.delegates BLEPeripheralServicesDiscoveryDidUpdateProgress:self];
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface BLEPeripheralCharacteristicsDiscovery ()
+
+@property CBService *service;
+@property NSArray<CBUUID *> *characteristics;
+
+@end
+
+
+
+@implementation BLEPeripheralCharacteristicsDiscovery
+
+@dynamic delegates;
+
+- (instancetype)initWithService:(CBService *)service characteristics:(NSArray<CBUUID *> *)characteristics {
+    self = [super initWithPeripheral:service.peripheral];
+    if (self) {
+        self.service = service;
+        self.characteristics = characteristics;
+        
+        self.progress.totalUnitCount = characteristics.count;
+    }
+    return self;
+}
+
+#pragma mark - Helpers
+
+- (void)updateState:(HLPOperationState)state {
+    [super updateState:state];
+    
+    [self.delegates BLEPeripheralCharacteristicsDiscoveryDidUpdateState:self];
+    if (state == HLPOperationStateDidBegin) {
+        [self.delegates BLEPeripheralCharacteristicsDiscoveryDidBegin:self];
+    } else if (state == HLPOperationStateDidEnd) {
+        [self.delegates BLEPeripheralCharacteristicsDiscoveryDidEnd:self];
+    }
+}
+
+- (void)updateProgress:(uint64_t)completedUnitCount {
+    [super updateProgress:completedUnitCount];
+    
+    [self.delegates BLEPeripheralCharacteristicsDiscoveryDidUpdateProgress:self];
 }
 
 @end
@@ -239,6 +341,18 @@
 
 - (BLEPeripheralServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services completion:(VoidBlock)completion {
     BLEPeripheralServicesDiscovery *discovery = [self peripheral:peripheral discoverServices:services];
+    discovery.completionBlock = completion;
+    return discovery;
+}
+
+- (BLEPeripheralCharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics {
+    BLEPeripheralCharacteristicsDiscovery *discovery = [BLEPeripheralCharacteristicsDiscovery.alloc initWithService:service characteristics:characteristics];
+    [self addOperation:discovery];
+    return discovery;
+}
+
+- (BLEPeripheralCharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics completion:(VoidBlock)completion {
+    BLEPeripheralCharacteristicsDiscovery *discovery = [self service:service discoverCharacteristics:characteristics];
     discovery.completionBlock = completion;
     return discovery;
 }

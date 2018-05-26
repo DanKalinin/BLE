@@ -8,7 +8,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #import <Helpers/Helpers.h>
 
-@class BLEPeripheralConnection, BLEPeripheralServicesDiscovery, BLECentralManager;
+@class BLEPeripheralOperation, BLEPeripheralConnection, BLEPeripheralServicesDiscovery, BLEPeripheralCharacteristicsDiscovery, BLECentralManager;
 
 
 
@@ -19,7 +19,39 @@
 
 
 
-@protocol BLEPeripheralConnectionDelegate <HLPOperationDelegate, CBCentralManagerDelegate>
+@protocol BLEPeripheralOperationDelegate <HLPOperationDelegate, CBPeripheralDelegate>
+
+@optional
+- (void)BLEPeripheralOperationDidUpdateState:(BLEPeripheralOperation *)operation;
+- (void)BLEPeripheralOperationDidUpdateProgress:(BLEPeripheralOperation *)operation;
+
+- (void)BLEPeripheralOperationDidBegin:(BLEPeripheralOperation *)operation;
+- (void)BLEPeripheralOperationDidEnd:(BLEPeripheralOperation *)operation;
+
+@end
+
+
+
+@interface BLEPeripheralOperation : HLPOperation
+
+@property (readonly) BLECentralManager *parent;
+@property (readonly) SurrogateArray<BLEPeripheralOperationDelegate> *delegates;
+@property (readonly) CBPeripheral *peripheral;
+
+- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral;
+
+@end
+
+
+
+
+
+
+
+
+
+
+@protocol BLEPeripheralConnectionDelegate <BLEPeripheralOperationDelegate>
 
 @optional
 - (void)BLEPeripheralConnectionDidUpdateState:(BLEPeripheralConnection *)connection;
@@ -32,11 +64,9 @@
 
 
 
-@interface BLEPeripheralConnection : HLPOperation <BLEPeripheralConnectionDelegate>
+@interface BLEPeripheralConnection : BLEPeripheralOperation <BLEPeripheralConnectionDelegate>
 
-@property (readonly) BLECentralManager *parent;
 @property (readonly) SurrogateArray<BLEPeripheralConnectionDelegate> *delegates;
-@property (readonly) CBPeripheral *peripheral;
 @property (readonly) NSDictionary<NSString *, id> *options;
 @property (readonly) NSTimeInterval timeout;
 
@@ -53,7 +83,7 @@
 
 
 
-@protocol BLEPeripheralServicesDiscoveryDelegate <HLPOperationDelegate, CBPeripheralDelegate>
+@protocol BLEPeripheralServicesDiscoveryDelegate <BLEPeripheralOperationDelegate>
 
 @optional
 - (void)BLEPeripheralServicesDiscoveryDidUpdateState:(BLEPeripheralServicesDiscovery *)discovery;
@@ -66,13 +96,44 @@
 
 
 
-@interface BLEPeripheralServicesDiscovery : HLPOperation <BLEPeripheralServicesDiscoveryDelegate>
+@interface BLEPeripheralServicesDiscovery : BLEPeripheralOperation <BLEPeripheralServicesDiscoveryDelegate>
 
 @property (readonly) SurrogateArray<BLEPeripheralServicesDiscoveryDelegate> *delegates;
-@property (readonly) CBPeripheral *peripheral;
 @property (readonly) NSArray<CBUUID *> *services;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral services:(NSArray<CBUUID *> *)services;
+
+@end
+
+
+
+
+
+
+
+
+
+
+@protocol BLEPeripheralCharacteristicsDiscoveryDelegate <BLEPeripheralOperationDelegate>
+
+@optional
+- (void)BLEPeripheralCharacteristicsDiscoveryDidUpdateState:(BLEPeripheralCharacteristicsDiscovery *)discovery;
+- (void)BLEPeripheralCharacteristicsDiscoveryDidUpdateProgress:(BLEPeripheralCharacteristicsDiscovery *)discovery;
+
+- (void)BLEPeripheralCharacteristicsDiscoveryDidBegin:(BLEPeripheralCharacteristicsDiscovery *)discovery;
+- (void)BLEPeripheralCharacteristicsDiscoveryDidEnd:(BLEPeripheralCharacteristicsDiscovery *)discovery;
+
+@end
+
+
+
+@interface BLEPeripheralCharacteristicsDiscovery : BLEPeripheralOperation <BLEPeripheralCharacteristicsDiscoveryDelegate>
+
+@property (readonly) SurrogateArray<BLEPeripheralCharacteristicsDiscoveryDelegate> *delegates;
+@property (readonly) CBService *service;
+@property (readonly) NSArray<CBUUID *> *characteristics;
+
+- (instancetype)initWithService:(CBService *)service characteristics:(NSArray<CBUUID *> *)characteristics;
 
 @end
 
@@ -106,5 +167,8 @@
 
 - (BLEPeripheralServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services;
 - (BLEPeripheralServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services completion:(VoidBlock)completion;
+
+- (BLEPeripheralCharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics;
+- (BLEPeripheralCharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics completion:(VoidBlock)completion;
 
 @end
