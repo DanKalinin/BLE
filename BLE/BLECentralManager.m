@@ -27,7 +27,6 @@
 @implementation BLEPeripheralOperation
 
 @dynamic parent;
-@dynamic delegates;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral {
     self = super.init;
@@ -119,8 +118,6 @@
 
 @implementation BLEPeripheralConnection
 
-@dynamic delegates;
-
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout {
     self = [super initWithPeripheral:peripheral];
     if (self) {
@@ -164,17 +161,34 @@
     
 }
 
+@end
+
+
+
+
+
+
+
+
+
+
+@interface BLEPeripheralDisconnection ()
+
+@end
+
+
+
+@implementation BLEPeripheralDisconnection
+
+- (void)main {
+    [self.parent.manager cancelPeripheralConnection:self.peripheral];
+}
+
 #pragma mark - Helpers
 
 - (void)updateState:(HLPOperationState)state {
     [super updateState:state];
     
-    [self.delegates BLEPeripheralConnectionDidUpdateState:self];
-    if (state == HLPOperationStateDidBegin) {
-        [self.delegates BLEPeripheralConnectionDidBegin:self];
-    } else if (state == HLPOperationStateDidEnd) {
-        [self.delegates BLEPeripheralConnectionDidEnd:self];
-    }
 }
 
 @end
@@ -198,8 +212,6 @@
 
 @implementation BLEServicesDiscovery
 
-@dynamic delegates;
-
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral services:(NSArray<CBUUID *> *)services {
     self = [super initWithPeripheral:peripheral];
     if (self) {
@@ -220,19 +232,6 @@
     }
     
     dispatch_group_leave(self.group);
-}
-
-#pragma mark - Helpers
-
-- (void)updateState:(HLPOperationState)state {
-    [super updateState:state];
-    
-    [self.delegates BLEServicesDiscoveryDidUpdateState:self];
-    if (state == HLPOperationStateDidBegin) {
-        [self.delegates BLEServicesDiscoveryDidBegin:self];
-    } else if (state == HLPOperationStateDidEnd) {
-        [self.delegates BLEServicesDiscoveryDidEnd:self];
-    }
 }
 
 @end
@@ -256,8 +255,6 @@
 
 @implementation BLECharacteristicsDiscovery
 
-@dynamic delegates;
-
 - (instancetype)initWithService:(CBService *)service characteristics:(NSArray<CBUUID *> *)characteristics {
     self = [super initWithService:service];
     if (self) {
@@ -268,19 +265,6 @@
 
 - (void)main {
     [self.peripheral discoverCharacteristics:self.characteristics forService:self.service];
-}
-
-#pragma mark - Helpers
-
-- (void)updateState:(HLPOperationState)state {
-    [super updateState:state];
-    
-    [self.delegates BLECharacteristicsDiscoveryDidUpdateState:self];
-    if (state == HLPOperationStateDidBegin) {
-        [self.delegates BLECharacteristicsDiscoveryDidBegin:self];
-    } else if (state == HLPOperationStateDidEnd) {
-        [self.delegates BLECharacteristicsDiscoveryDidEnd:self];
-    }
 }
 
 @end
@@ -301,8 +285,6 @@
 
 
 @implementation BLECharacteristicReading
-
-@dynamic delegates;
 
 - (void)main {
     [self.peripheral readValueForCharacteristic:self.characteristic];
@@ -331,8 +313,6 @@
 
 @implementation BLEL2CAPChannelOpening
 
-@dynamic delegates;
-
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral psm:(CBL2CAPPSM)psm {
     self = [super initWithPeripheral:peripheral];
     if (self) {
@@ -346,6 +326,14 @@
 }
 
 #pragma mark - Helpers
+
+- (void)updateState:(HLPOperationState)state {
+    [super updateState:state];
+}
+
+- (void)updateProgress:(uint64_t)completedUnitCount {
+    [super updateProgress:completedUnitCount];
+}
 
 @end
 

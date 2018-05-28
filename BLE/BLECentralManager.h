@@ -28,7 +28,6 @@
 @interface BLEPeripheralOperation : HLPOperation <BLEPeripheralOperationDelegate>
 
 @property (readonly) BLECentralManager *parent;
-@property (readonly) SurrogateArray<BLEPeripheralOperationDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral;
@@ -92,19 +91,12 @@
 
 @protocol BLEPeripheralConnectionDelegate <BLEPeripheralOperationDelegate>
 
-@optional
-- (void)BLEPeripheralConnectionDidUpdateState:(BLEPeripheralConnection *)connection;
-
-- (void)BLEPeripheralConnectionDidBegin:(BLEPeripheralConnection *)connection;
-- (void)BLEPeripheralConnectionDidEnd:(BLEPeripheralConnection *)connection;
-
 @end
 
 
 
 @interface BLEPeripheralConnection : BLEPeripheralOperation <BLEPeripheralConnectionDelegate>
 
-@property (readonly) SurrogateArray<BLEPeripheralConnectionDelegate> *delegates;
 @property (readonly) NSDictionary<NSString *, id> *options;
 @property (readonly) NSTimeInterval timeout;
 
@@ -142,19 +134,12 @@
 
 @protocol BLEServicesDiscoveryDelegate <BLEPeripheralOperationDelegate>
 
-@optional
-- (void)BLEServicesDiscoveryDidUpdateState:(BLEServicesDiscovery *)discovery;
-
-- (void)BLEServicesDiscoveryDidBegin:(BLEServicesDiscovery *)discovery;
-- (void)BLEServicesDiscoveryDidEnd:(BLEServicesDiscovery *)discovery;
-
 @end
 
 
 
 @interface BLEServicesDiscovery : BLEPeripheralOperation <BLEServicesDiscoveryDelegate>
 
-@property (readonly) SurrogateArray<BLEServicesDiscoveryDelegate> *delegates;
 @property (readonly) NSArray<CBUUID *> *services;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral services:(NSArray<CBUUID *> *)services;
@@ -172,19 +157,12 @@
 
 @protocol BLECharacteristicsDiscoveryDelegate <BLEServiceOperationDelegate>
 
-@optional
-- (void)BLECharacteristicsDiscoveryDidUpdateState:(BLECharacteristicsDiscovery *)discovery;
-
-- (void)BLECharacteristicsDiscoveryDidBegin:(BLECharacteristicsDiscovery *)discovery;
-- (void)BLECharacteristicsDiscoveryDidEnd:(BLECharacteristicsDiscovery *)discovery;
-
 @end
 
 
 
 @interface BLECharacteristicsDiscovery : BLEServiceOperation <BLECharacteristicsDiscoveryDelegate>
 
-@property (readonly) SurrogateArray<BLECharacteristicsDiscoveryDelegate> *delegates;
 @property (readonly) NSArray<CBUUID *> *characteristics;
 
 - (instancetype)initWithService:(CBService *)service characteristics:(NSArray<CBUUID *> *)characteristics;
@@ -202,19 +180,11 @@
 
 @protocol BLECharacteristicReadingDelegate <BLECharacteristicOperationDelegate>
 
-@optional
-- (void)BLECharacteristicReadingDidUpdateState:(BLECharacteristicReading *)reading;
-
-- (void)BLECharacteristicReadingDidBegin:(BLECharacteristicReading *)reading;
-- (void)BLECharacteristicReadingDidEnd:(BLECharacteristicReading *)reading;
-
 @end
 
 
 
 @interface BLECharacteristicReading : BLECharacteristicOperation
-
-@property (readonly) SurrogateArray<BLECharacteristicReadingDelegate> *delegates;
 
 @end
 
@@ -235,7 +205,6 @@
 
 @interface BLEL2CAPChannelOpening : BLEPeripheralOperation <BLEL2CAPChannelOpeningDelegate>
 
-@property (readonly) SurrogateArray<BLEL2CAPChannelOpeningDelegate> *delegates;
 @property (readonly) CBL2CAPPSM psm;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral psm:(CBL2CAPPSM)psm;
