@@ -28,6 +28,7 @@
 @interface BLEPeripheralOperation : HLPOperation <BLEPeripheralOperationDelegate>
 
 @property (readonly) BLECentralManager *parent;
+@property (readonly) SurrogateArray<BLEPeripheralOperationDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral;

@@ -27,6 +27,7 @@
 @implementation BLEPeripheralOperation
 
 @dynamic parent;
+@dynamic delegates;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral {
     self = super.init;
