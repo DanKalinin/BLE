@@ -16,100 +16,9 @@
 
 
 
-@interface BLEPeripheralOperation ()
-
-@property CBPeripheral *peripheral;
-
-@end
-
-
-
-@implementation BLEPeripheralOperation
-
-@dynamic parent;
-@dynamic delegates;
-
-- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral {
-    self = super.init;
-    if (self) {
-        self.peripheral = peripheral;
-        
-        peripheral.delegate = self.delegates;
-    }
-    return self;
-}
-
-@end
-
-
-
-
-
-
-
-
-
-
-@interface BLEServiceOperation ()
-
-@property CBService *service;
-
-@end
-
-
-
-@implementation BLEServiceOperation
-
-- (instancetype)initWithService:(CBService *)service {
-    self = [super initWithPeripheral:service.peripheral];
-    if (self) {
-        self.service = service;
-    }
-    return self;
-}
-
-@end
-
-
-
-
-
-
-
-
-
-
-@interface BLECharacteristicOperation ()
-
-@property CBCharacteristic *characteristic;
-
-@end
-
-
-
-@implementation BLECharacteristicOperation
-
-- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic {
-    self = [super initWithService:characteristic.service];
-    if (self) {
-        self.characteristic = characteristic;
-    }
-    return self;
-}
-
-@end
-
-
-
-
-
-
-
-
-
-
 @interface BLEPeripheralConnection ()
 
+@property CBPeripheral *peripheral;
 @property NSDictionary<NSString *, id> *options;
 @property NSTimeInterval timeout;
 
@@ -119,9 +28,12 @@
 
 @implementation BLEPeripheralConnection
 
+@dynamic parent;
+
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout {
-    self = [super initWithPeripheral:peripheral];
+    self = super.init;
     if (self) {
+        self.peripheral = peripheral;
         self.options = options;
         self.timeout = timeout;
     }
@@ -175,21 +87,26 @@
 
 @interface BLEPeripheralDisconnection ()
 
+@property CBPeripheral *peripheral;
+
 @end
 
 
 
 @implementation BLEPeripheralDisconnection
 
-- (void)main {
-    [self.parent.manager cancelPeripheralConnection:self.peripheral];
+@dynamic parent;
+
+- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral {
+    self = super.init;
+    if (self) {
+        self.peripheral = peripheral;
+    }
+    return self;
 }
 
-#pragma mark - Helpers
-
-- (void)updateState:(HLPOperationState)state {
-    [super updateState:state];
-    
+- (void)main {
+    [self.parent.manager cancelPeripheralConnection:self.peripheral];
 }
 
 @end
@@ -205,6 +122,7 @@
 
 @interface BLEServicesDiscovery ()
 
+@property CBPeripheral *peripheral;
 @property NSArray<CBUUID *> *services;
 
 @end
@@ -214,8 +132,9 @@
 @implementation BLEServicesDiscovery
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral services:(NSArray<CBUUID *> *)services {
-    self = [super initWithPeripheral:peripheral];
+    self = super.init;
     if (self) {
+        self.peripheral = peripheral;
         self.services = services;
     }
     return self;
@@ -248,6 +167,7 @@
 
 @interface BLECharacteristicsDiscovery ()
 
+@property CBService *service;
 @property NSArray<CBUUID *> *characteristics;
 
 @end
@@ -257,15 +177,16 @@
 @implementation BLECharacteristicsDiscovery
 
 - (instancetype)initWithService:(CBService *)service characteristics:(NSArray<CBUUID *> *)characteristics {
-    self = [super initWithService:service];
+    self = super.init;
     if (self) {
+        self.service = service;
         self.characteristics = characteristics;
     }
     return self;
 }
 
 - (void)main {
-    [self.peripheral discoverCharacteristics:self.characteristics forService:self.service];
+    [self.service.peripheral discoverCharacteristics:self.characteristics forService:self.service];
 }
 
 @end
@@ -281,17 +202,25 @@
 
 @interface BLECharacteristicReading ()
 
+@property CBCharacteristic *characteristic;
+
 @end
 
 
 
 @implementation BLECharacteristicReading
 
-- (void)main {
-    [self.peripheral readValueForCharacteristic:self.characteristic];
+- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic {
+    self = super.init;
+    if (self) {
+        self.characteristic = characteristic;
+    }
+    return self;
 }
 
-#pragma mark - Helpers
+- (void)main {
+    [self.characteristic.service.peripheral readValueForCharacteristic:self.characteristic];
+}
 
 @end
 
@@ -306,6 +235,7 @@
 
 @interface BLEL2CAPChannelOpening ()
 
+@property CBPeripheral *peripheral;
 @property CBL2CAPPSM psm;
 
 @end
@@ -315,8 +245,9 @@
 @implementation BLEL2CAPChannelOpening
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral psm:(CBL2CAPPSM)psm {
-    self = [super initWithPeripheral:peripheral];
+    self = super.init;
     if (self) {
+        self.peripheral = peripheral;
         self.psm = psm;
     }
     return self;
@@ -324,16 +255,6 @@
 
 - (void)main {
     [self.peripheral openL2CAPChannel:self.psm];
-}
-
-#pragma mark - Helpers
-
-- (void)updateState:(HLPOperationState)state {
-    [super updateState:state];
-}
-
-- (void)updateProgress:(uint64_t)completedUnitCount {
-    [super updateProgress:completedUnitCount];
 }
 
 @end

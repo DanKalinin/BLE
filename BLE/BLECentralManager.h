@@ -8,7 +8,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #import <Helpers/Helpers.h>
 
-@class BLEPeripheralOperation, BLEServiceOperation, BLECharacteristicOperation, BLEPeripheralConnection, BLEPeripheralDisconnection, BLEServicesDiscovery, BLECharacteristicsDiscovery, BLECharacteristicReading, BLEL2CAPChannelOpening, BLECentralManager;
+@class BLEPeripheralConnection, BLEPeripheralDisconnection, BLEServicesDiscovery, BLECharacteristicsDiscovery, BLECharacteristicReading, BLEL2CAPChannelOpening, BLECentralManager;
 
 
 
@@ -19,85 +19,16 @@
 
 
 
-@protocol BLEPeripheralOperationDelegate <HLPOperationDelegate, CBPeripheralDelegate>
+@protocol BLEPeripheralConnectionDelegate <HLPOperationDelegate>
 
 @end
 
 
 
-@interface BLEPeripheralOperation : HLPOperation <BLEPeripheralOperationDelegate>
+@interface BLEPeripheralConnection : HLPOperation <BLEPeripheralConnectionDelegate>
 
 @property (readonly) BLECentralManager *parent;
-@property (readonly) SurrogateArray<BLEPeripheralOperationDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
-
-- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral;
-
-@end
-
-
-
-
-
-
-
-
-
-
-@protocol BLEServiceOperationDelegate <BLEPeripheralOperationDelegate>
-
-@end
-
-
-
-@interface BLEServiceOperation : BLEPeripheralOperation <BLEServiceOperationDelegate>
-
-@property (readonly) CBService *service;
-
-- (instancetype)initWithService:(CBService *)service;
-
-@end
-
-
-
-
-
-
-
-
-
-
-@protocol BLECharacteristicOperationDelegate <BLEServiceOperationDelegate>
-
-@end
-
-
-
-@interface BLECharacteristicOperation : BLEServiceOperation <BLECharacteristicOperationDelegate>
-
-@property (readonly) CBCharacteristic *characteristic;
-
-- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic;
-
-@end
-
-
-
-
-
-
-
-
-
-
-@protocol BLEPeripheralConnectionDelegate <BLEPeripheralOperationDelegate>
-
-@end
-
-
-
-@interface BLEPeripheralConnection : BLEPeripheralOperation <BLEPeripheralConnectionDelegate>
-
 @property (readonly) NSDictionary<NSString *, id> *options;
 @property (readonly) NSTimeInterval timeout;
 
@@ -114,13 +45,18 @@
 
 
 
-@protocol BLEPeripheralDisconnectionDelegate <BLEPeripheralOperationDelegate>
+@protocol BLEPeripheralDisconnectionDelegate <HLPOperationDelegate>
 
 @end
 
 
 
-@interface BLEPeripheralDisconnection : BLEPeripheralOperation <BLEPeripheralDisconnectionDelegate>
+@interface BLEPeripheralDisconnection : HLPOperation <BLEPeripheralDisconnectionDelegate>
+
+@property (readonly) BLECentralManager *parent;
+@property (readonly) CBPeripheral *peripheral;
+
+- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral;
 
 @end
 
@@ -133,14 +69,15 @@
 
 
 
-@protocol BLEServicesDiscoveryDelegate <BLEPeripheralOperationDelegate>
+@protocol BLEServicesDiscoveryDelegate <HLPOperationDelegate>
 
 @end
 
 
 
-@interface BLEServicesDiscovery : BLEPeripheralOperation <BLEServicesDiscoveryDelegate>
+@interface BLEServicesDiscovery : HLPOperation <BLEServicesDiscoveryDelegate>
 
+@property (readonly) CBPeripheral *peripheral;
 @property (readonly) NSArray<CBUUID *> *services;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral services:(NSArray<CBUUID *> *)services;
@@ -156,14 +93,15 @@
 
 
 
-@protocol BLECharacteristicsDiscoveryDelegate <BLEServiceOperationDelegate>
+@protocol BLECharacteristicsDiscoveryDelegate <HLPOperationDelegate>
 
 @end
 
 
 
-@interface BLECharacteristicsDiscovery : BLEServiceOperation <BLECharacteristicsDiscoveryDelegate>
+@interface BLECharacteristicsDiscovery : HLPOperation <BLECharacteristicsDiscoveryDelegate>
 
+@property (readonly) CBService *service;
 @property (readonly) NSArray<CBUUID *> *characteristics;
 
 - (instancetype)initWithService:(CBService *)service characteristics:(NSArray<CBUUID *> *)characteristics;
@@ -179,13 +117,17 @@
 
 
 
-@protocol BLECharacteristicReadingDelegate <BLECharacteristicOperationDelegate>
+@protocol BLECharacteristicReadingDelegate <HLPOperationDelegate>
 
 @end
 
 
 
-@interface BLECharacteristicReading : BLECharacteristicOperation
+@interface BLECharacteristicReading : HLPOperation
+
+@property (readonly) CBCharacteristic *characteristic;
+
+- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic;
 
 @end
 
@@ -198,14 +140,15 @@
 
 
 
-@protocol BLEL2CAPChannelOpeningDelegate <BLEPeripheralOperationDelegate>
+@protocol BLEL2CAPChannelOpeningDelegate <HLPOperationDelegate>
 
 @end
 
 
 
-@interface BLEL2CAPChannelOpening : BLEPeripheralOperation <BLEL2CAPChannelOpeningDelegate>
+@interface BLEL2CAPChannelOpening : HLPOperation <BLEL2CAPChannelOpeningDelegate>
 
+@property (readonly) CBPeripheral *peripheral;
 @property (readonly) CBL2CAPPSM psm;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral psm:(CBL2CAPPSM)psm;
