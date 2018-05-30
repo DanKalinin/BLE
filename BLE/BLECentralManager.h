@@ -212,6 +212,8 @@
 
 @interface CBPeripheral (BLE)
 
+@property NSDictionary<NSString *, id> *advertisement;
+@property NSNumber *rssi;
 @property BLEPeripheralConnection *connection;
 
 @end

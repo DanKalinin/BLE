@@ -387,6 +387,9 @@
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *, id> *)advertisementData RSSI:(NSNumber *)RSSI {
     self.peripheralsByIdentifier[peripheral.identifier] = peripheral;
     self.peripheralsByName[peripheral.name] = peripheral;
+    
+    peripheral.advertisement = advertisementData;
+    peripheral.rssi = RSSI;
 }
 
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
@@ -413,6 +416,22 @@
 
 
 @implementation CBPeripheral (BLE)
+
+- (NSDictionary<NSString *, id> *)advertisement {
+    return self.strongDictionary[NSStringFromSelector(@selector(advertisement))];
+}
+
+- (void)setAdvertisement:(NSDictionary<NSString *, id> *)advertisement {
+    self.strongDictionary[NSStringFromSelector(@selector(advertisement))] = advertisement;
+}
+
+- (NSNumber *)rssi {
+    return self.strongDictionary[NSStringFromSelector(@selector(rssi))];
+}
+
+- (void)setRssi:(NSNumber *)rssi {
+    self.strongDictionary[NSStringFromSelector(@selector(rssi))] = rssi;
+}
 
 - (BLEPeripheralConnection *)connection {
     return self.weakDictionary[NSStringFromSelector(@selector(connection))];
