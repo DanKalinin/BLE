@@ -36,6 +36,8 @@
         self.peripheral = peripheral;
         self.options = options;
         self.timeout = timeout;
+        
+        peripheral.connection = self;
     }
     return self;
 }
@@ -56,22 +58,14 @@
     [self.parent.manager cancelPeripheralConnection:self.peripheral];
 }
 
-#pragma mark - Central manager
+#pragma mark - Helpers
 
-- (void)centralManagerDidUpdateState:(CBCentralManager *)central {
+- (void)endWithError:(NSError *)error {
+    dispatch_group_leave(self.group);
     
-}
-
-- (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
-    
-}
-
-- (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
-    
-}
-
-- (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
-    
+    if (error) {
+        [self.errors addObject:error];
+    }
 }
 
 @end
@@ -147,11 +141,11 @@
 #pragma mark - Peripheral
 
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
+    dispatch_group_leave(self.group);
+    
     if (error) {
         [self.errors addObject:error];
     }
-    
-    dispatch_group_leave(self.group);
 }
 
 @end
@@ -393,6 +387,39 @@
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *, id> *)advertisementData RSSI:(NSNumber *)RSSI {
     self.peripheralsByIdentifier[peripheral.identifier] = peripheral;
     self.peripheralsByName[peripheral.name] = peripheral;
+}
+
+- (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
+    [peripheral.connection endWithError:nil];
+}
+
+- (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
+    [peripheral.connection endWithError:error];
+}
+
+- (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
+    [peripheral.connection endWithError:error];
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
+@implementation CBPeripheral (BLE)
+
+- (BLEPeripheralConnection *)connection {
+    return self.weakDictionary[NSStringFromSelector(@selector(connection))];
+}
+
+- (void)setConnection:(BLEPeripheralConnection *)connection {
+    self.weakDictionary[NSStringFromSelector(@selector(connection))] = connection;
 }
 
 @end

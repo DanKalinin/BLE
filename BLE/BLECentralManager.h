@@ -33,6 +33,7 @@
 @property (readonly) NSTimeInterval timeout;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout;
+- (void)endWithError:(NSError *)error;
 
 @end
 
@@ -197,5 +198,20 @@
 
 - (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm;
 - (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm completion:(VoidBlock)completion;
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface CBPeripheral (BLE)
+
+@property BLEPeripheralConnection *connection;
 
 @end
