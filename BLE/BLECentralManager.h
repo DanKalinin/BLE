@@ -165,7 +165,7 @@
 
 
 
-@protocol BLECentralManagerDelegate <HLPOperationDelegate, CBCentralManagerDelegate>
+@protocol BLECentralManagerDelegate <BLEPeripheralConnectionDelegate, BLEPeripheralDisconnectionDelegate, BLEServicesDiscoveryDelegate, BLECharacteristicsDiscoveryDelegate, BLECharacteristicReadingDelegate, BLEL2CAPChannelOpeningDelegate, CBCentralManagerDelegate>
 
 @end
 
