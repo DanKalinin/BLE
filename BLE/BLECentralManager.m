@@ -381,7 +381,7 @@
 #pragma mark - Central manager
 
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
-    
+    [self updateState:(HLPOperationState)central.state];
 }
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *, id> *)advertisementData RSSI:(NSNumber *)RSSI {
