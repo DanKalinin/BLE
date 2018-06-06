@@ -277,7 +277,7 @@
 
 @dynamic delegates;
 
-- (instancetype)initWithOptions:(NSDictionary<NSString *,id> *)options {
+- (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options {
     self = super.init;
     if (self) {
         self.options = options;
