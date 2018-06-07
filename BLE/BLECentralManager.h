@@ -175,7 +175,7 @@
 
 @property (readonly) SurrogateArray<BLECentralManagerDelegate> *delegates;
 @property (readonly) NSDictionary<NSString *, id> *options;
-@property (readonly) CBCentralManager *manager;
+@property (readonly) CBCentralManager *central;
 @property (readonly) NSMutableDictionary<NSUUID *, CBPeripheral *> *peripheralsByIdentifier;
 @property (readonly) NSMutableDictionary<NSString *, CBPeripheral *> *peripheralsByName;
 

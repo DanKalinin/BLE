@@ -46,7 +46,7 @@
     [self updateState:HLPOperationStateDidBegin];
     
     dispatch_group_enter(self.group);
-    [self.parent.manager connectPeripheral:self.peripheral options:self.options];
+    [self.parent.central connectPeripheral:self.peripheral options:self.options];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER); // TODO: timeout
     
     [self updateState:HLPOperationStateDidEnd];
@@ -55,7 +55,7 @@
 - (void)cancel {
     [super cancel];
     
-    [self.parent.manager cancelPeripheralConnection:self.peripheral];
+    [self.parent.central cancelPeripheralConnection:self.peripheral];
 }
 
 #pragma mark - Helpers
@@ -100,7 +100,7 @@
 }
 
 - (void)main {
-    [self.parent.manager cancelPeripheralConnection:self.peripheral];
+    [self.parent.central cancelPeripheralConnection:self.peripheral];
 }
 
 @end
@@ -265,7 +265,7 @@
 @interface BLECentralManager ()
 
 @property NSDictionary<NSString *, id> *options;
-@property CBCentralManager *manager;
+@property CBCentralManager *central;
 @property NSMutableDictionary<NSUUID *, CBPeripheral *> *peripheralsByIdentifier;
 @property NSMutableDictionary<NSString *, CBPeripheral *> *peripheralsByName;
 
@@ -282,7 +282,7 @@
     if (self) {
         self.options = options;
         
-        self.manager = [CBCentralManager.alloc initWithDelegate:self.delegates queue:nil options:options];
+        self.central = [CBCentralManager.alloc initWithDelegate:self.delegates queue:nil options:options];
         
         self.peripheralsByIdentifier = NSMutableDictionary.dictionary;
         self.peripheralsByName = NSMutableDictionary.dictionary;
@@ -301,7 +301,7 @@
 }
 
 - (void)cancel {
-    [self.manager stopScan];
+    [self.central stopScan];
     
     [self updateState:HLPOperationStateDidEnd];
 }
@@ -381,7 +381,6 @@
 #pragma mark - Central manager
 
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
-    [self updateState:(HLPOperationState)central.state];
 }
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *, id> *)advertisementData RSSI:(NSNumber *)RSSI {
