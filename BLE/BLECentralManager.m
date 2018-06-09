@@ -49,26 +49,16 @@
     [self.parent.central connectPeripheral:self.peripheral options:self.options];
     long result = dispatch_group_wait(self.group, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.timeout * NSEC_PER_SEC)));
     
-    if (self.cancelled) {
-        [self.parent.central cancelPeripheralConnection:self.peripheral];
+    if (result == 0) {
     } else {
-        if (result == 0) {
-        } else {
-            NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
-            [self.errors addObject:error];
-            
-            BLEPeripheralDisconnection *disconnection = [self.parent disconnectPeripheral:self.peripheral];
-            [disconnection waitUntilFinished];
-        }
+        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
+        [self.errors addObject:error];
+        
+        BLEPeripheralDisconnection *disconnection = [self.parent disconnectPeripheral:self.peripheral];
+        [disconnection waitUntilFinished];
     }
     
     [self updateState:HLPOperationStateDidEnd];
-}
-
-- (void)cancel {
-    [super cancel];
-    
-    dispatch_group_leave(self.group);
 }
 
 #pragma mark - Helpers
@@ -148,17 +138,23 @@
 
 @implementation BLEServicesDiscovery
 
+@dynamic delegates;
+
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral services:(NSArray<CBUUID *> *)services {
     self = super.init;
     if (self) {
         self.peripheral = peripheral;
         self.services = services;
+        
+        peripheral.delegate = self.delegates;
     }
     return self;
 }
 
 - (void)main {
+    dispatch_group_enter(self.group);
     [self.peripheral discoverServices:self.services];
+    dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
 }
 
 #pragma mark - Peripheral

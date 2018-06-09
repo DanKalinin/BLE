@@ -71,7 +71,7 @@
 
 
 
-@protocol BLEServicesDiscoveryDelegate <HLPOperationDelegate>
+@protocol BLEServicesDiscoveryDelegate <HLPOperationDelegate, CBPeripheralDelegate>
 
 @end
 
@@ -79,6 +79,7 @@
 
 @interface BLEServicesDiscovery : HLPOperation <BLEServicesDiscoveryDelegate>
 
+@property (readonly) SurrogateArray<BLEServicesDiscoveryDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
 @property (readonly) NSArray<CBUUID *> *services;
 
