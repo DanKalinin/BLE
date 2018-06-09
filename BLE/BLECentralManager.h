@@ -58,7 +58,7 @@
 @property (readonly) CBPeripheral *peripheral;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral;
-- (void)endWithError:(NSError *)error;
+- (void)end;
 
 @end
 

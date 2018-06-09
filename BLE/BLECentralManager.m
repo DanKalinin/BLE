@@ -47,14 +47,19 @@
     
     dispatch_group_enter(self.group);
     [self.parent.central connectPeripheral:self.peripheral options:self.options];
-    dispatch_group_wait(self.group, self.timeout * NSEC_PER_SEC);
+    long result = dispatch_group_wait(self.group, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.timeout * NSEC_PER_SEC)));
     
-    if (self.peripheral.state == CBPeripheralStateConnected) {
-    } else {
-        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
-        [self.errors addObject:error];
-        
+    if (self.cancelled) {
         [self.parent.central cancelPeripheralConnection:self.peripheral];
+    } else {
+        if (result == 0) {
+        } else {
+            NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
+            [self.errors addObject:error];
+            
+            BLEPeripheralDisconnection *disconnection = [self.parent disconnectPeripheral:self.peripheral];
+            [disconnection waitUntilFinished];
+        }
     }
     
     [self updateState:HLPOperationStateDidEnd];
@@ -63,7 +68,7 @@
 - (void)cancel {
     [super cancel];
     
-    [self.parent.central cancelPeripheralConnection:self.peripheral];
+    dispatch_group_leave(self.group);
 }
 
 #pragma mark - Helpers
@@ -103,12 +108,22 @@
     self = super.init;
     if (self) {
         self.peripheral = peripheral;
+        
+        peripheral.disconnection = self;
     }
     return self;
 }
 
 - (void)main {
+    dispatch_group_enter(self.group);
     [self.parent.central cancelPeripheralConnection:self.peripheral];
+    dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
+}
+
+#pragma mark - Helpers
+
+- (void)end {
+    dispatch_group_leave(self.group);
 }
 
 @end
@@ -404,8 +419,7 @@
 }
 
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
-    [peripheral.connection endWithError:error];
-    [peripheral.disconnection endWithError:error];
+    [peripheral.disconnection end];
 }
 
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
