@@ -58,6 +58,7 @@
 @property (readonly) CBPeripheral *peripheral;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral;
+- (void)endWithError:(NSError *)error;
 
 @end
 
@@ -215,5 +216,6 @@
 @property NSDictionary<NSString *, id> *advertisement;
 @property NSNumber *rssi;
 @property BLEPeripheralConnection *connection;
+@property BLEPeripheralDisconnection *disconnection;
 
 @end

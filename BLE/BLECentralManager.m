@@ -47,7 +47,15 @@
     
     dispatch_group_enter(self.group);
     [self.parent.central connectPeripheral:self.peripheral options:self.options];
-    dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER); // TODO: timeout
+    dispatch_group_wait(self.group, self.timeout * NSEC_PER_SEC);
+    
+    if (self.peripheral.state == CBPeripheralStateConnected) {
+    } else {
+        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
+        [self.errors addObject:error];
+        
+        [self.parent.central cancelPeripheralConnection:self.peripheral];
+    }
     
     [self updateState:HLPOperationStateDidEnd];
 }
@@ -397,6 +405,7 @@
 
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
     [peripheral.connection endWithError:error];
+    [peripheral.disconnection endWithError:error];
 }
 
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
@@ -438,6 +447,14 @@
 
 - (void)setConnection:(BLEPeripheralConnection *)connection {
     self.weakDictionary[NSStringFromSelector(@selector(connection))] = connection;
+}
+
+- (BLEPeripheralDisconnection *)disconnection {
+    return self.weakDictionary[NSStringFromSelector(@selector(disconnection))];
+}
+
+- (void)setDisconnection:(BLEPeripheralDisconnection *)disconnection {
+    self.weakDictionary[NSStringFromSelector(@selector(disconnection))] = disconnection;
 }
 
 @end
