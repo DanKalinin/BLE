@@ -96,7 +96,7 @@
 
 
 
-@protocol BLECharacteristicsDiscoveryDelegate <HLPOperationDelegate>
+@protocol BLECharacteristicsDiscoveryDelegate <HLPOperationDelegate, CBPeripheralDelegate>
 
 @end
 
@@ -104,6 +104,7 @@
 
 @interface BLECharacteristicsDiscovery : HLPOperation <BLECharacteristicsDiscoveryDelegate>
 
+@property (readonly) SurrogateArray<BLECharacteristicsDiscoveryDelegate> *delegates;
 @property (readonly) CBService *service;
 @property (readonly) NSArray<CBUUID *> *characteristics;
 

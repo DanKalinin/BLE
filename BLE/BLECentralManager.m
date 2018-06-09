@@ -189,17 +189,33 @@
 
 @implementation BLECharacteristicsDiscovery
 
+@dynamic delegates;
+
 - (instancetype)initWithService:(CBService *)service characteristics:(NSArray<CBUUID *> *)characteristics {
     self = super.init;
     if (self) {
         self.service = service;
         self.characteristics = characteristics;
+        
+        service.peripheral.delegate = self.delegates;
     }
     return self;
 }
 
 - (void)main {
+    dispatch_group_enter(self.group);
     [self.service.peripheral discoverCharacteristics:self.characteristics forService:self.service];
+    dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
+}
+
+#pragma mark - Peripheral
+
+- (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
+    dispatch_group_leave(self.group);
+    
+    if (error) {
+        [self.errors addObject:error];
+    }
 }
 
 @end
