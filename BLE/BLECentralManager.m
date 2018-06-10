@@ -43,7 +43,7 @@
         peripheral.connection = self;
         
         dispatch_group_enter(self.group);
-        self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
+        self.timer = [HLPClock.shared timerWithInterval:timeout repeats:1 completion:^{
             dispatch_group_leave(self.group);
         }];
     }
@@ -115,6 +115,8 @@
         self.peripheral = peripheral;
         
         peripheral.disconnection = self;
+        
+        dispatch_group_enter(self.group);
     }
     return self;
 }
@@ -122,11 +124,16 @@
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
     
-    dispatch_group_enter(self.group);
     [self.parent.central cancelPeripheralConnection:self.peripheral];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
     [self updateState:HLPOperationStateDidEnd];
+}
+
+- (void)cancel {
+    [super cancel];
+    
+    dispatch_group_leave(self.group);
 }
 
 #pragma mark - Helpers
@@ -150,6 +157,10 @@
 
 @property CBPeripheral *peripheral;
 @property NSArray<CBUUID *> *services;
+@property NSTimeInterval timeout;
+
+@property (weak) HLPTimer *timer;
+@property (weak) BLEPeripheralDisconnection *disconnection;
 
 @end
 
@@ -159,13 +170,19 @@
 
 @dynamic delegates;
 
-- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral services:(NSArray<CBUUID *> *)services {
+- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral services:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout {
     self = super.init;
     if (self) {
         self.peripheral = peripheral;
         self.services = services;
+        self.timeout = timeout;
         
         peripheral.delegate = self.delegates;
+        
+        dispatch_group_enter(self.group);
+        self.timer = [HLPClock.shared timerWithInterval:timeout repeats:1 completion:^{
+            dispatch_group_leave(self.group);
+        }];
     }
     return self;
 }
@@ -173,17 +190,33 @@
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
     
-    dispatch_group_enter(self.group);
     [self.peripheral discoverServices:self.services];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
+    if (self.timer.cancelled) {
+    } else {
+        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
+        [self.errors addObject:error];
+    }
+    
+    if (self.cancelled || (self.errors.count > 0)) {
+        self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
+        [self.disconnection waitUntilFinished];
+    }
+    
     [self updateState:HLPOperationStateDidEnd];
+}
+
+- (void)cancel {
+    [super cancel];
+    
+    [self.timer cancel];
 }
 
 #pragma mark - Peripheral
 
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
-    dispatch_group_leave(self.group);
+    [self.timer cancel];
     
     if (error) {
         [self.errors addObject:error];
@@ -313,6 +346,10 @@
 
 @property CBPeripheral *peripheral;
 @property CBL2CAPPSM psm;
+@property NSTimeInterval timeout;
+
+@property (weak) HLPTimer *timer;
+@property (weak) BLEPeripheralDisconnection *disconnection;
 
 @end
 
@@ -322,13 +359,19 @@
 
 @dynamic delegates;
 
-- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral psm:(CBL2CAPPSM)psm {
+- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral psm:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout {
     self = super.init;
     if (self) {
         self.peripheral = peripheral;
         self.psm = psm;
+        self.timeout = timeout;
         
         peripheral.delegate = self.delegates;
+        
+        dispatch_group_enter(self.group);
+        self.timer = [HLPClock.shared timerWithInterval:timeout repeats:1 completion:^{
+            dispatch_group_leave(self.group);
+        }];
     }
     return self;
 }
@@ -336,17 +379,33 @@
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
     
-    dispatch_group_enter(self.group);
     [self.peripheral openL2CAPChannel:self.psm];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
+    if (self.timer.cancelled) {
+    } else {
+        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
+        [self.errors addObject:error];
+    }
+    
+    if (self.cancelled || (self.errors.count > 0)) {
+        self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
+        [self.disconnection waitUntilFinished];
+    }
+    
     [self updateState:HLPOperationStateDidEnd];
+}
+
+- (void)cancel {
+    [super cancel];
+    
+    [self.timer cancel];
 }
 
 #pragma mark - Peripheral
 
 - (void)peripheral:(CBPeripheral *)peripheral didOpenL2CAPChannel:(CBL2CAPChannel *)channel error:(NSError *)error {
-    dispatch_group_leave(self.group);
+    [self.timer cancel];
     
     if (error) {
         [self.errors addObject:error];
@@ -432,14 +491,14 @@
     return disconnection;
 }
 
-- (BLEServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services {
-    BLEServicesDiscovery *discovery = [BLEServicesDiscovery.alloc initWithPeripheral:peripheral services:services];
+- (BLEServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout {
+    BLEServicesDiscovery *discovery = [BLEServicesDiscovery.alloc initWithPeripheral:peripheral services:services timeout:timeout];
     [self addOperation:discovery];
     return discovery;
 }
 
-- (BLEServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services completion:(VoidBlock)completion {
-    BLEServicesDiscovery *discovery = [self peripheral:peripheral discoverServices:services];
+- (BLEServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout completion:(VoidBlock)completion {
+    BLEServicesDiscovery *discovery = [self peripheral:peripheral discoverServices:services timeout:timeout];
     discovery.completionBlock = completion;
     return discovery;
 }
@@ -468,14 +527,14 @@
     return reading;
 }
 
-- (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm {
-    BLEL2CAPChannelOpening *opening = [BLEL2CAPChannelOpening.alloc initWithPeripheral:peripheral psm:psm];
+- (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout {
+    BLEL2CAPChannelOpening *opening = [BLEL2CAPChannelOpening.alloc initWithPeripheral:peripheral psm:psm timeout:timeout];
     [self addOperation:opening];
     return opening;
 }
 
-- (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm completion:(VoidBlock)completion {
-    BLEL2CAPChannelOpening *opening = [self peripheral:peripheral openL2CAPChannel:psm];
+- (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout completion:(VoidBlock)completion {
+    BLEL2CAPChannelOpening *opening = [self peripheral:peripheral openL2CAPChannel:psm timeout:timeout];
     opening.completionBlock = completion;
     return opening;
 }

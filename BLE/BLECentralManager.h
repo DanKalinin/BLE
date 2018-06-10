@@ -85,8 +85,12 @@
 @property (readonly) SurrogateArray<BLEServicesDiscoveryDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
 @property (readonly) NSArray<CBUUID *> *services;
+@property (readonly) NSTimeInterval timeout;
 
-- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral services:(NSArray<CBUUID *> *)services;
+@property (weak, readonly) HLPTimer *timer;
+@property (weak, readonly) BLEPeripheralDisconnection *disconnection;
+
+- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral services:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout;
 
 @end
 
@@ -159,8 +163,12 @@
 @property (readonly) SurrogateArray<BLEL2CAPChannelOpeningDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
 @property (readonly) CBL2CAPPSM psm;
+@property (readonly) NSTimeInterval timeout;
 
-- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral psm:(CBL2CAPPSM)psm;
+@property (weak, readonly) HLPTimer *timer;
+@property (weak, readonly) BLEPeripheralDisconnection *disconnection;
+
+- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral psm:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout;
 
 @end
 
@@ -195,8 +203,8 @@
 - (BLEPeripheralDisconnection *)disconnectPeripheral:(CBPeripheral *)peripheral;
 - (BLEPeripheralDisconnection *)disconnectPeripheral:(CBPeripheral *)peripheral completion:(VoidBlock)completion;
 
-- (BLEServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services;
-- (BLEServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services completion:(VoidBlock)completion;
+- (BLEServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout;
+- (BLEServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout completion:(VoidBlock)completion;
 
 - (BLECharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics;
 - (BLECharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics completion:(VoidBlock)completion;
@@ -204,8 +212,8 @@
 - (BLECharacteristicReading *)readCharacteristic:(CBCharacteristic *)characteristic;
 - (BLECharacteristicReading *)readCharacteristic:(CBCharacteristic *)characteristic completion:(VoidBlock)completion;
 
-- (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm;
-- (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm completion:(VoidBlock)completion;
+- (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout;
+- (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout completion:(VoidBlock)completion;
 
 @end
 
