@@ -41,6 +41,11 @@
         self.timeout = timeout;
         
         peripheral.connection = self;
+        
+        dispatch_group_enter(self.group);
+        self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
+            dispatch_group_leave(self.group);
+        }];
     }
     return self;
 }
@@ -48,11 +53,6 @@
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
     
-    self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
-        dispatch_group_leave(self.group);
-    }];
-    
-    dispatch_group_enter(self.group);
     [self.parent.central connectPeripheral:self.peripheral options:self.options];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
@@ -60,12 +60,20 @@
     } else {
         NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
         [self.errors addObject:error];
-        
+    }
+    
+    if (self.cancelled || (self.errors.count > 0)) {
         self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
         [self.disconnection waitUntilFinished];
     }
     
     [self updateState:HLPOperationStateDidEnd];
+}
+
+- (void)cancel {
+    [super cancel];
+    
+    [self.timer cancel];
 }
 
 #pragma mark - Helpers
