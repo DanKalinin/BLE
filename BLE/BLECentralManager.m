@@ -22,6 +22,9 @@
 @property NSDictionary<NSString *, id> *options;
 @property NSTimeInterval timeout;
 
+@property (weak) HLPTimer *timer;
+@property (weak) BLEPeripheralDisconnection *disconnection;
+
 @end
 
 
@@ -45,17 +48,21 @@
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
     
+    self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
+        dispatch_group_leave(self.group);
+    }];
+    
     dispatch_group_enter(self.group);
     [self.parent.central connectPeripheral:self.peripheral options:self.options];
-    long result = dispatch_group_wait(self.group, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.timeout * NSEC_PER_SEC)));
+    dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
-    if (result == 0) {
+    if (self.timer.cancelled) {
     } else {
         NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
         [self.errors addObject:error];
         
-        BLEPeripheralDisconnection *disconnection = [self.parent disconnectPeripheral:self.peripheral];
-        [disconnection waitUntilFinished];
+        self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
+        [self.disconnection waitUntilFinished];
     }
     
     [self updateState:HLPOperationStateDidEnd];
@@ -64,7 +71,7 @@
 #pragma mark - Helpers
 
 - (void)endWithError:(NSError *)error {
-    dispatch_group_leave(self.group);
+    [self.timer cancel];
     
     if (error) {
         [self.errors addObject:error];
