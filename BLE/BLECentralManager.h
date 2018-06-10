@@ -121,14 +121,15 @@
 
 
 
-@protocol BLECharacteristicReadingDelegate <HLPOperationDelegate>
+@protocol BLECharacteristicReadingDelegate <HLPOperationDelegate, CBPeripheralDelegate>
 
 @end
 
 
 
-@interface BLECharacteristicReading : HLPOperation
+@interface BLECharacteristicReading : HLPOperation <BLECharacteristicReadingDelegate>
 
+@property (readonly) SurrogateArray<BLECharacteristicReadingDelegate> *delegates;
 @property (readonly) CBCharacteristic *characteristic;
 
 - (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic;
@@ -144,7 +145,7 @@
 
 
 
-@protocol BLEL2CAPChannelOpeningDelegate <HLPOperationDelegate>
+@protocol BLEL2CAPChannelOpeningDelegate <HLPOperationDelegate, CBPeripheralDelegate>
 
 @end
 
@@ -152,6 +153,7 @@
 
 @interface BLEL2CAPChannelOpening : HLPOperation <BLEL2CAPChannelOpeningDelegate>
 
+@property (readonly) SurrogateArray<BLEL2CAPChannelOpeningDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
 @property (readonly) CBL2CAPPSM psm;
 

@@ -105,9 +105,13 @@
 }
 
 - (void)main {
+    [self updateState:HLPOperationStateDidBegin];
+    
     dispatch_group_enter(self.group);
     [self.parent.central cancelPeripheralConnection:self.peripheral];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
+    
+    [self updateState:HLPOperationStateDidEnd];
 }
 
 #pragma mark - Helpers
@@ -152,9 +156,13 @@
 }
 
 - (void)main {
+    [self updateState:HLPOperationStateDidBegin];
+    
     dispatch_group_enter(self.group);
     [self.peripheral discoverServices:self.services];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
+    
+    [self updateState:HLPOperationStateDidEnd];
 }
 
 #pragma mark - Peripheral
@@ -203,9 +211,13 @@
 }
 
 - (void)main {
+    [self updateState:HLPOperationStateDidBegin];
+    
     dispatch_group_enter(self.group);
     [self.service.peripheral discoverCharacteristics:self.characteristics forService:self.service];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
+    
+    [self updateState:HLPOperationStateDidEnd];
 }
 
 #pragma mark - Peripheral
@@ -239,16 +251,36 @@
 
 @implementation BLECharacteristicReading
 
+@dynamic delegates;
+
 - (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic {
     self = super.init;
     if (self) {
         self.characteristic = characteristic;
+        
+        characteristic.service.peripheral.delegate = self.delegates;
     }
     return self;
 }
 
 - (void)main {
+    [self updateState:HLPOperationStateDidBegin];
+    
+    dispatch_group_enter(self.group);
     [self.characteristic.service.peripheral readValueForCharacteristic:self.characteristic];
+    dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
+    
+    [self updateState:HLPOperationStateDidEnd];
+}
+
+#pragma mark - Peripheral
+
+- (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
+    dispatch_group_leave(self.group);
+    
+    if (error) {
+        [self.errors addObject:error];
+    }
 }
 
 @end
@@ -273,17 +305,37 @@
 
 @implementation BLEL2CAPChannelOpening
 
+@dynamic delegates;
+
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral psm:(CBL2CAPPSM)psm {
     self = super.init;
     if (self) {
         self.peripheral = peripheral;
         self.psm = psm;
+        
+        peripheral.delegate = self.delegates;
     }
     return self;
 }
 
 - (void)main {
+    [self updateState:HLPOperationStateDidBegin];
+    
+    dispatch_group_enter(self.group);
     [self.peripheral openL2CAPChannel:self.psm];
+    dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
+    
+    [self updateState:HLPOperationStateDidEnd];
+}
+
+#pragma mark - Peripheral
+
+- (void)peripheral:(CBPeripheral *)peripheral didOpenL2CAPChannel:(CBL2CAPChannel *)channel error:(NSError *)error {
+    dispatch_group_leave(self.group);
+    
+    if (error) {
+        [self.errors addObject:error];
+    }
 }
 
 @end
