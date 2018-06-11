@@ -41,11 +41,6 @@
         self.timeout = timeout;
         
         peripheral.connection = self;
-        
-        dispatch_group_enter(self.group);
-        self.timer = [HLPClock.shared timerWithInterval:timeout repeats:1 completion:^{
-            dispatch_group_leave(self.group);
-        }];
     }
     return self;
 }
@@ -53,7 +48,11 @@
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
     
+    dispatch_group_enter(self.group);
     [self.parent.central connectPeripheral:self.peripheral options:self.options];
+    self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
+        dispatch_group_leave(self.group);
+    }];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
     if (self.timer.cancelled) {
@@ -178,11 +177,6 @@
         self.timeout = timeout;
         
         peripheral.delegate = self.delegates;
-        
-        dispatch_group_enter(self.group);
-        self.timer = [HLPClock.shared timerWithInterval:timeout repeats:1 completion:^{
-            dispatch_group_leave(self.group);
-        }];
     }
     return self;
 }
@@ -190,7 +184,11 @@
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
     
+    dispatch_group_enter(self.group);
     [self.peripheral discoverServices:self.services];
+    self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
+        dispatch_group_leave(self.group);
+    }];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
     if (self.timer.cancelled) {
@@ -367,11 +365,6 @@
         self.timeout = timeout;
         
         peripheral.delegate = self.delegates;
-        
-        dispatch_group_enter(self.group);
-        self.timer = [HLPClock.shared timerWithInterval:timeout repeats:1 completion:^{
-            dispatch_group_leave(self.group);
-        }];
     }
     return self;
 }
@@ -379,7 +372,11 @@
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
     
+    dispatch_group_enter(self.group);
     [self.peripheral openL2CAPChannel:self.psm];
+    self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
+        dispatch_group_leave(self.group);
+    }];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
     if (self.timer.cancelled) {
