@@ -7,6 +7,7 @@
 
 #import <CoreBluetooth/CoreBluetooth.h>
 #import <Helpers/Helpers.h>
+#import "BLEMain.h"
 
 @class BLEPeripheralConnection, BLEPeripheralDisconnection, BLEServicesDiscovery, BLECharacteristicsDiscovery, BLECharacteristicReading, BLEL2CAPChannelOpening, BLECentralManager;
 

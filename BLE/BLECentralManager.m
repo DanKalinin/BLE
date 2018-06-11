@@ -192,6 +192,10 @@
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
     if (self.timer.cancelled) {
+        if (self.peripheral.services.count < self.services.count) {
+            NSError *error = [NSError errorWithDomain:BLEErrorDomain code:BLEErrorLessServicesDiscovered userInfo:nil];
+            [self.errors addObject:error];
+        }
     } else {
         NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
         [self.errors addObject:error];
