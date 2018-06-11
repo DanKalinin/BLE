@@ -117,6 +117,9 @@
 @property (readonly) NSArray<CBUUID *> *characteristics;
 @property (readonly) NSTimeInterval timeout;
 
+@property (weak, readonly) HLPTimer *timer;
+@property (weak, readonly) BLEPeripheralDisconnection *disconnection;
+
 - (instancetype)initWithService:(CBService *)service characteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout;
 
 @end
@@ -140,8 +143,12 @@
 
 @property (readonly) SurrogateArray<BLECharacteristicReadingDelegate> *delegates;
 @property (readonly) CBCharacteristic *characteristic;
+@property (readonly) NSTimeInterval timeout;
 
-- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic;
+@property (weak, readonly) HLPTimer *timer;
+@property (weak, readonly) BLEPeripheralDisconnection *disconnection;
+
+- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic timeout:(NSTimeInterval)timeout;
 
 @end
 
@@ -211,8 +218,8 @@
 - (BLECharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout;
 - (BLECharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout completion:(VoidBlock)completion;
 
-- (BLECharacteristicReading *)readCharacteristic:(CBCharacteristic *)characteristic;
-- (BLECharacteristicReading *)readCharacteristic:(CBCharacteristic *)characteristic completion:(VoidBlock)completion;
+- (BLECharacteristicReading *)readCharacteristic:(CBCharacteristic *)characteristic timeout:(NSTimeInterval)timeout;
+- (BLECharacteristicReading *)readCharacteristic:(CBCharacteristic *)characteristic timeout:(NSTimeInterval)timeout completion:(VoidBlock)completion;
 
 - (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout;
 - (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout completion:(VoidBlock)completion;

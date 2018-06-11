@@ -293,6 +293,12 @@
     [self updateState:HLPOperationStateDidEnd];
 }
 
+- (void)cancel {
+    [super cancel];
+    
+    [self.timer cancel];
+}
+
 #pragma mark - Peripheral
 
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
@@ -317,6 +323,10 @@
 @interface BLECharacteristicReading ()
 
 @property CBCharacteristic *characteristic;
+@property NSTimeInterval timeout;
+
+@property (weak) HLPTimer *timer;
+@property (weak) BLEPeripheralDisconnection *disconnection;
 
 @end
 
@@ -326,10 +336,11 @@
 
 @dynamic delegates;
 
-- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic {
+- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic timeout:(NSTimeInterval)timeout {
     self = super.init;
     if (self) {
         self.characteristic = characteristic;
+        self.timeout = timeout;
         
         characteristic.service.peripheral.delegate = self.delegates;
     }
@@ -341,15 +352,35 @@
     
     dispatch_group_enter(self.group);
     [self.characteristic.service.peripheral readValueForCharacteristic:self.characteristic];
+    self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
+        dispatch_group_leave(self.group);
+    }];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
+    if (self.timer.cancelled) {
+    } else {
+        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
+        [self.errors addObject:error];
+    }
+    
+    if (self.cancelled || (self.errors.count > 0)) {
+        self.disconnection = [self.parent disconnectPeripheral:self.characteristic.service.peripheral];
+        [self.disconnection waitUntilFinished];
+    }
+    
     [self updateState:HLPOperationStateDidEnd];
+}
+
+- (void)cancel {
+    [super cancel];
+    
+    [self.timer cancel];
 }
 
 #pragma mark - Peripheral
 
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
-    dispatch_group_leave(self.group);
+    [self.timer cancel];
     
     if (error) {
         [self.errors addObject:error];
@@ -539,14 +570,14 @@
     return discovery;
 }
 
-- (BLECharacteristicReading *)readCharacteristic:(CBCharacteristic *)characteristic {
-    BLECharacteristicReading *reading = [BLECharacteristicReading.alloc initWithCharacteristic:characteristic];
+- (BLECharacteristicReading *)readCharacteristic:(CBCharacteristic *)characteristic timeout:(NSTimeInterval)timeout {
+    BLECharacteristicReading *reading = [BLECharacteristicReading.alloc initWithCharacteristic:characteristic timeout:timeout];
     [self addOperation:reading];
     return reading;
 }
 
-- (BLECharacteristicReading *)readCharacteristic:(CBCharacteristic *)characteristic completion:(VoidBlock)completion {
-    BLECharacteristicReading *reading = [self readCharacteristic:characteristic];
+- (BLECharacteristicReading *)readCharacteristic:(CBCharacteristic *)characteristic timeout:(NSTimeInterval)timeout completion:(VoidBlock)completion {
+    BLECharacteristicReading *reading = [self readCharacteristic:characteristic timeout:timeout];
     reading.completionBlock = completion;
     return reading;
 }
