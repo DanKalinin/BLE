@@ -240,6 +240,10 @@
 
 @property CBService *service;
 @property NSArray<CBUUID *> *characteristics;
+@property NSTimeInterval timeout;
+
+@property (weak) HLPTimer *timer;
+@property (weak) BLEPeripheralDisconnection *disconnection;
 
 @end
 
@@ -249,11 +253,12 @@
 
 @dynamic delegates;
 
-- (instancetype)initWithService:(CBService *)service characteristics:(NSArray<CBUUID *> *)characteristics {
+- (instancetype)initWithService:(CBService *)service characteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout {
     self = super.init;
     if (self) {
         self.service = service;
         self.characteristics = characteristics;
+        self.timeout = timeout;
         
         service.peripheral.delegate = self.delegates;
     }
@@ -265,7 +270,25 @@
     
     dispatch_group_enter(self.group);
     [self.service.peripheral discoverCharacteristics:self.characteristics forService:self.service];
+    self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
+        dispatch_group_leave(self.group);
+    }];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
+    
+    if (self.timer.cancelled) {
+        if (self.service.characteristics.count < self.characteristics.count) {
+            NSError *error = [NSError errorWithDomain:BLEErrorDomain code:BLEErrorLessCharacteristicsDiscovered userInfo:nil];
+            [self.errors addObject:error];
+        }
+    } else {
+        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
+        [self.errors addObject:error];
+    }
+    
+    if (self.cancelled || (self.errors.count > 0)) {
+        self.disconnection = [self.parent disconnectPeripheral:self.service.peripheral];
+        [self.disconnection waitUntilFinished];
+    }
     
     [self updateState:HLPOperationStateDidEnd];
 }
@@ -273,7 +296,7 @@
 #pragma mark - Peripheral
 
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
-    dispatch_group_leave(self.group);
+    [self.timer cancel];
     
     if (error) {
         [self.errors addObject:error];
@@ -504,14 +527,14 @@
     return discovery;
 }
 
-- (BLECharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics {
-    BLECharacteristicsDiscovery *discovery = [BLECharacteristicsDiscovery.alloc initWithService:service characteristics:characteristics];
+- (BLECharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout {
+    BLECharacteristicsDiscovery *discovery = [BLECharacteristicsDiscovery.alloc initWithService:service characteristics:characteristics timeout:timeout];
     [self addOperation:discovery];
     return discovery;
 }
 
-- (BLECharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics completion:(VoidBlock)completion {
-    BLECharacteristicsDiscovery *discovery = [self service:service discoverCharacteristics:characteristics];
+- (BLECharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout completion:(VoidBlock)completion {
+    BLECharacteristicsDiscovery *discovery = [self service:service discoverCharacteristics:characteristics timeout:timeout];
     discovery.completionBlock = completion;
     return discovery;
 }

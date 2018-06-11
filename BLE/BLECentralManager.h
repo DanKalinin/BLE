@@ -115,8 +115,9 @@
 @property (readonly) SurrogateArray<BLECharacteristicsDiscoveryDelegate> *delegates;
 @property (readonly) CBService *service;
 @property (readonly) NSArray<CBUUID *> *characteristics;
+@property (readonly) NSTimeInterval timeout;
 
-- (instancetype)initWithService:(CBService *)service characteristics:(NSArray<CBUUID *> *)characteristics;
+- (instancetype)initWithService:(CBService *)service characteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout;
 
 @end
 
@@ -207,8 +208,8 @@
 - (BLEServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout;
 - (BLEServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout completion:(VoidBlock)completion;
 
-- (BLECharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics;
-- (BLECharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics completion:(VoidBlock)completion;
+- (BLECharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout;
+- (BLECharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout completion:(VoidBlock)completion;
 
 - (BLECharacteristicReading *)readCharacteristic:(CBCharacteristic *)characteristic;
 - (BLECharacteristicReading *)readCharacteristic:(CBCharacteristic *)characteristic completion:(VoidBlock)completion;
