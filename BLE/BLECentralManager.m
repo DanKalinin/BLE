@@ -62,8 +62,9 @@
     }
     
     if (self.cancelled || (self.errors.count > 0)) {
-        self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
-        [self.disconnection waitUntilFinished];
+        [self.parent.central cancelPeripheralConnection:self.peripheral];
+//        self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
+//        [self.disconnection waitUntilFinished];
     }
     
     [self updateState:HLPOperationStateDidEnd];
@@ -167,6 +168,7 @@
 
 @implementation BLEServicesDiscovery
 
+@dynamic parent;
 @dynamic delegates;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral services:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout {
@@ -202,8 +204,9 @@
     }
     
     if (self.cancelled || (self.errors.count > 0)) {
-        self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
-        [self.disconnection waitUntilFinished];
+        [self.parent.central cancelPeripheralConnection:self.peripheral];
+//        self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
+//        [self.disconnection waitUntilFinished];
     }
     
     [self updateState:HLPOperationStateDidEnd];
@@ -251,6 +254,7 @@
 
 @implementation BLECharacteristicsDiscovery
 
+@dynamic parent;
 @dynamic delegates;
 
 - (instancetype)initWithService:(CBService *)service characteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout {
@@ -286,8 +290,9 @@
     }
     
     if (self.cancelled || (self.errors.count > 0)) {
-        self.disconnection = [self.parent disconnectPeripheral:self.service.peripheral];
-        [self.disconnection waitUntilFinished];
+        [self.parent.central cancelPeripheralConnection:self.service.peripheral];
+//        self.disconnection = [self.parent disconnectPeripheral:self.service.peripheral];
+//        [self.disconnection waitUntilFinished];
     }
     
     [self updateState:HLPOperationStateDidEnd];
@@ -334,6 +339,7 @@
 
 @implementation BLECharacteristicReading
 
+@dynamic parent;
 @dynamic delegates;
 
 - (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic timeout:(NSTimeInterval)timeout {
@@ -364,8 +370,9 @@
     }
     
     if (self.cancelled || (self.errors.count > 0)) {
-        self.disconnection = [self.parent disconnectPeripheral:self.characteristic.service.peripheral];
-        [self.disconnection waitUntilFinished];
+        [self.parent.central cancelPeripheralConnection:self.characteristic.service.peripheral];
+//        self.disconnection = [self.parent disconnectPeripheral:self.characteristic.service.peripheral];
+//        [self.disconnection waitUntilFinished];
     }
     
     [self updateState:HLPOperationStateDidEnd];
@@ -413,6 +420,7 @@
 
 @implementation BLEL2CAPChannelOpening
 
+@dynamic parent;
 @dynamic delegates;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral psm:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout {
@@ -444,8 +452,9 @@
     }
     
     if (self.cancelled || (self.errors.count > 0)) {
-        self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
-        [self.disconnection waitUntilFinished];
+        [self.parent.central cancelPeripheralConnection:self.peripheral];
+//        self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
+//        [self.disconnection waitUntilFinished];
     }
     
     [self updateState:HLPOperationStateDidEnd];

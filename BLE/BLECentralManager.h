@@ -83,6 +83,7 @@
 
 @interface BLEServicesDiscovery : HLPOperation <BLEServicesDiscoveryDelegate>
 
+@property (readonly) BLECentralManager *parent;
 @property (readonly) SurrogateArray<BLEServicesDiscoveryDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
 @property (readonly) NSArray<CBUUID *> *services;
@@ -112,6 +113,7 @@
 
 @interface BLECharacteristicsDiscovery : HLPOperation <BLECharacteristicsDiscoveryDelegate>
 
+@property (readonly) BLECentralManager *parent;
 @property (readonly) SurrogateArray<BLECharacteristicsDiscoveryDelegate> *delegates;
 @property (readonly) CBService *service;
 @property (readonly) NSArray<CBUUID *> *characteristics;
@@ -141,6 +143,7 @@
 
 @interface BLECharacteristicReading : HLPOperation <BLECharacteristicReadingDelegate>
 
+@property (readonly) BLECentralManager *parent;
 @property (readonly) SurrogateArray<BLECharacteristicReadingDelegate> *delegates;
 @property (readonly) CBCharacteristic *characteristic;
 @property (readonly) NSTimeInterval timeout;
@@ -169,6 +172,7 @@
 
 @interface BLEL2CAPChannelOpening : HLPOperation <BLEL2CAPChannelOpeningDelegate>
 
+@property (readonly) BLECentralManager *parent;
 @property (readonly) SurrogateArray<BLEL2CAPChannelOpeningDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
 @property (readonly) CBL2CAPPSM psm;
