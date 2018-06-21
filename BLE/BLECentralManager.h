@@ -84,7 +84,7 @@
 @interface BLEServicesDiscovery : HLPOperation <BLEServicesDiscoveryDelegate>
 
 @property (readonly) BLECentralManager *parent;
-@property (readonly) SurrogateArray<BLEServicesDiscoveryDelegate> *delegates;
+@property (readonly) HLPArray<BLEServicesDiscoveryDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
 @property (readonly) NSArray<CBUUID *> *services;
 @property (readonly) NSTimeInterval timeout;
@@ -114,7 +114,7 @@
 @interface BLECharacteristicsDiscovery : HLPOperation <BLECharacteristicsDiscoveryDelegate>
 
 @property (readonly) BLECentralManager *parent;
-@property (readonly) SurrogateArray<BLECharacteristicsDiscoveryDelegate> *delegates;
+@property (readonly) HLPArray<BLECharacteristicsDiscoveryDelegate> *delegates;
 @property (readonly) CBService *service;
 @property (readonly) NSArray<CBUUID *> *characteristics;
 @property (readonly) NSTimeInterval timeout;
@@ -144,7 +144,7 @@
 @interface BLECharacteristicReading : HLPOperation <BLECharacteristicReadingDelegate>
 
 @property (readonly) BLECentralManager *parent;
-@property (readonly) SurrogateArray<BLECharacteristicReadingDelegate> *delegates;
+@property (readonly) HLPArray<BLECharacteristicReadingDelegate> *delegates;
 @property (readonly) CBCharacteristic *characteristic;
 @property (readonly) NSTimeInterval timeout;
 
@@ -173,7 +173,7 @@
 @interface BLEL2CAPChannelOpening : HLPOperation <BLEL2CAPChannelOpeningDelegate>
 
 @property (readonly) BLECentralManager *parent;
-@property (readonly) SurrogateArray<BLEL2CAPChannelOpeningDelegate> *delegates;
+@property (readonly) HLPArray<BLEL2CAPChannelOpeningDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
 @property (readonly) CBL2CAPPSM psm;
 @property (readonly) NSTimeInterval timeout;
@@ -202,7 +202,7 @@
 
 @interface BLECentralManager : HLPOperation <BLECentralManagerDelegate>
 
-@property (readonly) SurrogateArray<BLECentralManagerDelegate> *delegates;
+@property (readonly) HLPArray<BLECentralManagerDelegate> *delegates;
 @property (readonly) NSDictionary<NSString *, id> *options;
 @property (readonly) CBCentralManager *central;
 @property (readonly) NSMutableDictionary<NSUUID *, CBPeripheral *> *peripheralsByIdentifier;
