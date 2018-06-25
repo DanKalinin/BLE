@@ -46,6 +46,10 @@
     return self;
 }
 
+- (void)main {
+    [self updateState:HLPOperationStateDidEnd];
+}
+
 //- (void)main {
 //    [self updateState:HLPOperationStateDidBegin];
 //
