@@ -34,8 +34,8 @@
 @property (readonly) NSDictionary<NSString *, id> *options;
 @property (readonly) NSTimeInterval timeout;
 
-@property (weak, readonly) HLPTimer *timer;
-@property (weak, readonly) BLEPeripheralDisconnection *disconnection;
+@property (readonly) HLPTimer *timer;
+@property (readonly) BLEPeripheralDisconnection *disconnection;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout;
 - (void)endWithError:(NSError *)error;
