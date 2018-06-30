@@ -89,9 +89,8 @@
 @property (readonly) CBPeripheral *peripheral;
 @property (readonly) NSArray<CBUUID *> *services;
 @property (readonly) NSTimeInterval timeout;
-
-@property (weak, readonly) HLPTimer *timer;
-@property (weak, readonly) BLEPeripheralDisconnection *disconnection;
+@property (readonly) HLPTimer *timer;
+@property (readonly) BLEPeripheralDisconnection *disconnection;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral services:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout;
 

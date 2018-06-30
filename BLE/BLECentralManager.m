@@ -115,8 +115,6 @@
         self.peripheral = peripheral;
         
         peripheral.disconnection = self;
-        
-        dispatch_group_enter(self.group);
     }
     return self;
 }
@@ -124,16 +122,11 @@
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
     
+    dispatch_group_enter(self.group);
     [self.parent.central cancelPeripheralConnection:self.peripheral];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
     [self updateState:HLPOperationStateDidEnd];
-}
-
-- (void)cancel {
-    [super cancel];
-    
-    dispatch_group_leave(self.group);
 }
 
 #pragma mark - Helpers
