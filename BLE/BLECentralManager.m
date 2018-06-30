@@ -122,11 +122,9 @@
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
     
-    if ((self.peripheral.state == CBPeripheralStateConnecting) || (self.peripheral.state == CBPeripheralStateConnected)) {
-        dispatch_group_enter(self.group);
-        [self.parent.central cancelPeripheralConnection:self.peripheral];
-        dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
-    }
+    dispatch_group_enter(self.group);
+    [self.parent.central cancelPeripheralConnection:self.peripheral];
+    dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
     [self updateState:HLPOperationStateDidEnd];
 }
