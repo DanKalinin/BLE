@@ -399,9 +399,8 @@
 @property CBPeripheral *peripheral;
 @property CBL2CAPPSM psm;
 @property NSTimeInterval timeout;
-
-@property (weak) HLPTimer *timer;
-@property (weak) BLEPeripheralDisconnection *disconnection;
+@property HLPTimer *timer;
+@property BLEPeripheralDisconnection *disconnection;
 
 @end
 
@@ -428,10 +427,10 @@
     [self updateState:HLPOperationStateDidBegin];
     
     dispatch_group_enter(self.group);
-    [self.peripheral openL2CAPChannel:self.psm];
     self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
         dispatch_group_leave(self.group);
     }];
+    [self.peripheral openL2CAPChannel:self.psm];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
     if (self.timer.cancelled) {
@@ -441,9 +440,8 @@
     }
     
     if (self.cancelled || (self.errors.count > 0)) {
-        [self.parent.central cancelPeripheralConnection:self.peripheral];
-//        self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
-//        [self.disconnection waitUntilFinished];
+        self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
+        [self.disconnection waitUntilFinished];
     }
     
     [self updateState:HLPOperationStateDidEnd];

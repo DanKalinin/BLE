@@ -175,9 +175,8 @@
 @property (readonly) CBPeripheral *peripheral;
 @property (readonly) CBL2CAPPSM psm;
 @property (readonly) NSTimeInterval timeout;
-
-@property (weak, readonly) HLPTimer *timer;
-@property (weak, readonly) BLEPeripheralDisconnection *disconnection;
+@property (readonly) HLPTimer *timer;
+@property (readonly) BLEPeripheralDisconnection *disconnection;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral psm:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout;
 
