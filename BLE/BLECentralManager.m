@@ -50,10 +50,10 @@
     [self updateState:HLPOperationStateDidBegin];
     
     dispatch_group_enter(self.group);
-    [self.parent.central connectPeripheral:self.peripheral options:self.options];
     self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
         dispatch_group_leave(self.group);
     }];
+    [self.parent.central connectPeripheral:self.peripheral options:self.options];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
     if (self.timer.cancelled) {
