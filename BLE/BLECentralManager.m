@@ -320,9 +320,8 @@
 
 @property CBCharacteristic *characteristic;
 @property NSTimeInterval timeout;
-
-@property (weak) HLPTimer *timer;
-@property (weak) BLEPeripheralDisconnection *disconnection;
+@property HLPTimer *timer;
+@property BLEPeripheralDisconnection *disconnection;
 
 @end
 
@@ -348,10 +347,10 @@
     [self updateState:HLPOperationStateDidBegin];
     
     dispatch_group_enter(self.group);
-    [self.characteristic.service.peripheral readValueForCharacteristic:self.characteristic];
     self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
         dispatch_group_leave(self.group);
     }];
+    [self.characteristic.service.peripheral readValueForCharacteristic:self.characteristic];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
     if (self.timer.cancelled) {
@@ -361,9 +360,8 @@
     }
     
     if (self.cancelled || (self.errors.count > 0)) {
-        [self.parent.central cancelPeripheralConnection:self.characteristic.service.peripheral];
-//        self.disconnection = [self.parent disconnectPeripheral:self.characteristic.service.peripheral];
-//        [self.disconnection waitUntilFinished];
+        self.disconnection = [self.parent disconnectPeripheral:self.characteristic.service.peripheral];
+        [self.disconnection waitUntilFinished];
     }
     
     [self updateState:HLPOperationStateDidEnd];

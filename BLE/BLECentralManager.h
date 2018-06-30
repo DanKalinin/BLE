@@ -146,9 +146,8 @@
 @property (readonly) HLPArray<BLECharacteristicReadingDelegate> *delegates;
 @property (readonly) CBCharacteristic *characteristic;
 @property (readonly) NSTimeInterval timeout;
-
-@property (weak, readonly) HLPTimer *timer;
-@property (weak, readonly) BLEPeripheralDisconnection *disconnection;
+@property (readonly) HLPTimer *timer;
+@property (readonly) BLEPeripheralDisconnection *disconnection;
 
 - (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic timeout:(NSTimeInterval)timeout;
 
