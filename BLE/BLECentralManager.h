@@ -33,7 +33,6 @@
 @property (readonly) CBPeripheral *peripheral;
 @property (readonly) NSDictionary<NSString *, id> *options;
 @property (readonly) NSTimeInterval timeout;
-
 @property (readonly) HLPTimer *timer;
 @property (readonly) BLEPeripheralDisconnection *disconnection;
 
@@ -60,6 +59,7 @@
 @interface BLEPeripheralDisconnection : HLPOperation <BLEPeripheralDisconnectionDelegate>
 
 @property (readonly) BLECentralManager *parent;
+@property (readonly) HLPArray<BLEPeripheralDisconnectionDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral;

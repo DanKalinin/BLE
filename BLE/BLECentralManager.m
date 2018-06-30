@@ -21,7 +21,6 @@
 @property CBPeripheral *peripheral;
 @property NSDictionary<NSString *, id> *options;
 @property NSTimeInterval timeout;
-
 @property HLPTimer *timer;
 @property BLEPeripheralDisconnection *disconnection;
 
@@ -108,6 +107,7 @@
 @implementation BLEPeripheralDisconnection
 
 @dynamic parent;
+@dynamic delegates;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral {
     self = super.init;
