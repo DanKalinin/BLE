@@ -236,9 +236,8 @@
 @property CBService *service;
 @property NSArray<CBUUID *> *characteristics;
 @property NSTimeInterval timeout;
-
-@property (weak) HLPTimer *timer;
-@property (weak) BLEPeripheralDisconnection *disconnection;
+@property HLPTimer *timer;
+@property BLEPeripheralDisconnection *disconnection;
 
 @end
 
@@ -265,14 +264,15 @@
     [self updateState:HLPOperationStateDidBegin];
     
     dispatch_group_enter(self.group);
-    [self.service.peripheral discoverCharacteristics:self.characteristics forService:self.service];
     self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
         dispatch_group_leave(self.group);
     }];
+    [self.service.peripheral discoverCharacteristics:self.characteristics forService:self.service];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
     if (self.timer.cancelled) {
-        if (self.service.characteristics.count < self.characteristics.count) {
+        if (self.cancelled || (self.service.characteristics.count == self.characteristics.count)) {
+        } else {
             NSError *error = [NSError errorWithDomain:BLEErrorDomain code:BLEErrorLessCharacteristicsDiscovered userInfo:nil];
             [self.errors addObject:error];
         }
@@ -282,9 +282,8 @@
     }
     
     if (self.cancelled || (self.errors.count > 0)) {
-        [self.parent.central cancelPeripheralConnection:self.service.peripheral];
-//        self.disconnection = [self.parent disconnectPeripheral:self.service.peripheral];
-//        [self.disconnection waitUntilFinished];
+        self.disconnection = [self.parent disconnectPeripheral:self.service.peripheral];
+        [self.disconnection waitUntilFinished];
     }
     
     [self updateState:HLPOperationStateDidEnd];

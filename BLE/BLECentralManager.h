@@ -118,9 +118,8 @@
 @property (readonly) CBService *service;
 @property (readonly) NSArray<CBUUID *> *characteristics;
 @property (readonly) NSTimeInterval timeout;
-
-@property (weak, readonly) HLPTimer *timer;
-@property (weak, readonly) BLEPeripheralDisconnection *disconnection;
+@property (readonly) HLPTimer *timer;
+@property (readonly) BLEPeripheralDisconnection *disconnection;
 
 - (instancetype)initWithService:(CBService *)service characteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout;
 
