@@ -39,8 +39,6 @@
         self.peripheral = peripheral;
         self.options = options;
         self.timeout = timeout;
-        
-        peripheral.connection = self;
     }
     return self;
 }
@@ -52,6 +50,7 @@
     self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
         dispatch_group_leave(self.group);
     }];
+    self.peripheral.connection = self;
     [self.parent.central connectPeripheral:self.peripheral options:self.options];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
@@ -113,8 +112,6 @@
     self = super.init;
     if (self) {
         self.peripheral = peripheral;
-        
-        peripheral.disconnection = self;
     }
     return self;
 }
@@ -124,6 +121,7 @@
     
     if ((self.peripheral.state == CBPeripheralStateConnecting) || (self.peripheral.state == CBPeripheralStateConnected)) {
         dispatch_group_enter(self.group);
+        self.peripheral.disconnection = self;
         [self.parent.central cancelPeripheralConnection:self.peripheral];
         dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     }
@@ -171,8 +169,6 @@
         self.peripheral = peripheral;
         self.services = services;
         self.timeout = timeout;
-        
-        peripheral.delegate = self.delegates;
     }
     return self;
 }
@@ -184,6 +180,7 @@
     self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
         dispatch_group_leave(self.group);
     }];
+    self.peripheral.delegate = self.delegates;
     [self.peripheral discoverServices:self.services];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
@@ -256,8 +253,6 @@
         self.service = service;
         self.characteristics = characteristics;
         self.timeout = timeout;
-        
-        service.peripheral.delegate = self.delegates;
     }
     return self;
 }
@@ -269,6 +264,7 @@
     self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
         dispatch_group_leave(self.group);
     }];
+    self.service.peripheral.delegate = self.delegates;
     [self.service.peripheral discoverCharacteristics:self.characteristics forService:self.service];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
@@ -339,8 +335,6 @@
     if (self) {
         self.characteristic = characteristic;
         self.timeout = timeout;
-        
-        characteristic.service.peripheral.delegate = self.delegates;
     }
     return self;
 }
@@ -352,6 +346,7 @@
     self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
         dispatch_group_leave(self.group);
     }];
+    self.characteristic.service.peripheral.delegate = self.delegates;
     [self.characteristic.service.peripheral readValueForCharacteristic:self.characteristic];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
@@ -419,8 +414,6 @@
         self.peripheral = peripheral;
         self.psm = psm;
         self.timeout = timeout;
-        
-        peripheral.delegate = self.delegates;
     }
     return self;
 }
@@ -432,6 +425,7 @@
     self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
         dispatch_group_leave(self.group);
     }];
+    self.peripheral.delegate = self.delegates;
     [self.peripheral openL2CAPChannel:self.psm];
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
