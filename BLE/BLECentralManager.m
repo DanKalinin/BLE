@@ -131,6 +131,17 @@
 
 #pragma mark - Helpers
 
+- (void)updateState:(HLPOperationState)state {
+    [super updateState:state];
+    
+    [self.delegates BLEPeripheralDisconnectionDidUpdateState:self];
+    if (state == HLPOperationStateDidBegin) {
+        [self.delegates BLEPeripheralDisconnectionDidBegin:self];
+    } else if (state == HLPOperationStateDidEnd) {
+        [self.delegates BLEPeripheralDisconnectionDidEnd:self];
+    }
+}
+
 - (void)end {
     dispatch_group_leave(self.group);
 }
