@@ -52,6 +52,7 @@
 
 @protocol BLEPeripheralDisconnectionDelegate <HLPOperationDelegate>
 
+@optional
 - (void)BLEPeripheralDisconnectionDidUpdateState:(BLEPeripheralDisconnection *)disconnection;
 
 - (void)BLEPeripheralDisconnectionDidBegin:(BLEPeripheralDisconnection *)disconnection;
