@@ -55,18 +55,10 @@
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
     if (self.cancelled) {
-    } else if (self.errors.count > 0) {
-    } else if (self.timer.cancelled) {
-    } else {
+    } else if (!self.timer.cancelled) {
         NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
         [self.errors addObject:error];
     }
-    
-//    if (self.timer.cancelled) {
-//    } else {
-//        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
-//        [self.errors addObject:error];
-//    }
     
     if (self.cancelled || (self.errors.count > 0)) {
         self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
@@ -204,26 +196,13 @@
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
     if (self.cancelled) {
-    } else if (self.errors.count > 0) {
-    } else if (self.timer.cancelled) {
+    } else if (!self.timer.cancelled) {
+        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
+        [self.errors addObject:error];
     } else if (self.peripheral.services.count < self.services.count) {
         NSError *error = [NSError errorWithDomain:BLEErrorDomain code:BLEErrorLessServicesDiscovered userInfo:nil];
         [self.errors addObject:error];
-    } else {
-        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
-        [self.errors addObject:error];
     }
-    
-//    if (self.timer.cancelled) {
-//        if (self.cancelled || (self.peripheral.services.count == self.services.count)) {
-//        } else {
-//            NSError *error = [NSError errorWithDomain:BLEErrorDomain code:BLEErrorLessServicesDiscovered userInfo:nil];
-//            [self.errors addObject:error];
-//        }
-//    } else {
-//        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
-//        [self.errors addObject:error];
-//    }
     
     if (self.cancelled || (self.errors.count > 0)) {
         self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
@@ -299,26 +278,13 @@
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
     if (self.cancelled) {
-    } else if (self.errors.count > 0) {
-    } else if (self.timer.cancelled) {
+    } else if (!self.timer.cancelled) {
+        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
+        [self.errors addObject:error];
     } else if (self.service.characteristics.count < self.characteristics.count) {
         NSError *error = [NSError errorWithDomain:BLEErrorDomain code:BLEErrorLessCharacteristicsDiscovered userInfo:nil];
         [self.errors addObject:error];
-    } else {
-        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
-        [self.errors addObject:error];
     }
-    
-//    if (self.timer.cancelled) {
-//        if (self.cancelled || (self.service.characteristics.count == self.characteristics.count)) {
-//        } else {
-//            NSError *error = [NSError errorWithDomain:BLEErrorDomain code:BLEErrorLessCharacteristicsDiscovered userInfo:nil];
-//            [self.errors addObject:error];
-//        }
-//    } else {
-//        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
-//        [self.errors addObject:error];
-//    }
     
     if (self.cancelled || (self.errors.count > 0)) {
         self.disconnection = [self.parent disconnectPeripheral:self.service.peripheral];
@@ -392,18 +358,10 @@
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
     if (self.cancelled) {
-    } else if (self.errors.count > 0) {
-    } else if (self.timer.cancelled) {
-    } else {
+    } else if (!self.timer.cancelled) {
         NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
         [self.errors addObject:error];
     }
-    
-//    if (self.timer.cancelled) {
-//    } else {
-//        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
-//        [self.errors addObject:error];
-//    }
     
     if (self.cancelled || (self.errors.count > 0)) {
         self.disconnection = [self.parent disconnectPeripheral:self.characteristic.service.peripheral];
@@ -479,18 +437,10 @@
     dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
     if (self.cancelled) {
-    } else if (self.errors.count > 0) {
-    } else if (self.timer.cancelled) {
-    } else {
+    } else if (!self.timer.cancelled) {
         NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
         [self.errors addObject:error];
     }
-    
-//    if (self.timer.cancelled) {
-//    } else {
-//        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
-//        [self.errors addObject:error];
-//    }
     
     if (self.cancelled || (self.errors.count > 0)) {
         self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
