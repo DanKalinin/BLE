@@ -423,6 +423,8 @@
     
     if (error) {
         [self.errors addObject:error];
+    } else {
+        self.peripheral.channel = channel;
     }
 }
 
