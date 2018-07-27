@@ -607,6 +607,14 @@
     self.strongDictionary[NSStringFromSelector(@selector(rssi))] = rssi;
 }
 
+- (CBL2CAPChannel *)channel {
+    return self.strongDictionary[NSStringFromSelector(@selector(channel))];
+}
+
+- (void)setChannel:(CBL2CAPChannel *)channel {
+    self.strongDictionary[NSStringFromSelector(@selector(channel))] = channel;
+}
+
 - (BLEPeripheralConnection *)connection {
     return self.weakDictionary[NSStringFromSelector(@selector(connection))];
 }

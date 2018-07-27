@@ -236,6 +236,7 @@
 
 @property NSDictionary<NSString *, id> *advertisement;
 @property NSNumber *rssi;
+@property CBL2CAPChannel *channel;
 @property BLEPeripheralConnection *connection;
 @property BLEPeripheralDisconnection *disconnection;
 
