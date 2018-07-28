@@ -95,6 +95,8 @@
 @property (readonly) CBPeripheral *peripheral;
 @property (readonly) NSArray<CBUUID *> *services;
 @property (readonly) NSTimeInterval timeout;
+@property (readonly) HLPTimer *timer;
+@property (readonly) BLEPeripheralDisconnection *disconnection;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral services:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout;
 
@@ -122,6 +124,8 @@
 @property (readonly) CBService *service;
 @property (readonly) NSArray<CBUUID *> *characteristics;
 @property (readonly) NSTimeInterval timeout;
+@property (readonly) HLPTimer *timer;
+@property (readonly) BLEPeripheralDisconnection *disconnection;
 
 - (instancetype)initWithService:(CBService *)service characteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout;
 
@@ -148,6 +152,8 @@
 @property (readonly) HLPArray<BLECharacteristicReadingDelegate> *delegates;
 @property (readonly) CBCharacteristic *characteristic;
 @property (readonly) NSTimeInterval timeout;
+@property (readonly) HLPTimer *timer;
+@property (readonly) BLEPeripheralDisconnection *disconnection;
 
 - (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic timeout:(NSTimeInterval)timeout;
 
@@ -175,6 +181,8 @@
 @property (readonly) CBPeripheral *peripheral;
 @property (readonly) CBL2CAPPSM psm;
 @property (readonly) NSTimeInterval timeout;
+@property (readonly) HLPTimer *timer;
+@property (readonly) BLEPeripheralDisconnection *disconnection;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral psm:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout;
 
