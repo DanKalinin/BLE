@@ -454,11 +454,50 @@
 
 @interface BLEL2CAPStreamsOpening ()
 
+@property CBL2CAPChannel *channel;
+@property NSTimeInterval timeout;
+@property HLPStreams *streams;
+@property HLPStreamsOpening *opening;
+@property BLEPeripheralDisconnection *disconnection;
+
 @end
 
 
 
 @implementation BLEL2CAPStreamsOpening
+
+@dynamic parent;
+@dynamic delegates;
+
+- (instancetype)initWithChannel:(CBL2CAPChannel *)channel timeout:(NSTimeInterval)timeout {
+    self = super.init;
+    if (self) {
+        self.channel = channel;
+        self.timeout = timeout;
+    }
+    return self;
+}
+
+- (void)main {
+    [self updateState:HLPOperationStateDidBegin];
+    
+    self.streams = [HLPStreams streamsWithInputStream:self.channel.inputStream outputStream:self.channel.outputStream];
+    
+    self.operation = self.opening = [self.streams openWithTimeout:self.timeout];
+    [self.opening waitUntilFinished];
+    if (self.opening.cancelled) {
+    } else if (self.opening.errors.count > 0) {
+        [self.errors addObjectsFromArray:self.opening.errors];
+    } else {
+    }
+    
+    if (self.cancelled || (self.errors.count > 0)) {
+        self.disconnection = [self.parent disconnectPeripheral:(CBPeripheral *)self.channel.peer];
+        [self.disconnection waitUntilFinished];
+    }
+    
+    [self updateState:HLPOperationStateDidEnd];
+}
 
 @end
 
@@ -583,6 +622,18 @@
 
 - (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
     BLEL2CAPChannelOpening *opening = [self peripheral:peripheral openL2CAPChannel:psm timeout:timeout];
+    opening.completionBlock = completion;
+    return opening;
+}
+
+- (BLEL2CAPStreamsOpening *)openL2CAPStreams:(CBL2CAPChannel *)channel timeout:(NSTimeInterval)timeout {
+    BLEL2CAPStreamsOpening *opening = [BLEL2CAPStreamsOpening.alloc initWithChannel:channel timeout:timeout];
+    [self addOperation:opening];
+    return opening;
+}
+
+- (BLEL2CAPStreamsOpening *)openL2CAPStreams:(CBL2CAPChannel *)channel timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
+    BLEL2CAPStreamsOpening *opening = [self openL2CAPStreams:channel timeout:timeout];
     opening.completionBlock = completion;
     return opening;
 }

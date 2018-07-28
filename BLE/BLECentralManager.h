@@ -9,7 +9,7 @@
 #import <Helpers/Helpers.h>
 #import "BLEMain.h"
 
-@class BLEPeripheralConnection, BLEPeripheralDisconnection, BLEServicesDiscovery, BLECharacteristicsDiscovery, BLECharacteristicReading, BLEL2CAPChannelOpening, BLECentralManager;
+@class BLEPeripheralConnection, BLEPeripheralDisconnection, BLEServicesDiscovery, BLECharacteristicsDiscovery, BLECharacteristicReading, BLEL2CAPChannelOpening, BLEL2CAPStreamsOpening, BLECentralManager;
 
 
 
@@ -211,6 +211,7 @@
 @property (readonly) CBL2CAPChannel *channel;
 @property (readonly) NSTimeInterval timeout;
 @property (readonly) HLPStreams *streams;
+@property (readonly) HLPStreamsOpening *opening;
 @property (readonly) BLEPeripheralDisconnection *disconnection;
 
 - (instancetype)initWithChannel:(CBL2CAPChannel *)channel timeout:(NSTimeInterval)timeout;
@@ -259,6 +260,9 @@
 
 - (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout;
 - (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
+
+- (BLEL2CAPStreamsOpening *)openL2CAPStreams:(CBL2CAPChannel *)channel timeout:(NSTimeInterval)timeout;
+- (BLEL2CAPStreamsOpening *)openL2CAPStreams:(CBL2CAPChannel *)channel timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
 
 @end
 
