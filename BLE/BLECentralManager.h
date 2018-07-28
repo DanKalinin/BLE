@@ -181,6 +181,7 @@
 @property (readonly) CBPeripheral *peripheral;
 @property (readonly) CBL2CAPPSM psm;
 @property (readonly) NSTimeInterval timeout;
+@property (readonly) CBL2CAPChannel *channel;
 @property (readonly) HLPTimer *timer;
 @property (readonly) BLEPeripheralDisconnection *disconnection;
 

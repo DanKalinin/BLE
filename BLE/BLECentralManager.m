@@ -381,6 +381,7 @@
 @property CBPeripheral *peripheral;
 @property CBL2CAPPSM psm;
 @property NSTimeInterval timeout;
+@property CBL2CAPChannel *channel;
 @property HLPTimer *timer;
 @property BLEPeripheralDisconnection *disconnection;
 
@@ -436,7 +437,7 @@
     if (error) {
         [self.errors addObject:error];
     } else {
-        self.peripheral.channelsByPSM[@(channel.PSM)] = channel;
+        self.peripheral.channelsByPSM[@(self.psm)] = self.channel = channel;
     }
 }
 
