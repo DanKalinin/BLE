@@ -63,6 +63,8 @@
     if (self.cancelled || (self.errors.count > 0)) {
         self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
         [self.disconnection waitUntilFinished];
+    } else {
+        self.peripheral.channelsByPSM = NSMutableDictionary.dictionary;
     }
     
     [self updateState:HLPOperationStateDidEnd];
@@ -580,8 +582,6 @@
 
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
     [peripheral.connection endWithError:nil];
-    
-    peripheral.channelsByPSM = NSMutableDictionary.dictionary;
 }
 
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
@@ -619,14 +619,6 @@
 
 - (void)setRssi:(NSNumber *)rssi {
     self.strongDictionary[NSStringFromSelector(@selector(rssi))] = rssi;
-}
-
-- (NSMutableDictionary<NSNumber *, CBL2CAPChannel *> *)channelsByPSM {
-    return self.strongDictionary[NSStringFromSelector(@selector(channelsByPSM))];
-}
-
-- (void)setChannelsByPSM:(NSMutableDictionary<NSNumber *, CBL2CAPChannel *> *)channelsByPSM {
-    self.strongDictionary[NSStringFromSelector(@selector(channelsByPSM))] = channelsByPSM;
 }
 
 - (BLEPeripheralConnection *)connection {

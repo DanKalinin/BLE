@@ -197,6 +197,34 @@
 
 
 
+@protocol BLEL2CAPStreamsOpeningDelegate <HLPOperationDelegate>
+
+@end
+
+
+
+@interface BLEL2CAPStreamsOpening : HLPOperation <BLEL2CAPStreamsOpeningDelegate>
+
+@property (readonly) BLECentralManager *parent;
+@property (readonly) HLPArray<BLEL2CAPStreamsOpeningDelegate> *delegates;
+@property (readonly) CBL2CAPChannel *channel;
+@property (readonly) NSTimeInterval timeout;
+@property (readonly) HLPStreams *streams;
+@property (readonly) BLEPeripheralDisconnection *disconnection;
+
+- (instancetype)initWithChannel:(CBL2CAPChannel *)channel timeout:(NSTimeInterval)timeout;
+
+@end
+
+
+
+
+
+
+
+
+
+
 @protocol BLECentralManagerDelegate <BLEPeripheralConnectionDelegate, BLEPeripheralDisconnectionDelegate, BLEServicesDiscoveryDelegate, BLECharacteristicsDiscoveryDelegate, BLECharacteristicReadingDelegate, BLEL2CAPChannelOpeningDelegate, CBCentralManagerDelegate>
 
 @end
@@ -246,7 +274,6 @@
 
 @property NSDictionary<NSString *, id> *advertisement;
 @property NSNumber *rssi;
-@property NSMutableDictionary<NSNumber *, CBL2CAPChannel *> *channelsByPSM;
 @property BLEPeripheralConnection *connection;
 @property BLEPeripheralDisconnection *disconnection;
 
