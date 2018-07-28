@@ -434,7 +434,7 @@
     if (error) {
         [self.errors addObject:error];
     } else {
-        self.peripheral.channel = channel;
+        self.peripheral.channelsByPSM[@(self.psm)] = channel;
     }
 }
 
@@ -580,6 +580,8 @@
 
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
     [peripheral.connection endWithError:nil];
+    
+    peripheral.channelsByPSM = NSMutableDictionary.dictionary;
 }
 
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
@@ -619,12 +621,12 @@
     self.strongDictionary[NSStringFromSelector(@selector(rssi))] = rssi;
 }
 
-- (CBL2CAPChannel *)channel {
-    return self.strongDictionary[NSStringFromSelector(@selector(channel))];
+- (NSMutableDictionary<NSNumber *, CBL2CAPChannel *> *)channelsByPSM {
+    return self.strongDictionary[NSStringFromSelector(@selector(channelsByPSM))];
 }
 
-- (void)setChannel:(CBL2CAPChannel *)channel {
-    self.strongDictionary[NSStringFromSelector(@selector(channel))] = channel;
+- (void)setChannelsByPSM:(NSMutableDictionary<NSNumber *, CBL2CAPChannel *> *)channelsByPSM {
+    self.strongDictionary[NSStringFromSelector(@selector(channelsByPSM))] = channelsByPSM;
 }
 
 - (BLEPeripheralConnection *)connection {

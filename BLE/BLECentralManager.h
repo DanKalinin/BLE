@@ -246,7 +246,7 @@
 
 @property NSDictionary<NSString *, id> *advertisement;
 @property NSNumber *rssi;
-@property CBL2CAPChannel *channel;
+@property NSMutableDictionary<NSNumber *, CBL2CAPChannel *> *channelsByPSM;
 @property BLEPeripheralConnection *connection;
 @property BLEPeripheralDisconnection *disconnection;
 
