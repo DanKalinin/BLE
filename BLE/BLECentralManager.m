@@ -452,6 +452,25 @@
 
 
 
+@interface BLEL2CAPStreamsOpening ()
+
+@end
+
+
+
+@implementation BLEL2CAPStreamsOpening
+
+@end
+
+
+
+
+
+
+
+
+
+
 @interface BLECentralManager ()
 
 @property NSDictionary<NSString *, id> *options;
