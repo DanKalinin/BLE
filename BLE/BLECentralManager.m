@@ -434,7 +434,7 @@
     if (error) {
         [self.errors addObject:error];
     } else {
-        self.peripheral.channelsByPSM[@(self.psm)] = channel;
+        self.peripheral.channelsByPSM[@(channel.PSM)] = channel;
     }
 }
 
