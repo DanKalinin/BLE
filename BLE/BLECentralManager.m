@@ -21,7 +21,7 @@
 @property CBPeripheral *peripheral;
 @property NSDictionary<NSString *, id> *options;
 @property NSTimeInterval timeout;
-@property HLPTimer *timer;
+@property HLPTick *tick;
 @property BLEPeripheralDisconnection *disconnection;
 
 @end
@@ -49,10 +49,10 @@
     self.peripheral.connection = self;
     [self.parent.central connectPeripheral:self.peripheral options:self.options];
     
-    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
-    [self.timer waitUntilFinished];
+    self.operation = self.tick = [HLPClock.shared tickWithInterval:self.timeout];
+    [self.tick waitUntilFinished];
     if (self.cancelled) {
-    } else if (!self.timer.cancelled) {
+    } else if (!self.tick.cancelled) {
         NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
         [self.errors addObject:error];
     } else if (self.errors.count > 0) {
@@ -72,7 +72,7 @@
 #pragma mark - Helpers
 
 - (void)endWithError:(NSError *)error {
-    [self.timer cancel];
+    [self.tick cancel];
     
     if (error) {
         [self.errors addObject:error];
@@ -93,7 +93,7 @@
 @interface BLEPeripheralDisconnection ()
 
 @property CBPeripheral *peripheral;
-@property HLPTimer *timer;
+@property HLPTick *tick;
 
 @end
 
@@ -119,8 +119,8 @@
         self.peripheral.disconnection = self;
         [self.parent.central cancelPeripheralConnection:self.peripheral];
         
-        self.timer = [HLPClock.shared timerWithInterval:DBL_MAX repeats:1];
-        [self.timer waitUntilFinished];
+        self.tick = [HLPClock.shared tickWithInterval:DBL_MAX];
+        [self.tick waitUntilFinished];
     }
     
     [self updateState:HLPOperationStateDidEnd];
@@ -140,7 +140,7 @@
 }
 
 - (void)end {
-    [self.timer cancel];
+    [self.tick cancel];
 }
 
 @end
@@ -159,7 +159,7 @@
 @property CBPeripheral *peripheral;
 @property NSArray<CBUUID *> *services;
 @property NSTimeInterval timeout;
-@property HLPTimer *timer;
+@property HLPTick *tick;
 @property BLEPeripheralDisconnection *disconnection;
 
 @end
@@ -187,10 +187,10 @@
     self.peripheral.delegate = self.delegates;
     [self.peripheral discoverServices:self.services];
     
-    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
-    [self.timer waitUntilFinished];
+    self.operation = self.tick = [HLPClock.shared tickWithInterval:self.timeout];
+    [self.tick waitUntilFinished];
     if (self.cancelled) {
-    } else if (!self.timer.cancelled) {
+    } else if (!self.tick.cancelled) {
         NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
         [self.errors addObject:error];
     } else if (self.errors.count > 0) {
@@ -215,7 +215,7 @@
 #pragma mark - Peripheral
 
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
-    [self.timer cancel];
+    [self.tick cancel];
     
     if (error) {
         [self.errors addObject:error];
@@ -238,7 +238,7 @@
 @property CBService *service;
 @property NSArray<CBUUID *> *characteristics;
 @property NSTimeInterval timeout;
-@property HLPTimer *timer;
+@property HLPTick *tick;
 @property BLEPeripheralDisconnection *disconnection;
 
 @end
@@ -266,10 +266,10 @@
     self.service.peripheral.delegate = self.delegates;
     [self.service.peripheral discoverCharacteristics:self.characteristics forService:self.service];
     
-    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
-    [self.timer waitUntilFinished];
+    self.operation = self.tick = [HLPClock.shared tickWithInterval:self.timeout];
+    [self.tick waitUntilFinished];
     if (self.cancelled) {
-    } else if (!self.timer.cancelled) {
+    } else if (!self.tick.cancelled) {
         NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
         [self.errors addObject:error];
     } else if (self.errors.count > 0) {
@@ -293,7 +293,7 @@
 #pragma mark - Peripheral
 
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
-    [self.timer cancel];
+    [self.tick cancel];
     
     if (error) {
         [self.errors addObject:error];
@@ -315,7 +315,7 @@
 
 @property CBCharacteristic *characteristic;
 @property NSTimeInterval timeout;
-@property HLPTimer *timer;
+@property HLPTick *tick;
 @property BLEPeripheralDisconnection *disconnection;
 
 @end
@@ -342,10 +342,10 @@
     self.characteristic.service.peripheral.delegate = self.delegates;
     [self.characteristic.service.peripheral readValueForCharacteristic:self.characteristic];
     
-    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
-    [self.timer waitUntilFinished];
+    self.operation = self.tick = [HLPClock.shared tickWithInterval:self.timeout];
+    [self.tick waitUntilFinished];
     if (self.cancelled) {
-    } else if (!self.timer.cancelled) {
+    } else if (!self.tick.cancelled) {
         NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
         [self.errors addObject:error];
     }
@@ -361,7 +361,7 @@
 #pragma mark - Peripheral
 
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
-    [self.timer cancel];
+    [self.tick cancel];
     
     if (error) {
         [self.errors addObject:error];
@@ -385,7 +385,7 @@
 @property CBL2CAPPSM psm;
 @property NSTimeInterval timeout;
 @property CBL2CAPChannel *channel;
-@property HLPTimer *timer;
+@property HLPTick *tick;
 @property BLEPeripheralDisconnection *disconnection;
 
 @end
@@ -413,10 +413,10 @@
     self.peripheral.delegate = self.delegates;
     [self.peripheral openL2CAPChannel:self.psm];
     
-    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
-    [self.timer waitUntilFinished];
+    self.operation = self.tick = [HLPClock.shared tickWithInterval:self.timeout];
+    [self.tick waitUntilFinished];
     if (self.cancelled) {
-    } else if (!self.timer.cancelled) {
+    } else if (!self.tick.cancelled) {
         NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
         [self.errors addObject:error];
     } else if (self.errors.count > 0) {
@@ -435,7 +435,7 @@
 #pragma mark - Peripheral
 
 - (void)peripheral:(CBPeripheral *)peripheral didOpenL2CAPChannel:(CBL2CAPChannel *)channel error:(NSError *)error {
-    [self.timer cancel];
+    [self.tick cancel];
     
     if (error) {
         [self.errors addObject:error];
