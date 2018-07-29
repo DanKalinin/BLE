@@ -46,14 +46,6 @@
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
     
-//    dispatch_group_enter(self.group);
-//    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
-//        dispatch_group_leave(self.group);
-//    }];
-//    self.peripheral.connection = self;
-//    [self.parent.central connectPeripheral:self.peripheral options:self.options];
-//    dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
-    
     self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
     self.peripheral.connection = self;
     [self.parent.central connectPeripheral:self.peripheral options:self.options];
@@ -62,14 +54,15 @@
     } else if (!self.timer.cancelled) {
         NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
         [self.errors addObject:error];
+    } else if (self.errors.count > 0) {
+    } else {
+        self.peripheral.servicesByUUID = HLPDictionary.strongToWeakDictionary;
+        self.peripheral.channelsByPSM = NSMutableDictionary.dictionary;
     }
     
     if (self.cancelled || (self.errors.count > 0)) {
         self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
         [self.disconnection waitUntilFinished];
-    } else {
-        self.peripheral.servicesByUUID = HLPDictionary.strongToWeakDictionary;
-        self.peripheral.channelsByPSM = NSMutableDictionary.dictionary;
     }
     
     [self updateState:HLPOperationStateDidEnd];
@@ -122,11 +115,6 @@
     [self updateState:HLPOperationStateDidBegin];
     
     if ((self.peripheral.state == CBPeripheralStateConnecting) || (self.peripheral.state == CBPeripheralStateConnected)) {
-//        dispatch_group_enter(self.group);
-//        self.peripheral.disconnection = self;
-//        [self.parent.central cancelPeripheralConnection:self.peripheral];
-//        dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
-        
         self.timer = [HLPClock.shared timerWithInterval:DBL_MAX repeats:1];
         self.peripheral.disconnection = self;
         [self.parent.central cancelPeripheralConnection:self.peripheral];
@@ -194,14 +182,6 @@
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
     
-//    dispatch_group_enter(self.group);
-//    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
-//        dispatch_group_leave(self.group);
-//    }];
-//    self.peripheral.delegate = self.delegates;
-//    [self.peripheral discoverServices:self.services];
-//    dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
-    
     self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
     self.peripheral.delegate = self.delegates;
     [self.peripheral discoverServices:self.services];
@@ -210,19 +190,20 @@
     } else if (!self.timer.cancelled) {
         NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
         [self.errors addObject:error];
+    } else if (self.errors.count > 0) {
     } else if (self.peripheral.services.count < self.services.count) {
         NSError *error = [NSError errorWithDomain:BLEErrorDomain code:BLEErrorLessServicesDiscovered userInfo:nil];
         [self.errors addObject:error];
-    }
-    
-    if (self.cancelled || (self.errors.count > 0)) {
-        self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
-        [self.disconnection waitUntilFinished];
     } else {
         for (CBService *service in self.peripheral.services) {
             self.peripheral.servicesByUUID[service.UUID] = service;
             service.characteristicsByUUID = HLPDictionary.strongToWeakDictionary;
         }
+    }
+    
+    if (self.cancelled || (self.errors.count > 0)) {
+        self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
+        [self.disconnection waitUntilFinished];
     }
     
     [self updateState:HLPOperationStateDidEnd];
@@ -278,14 +259,6 @@
 
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
-    
-//    dispatch_group_enter(self.group);
-//    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
-//        dispatch_group_leave(self.group);
-//    }];
-//    self.service.peripheral.delegate = self.delegates;
-//    [self.service.peripheral discoverCharacteristics:self.characteristics forService:self.service];
-//    dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
     self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
     self.service.peripheral.delegate = self.delegates;
@@ -361,14 +334,6 @@
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
     
-//    dispatch_group_enter(self.group);
-//    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
-//        dispatch_group_leave(self.group);
-//    }];
-//    self.characteristic.service.peripheral.delegate = self.delegates;
-//    [self.characteristic.service.peripheral readValueForCharacteristic:self.characteristic];
-//    dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
-    
     self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
     self.characteristic.service.peripheral.delegate = self.delegates;
     [self.characteristic.service.peripheral readValueForCharacteristic:self.characteristic];
@@ -438,14 +403,6 @@
 
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
-    
-//    dispatch_group_enter(self.group);
-//    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1 completion:^{
-//        dispatch_group_leave(self.group);
-//    }];
-//    self.peripheral.delegate = self.delegates;
-//    [self.peripheral openL2CAPChannel:self.psm];
-//    dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
     
     self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
     self.peripheral.delegate = self.delegates;
