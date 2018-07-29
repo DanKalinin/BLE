@@ -268,18 +268,19 @@
     } else if (!self.timer.cancelled) {
         NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
         [self.errors addObject:error];
+    } else if (self.errors.count > 0) {
     } else if (self.service.characteristics.count < self.characteristics.count) {
         NSError *error = [NSError errorWithDomain:BLEErrorDomain code:BLEErrorLessCharacteristicsDiscovered userInfo:nil];
         [self.errors addObject:error];
+    } else {
+        for (CBCharacteristic *characteristic in self.service.characteristics) {
+            self.service.characteristicsByUUID[characteristic.UUID] = characteristic;
+        }
     }
     
     if (self.cancelled || (self.errors.count > 0)) {
         self.disconnection = [self.parent disconnectPeripheral:self.service.peripheral];
         [self.disconnection waitUntilFinished];
-    } else {
-        for (CBCharacteristic *characteristic in self.service.characteristics) {
-            self.service.characteristicsByUUID[characteristic.UUID] = characteristic;
-        }
     }
     
     [self updateState:HLPOperationStateDidEnd];
@@ -412,13 +413,14 @@
     } else if (!self.timer.cancelled) {
         NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
         [self.errors addObject:error];
+    } else if (self.errors.count > 0) {
+    } else {
+        self.peripheral.channelsByPSM[@(self.channel.PSM)] = self.channel;
     }
     
     if (self.cancelled || (self.errors.count > 0)) {
         self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
         [self.disconnection waitUntilFinished];
-    } else {
-        self.peripheral.channelsByPSM[@(self.channel.PSM)] = self.channel;
     }
     
     [self updateState:HLPOperationStateDidEnd];
@@ -483,7 +485,6 @@
     if (self.opening.cancelled) {
     } else if (self.opening.errors.count > 0) {
         [self.errors addObjectsFromArray:self.opening.errors];
-    } else {
     }
     
     if (self.cancelled || (self.errors.count > 0)) {
