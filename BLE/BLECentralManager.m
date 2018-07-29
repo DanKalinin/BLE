@@ -64,6 +64,7 @@
         self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
         [self.disconnection waitUntilFinished];
     } else {
+        self.peripheral.servicesByUUID = HLPDictionary.strongToWeakDictionary;
         self.peripheral.channelsByPSM = NSMutableDictionary.dictionary;
     }
     
@@ -203,6 +204,11 @@
     if (self.cancelled || (self.errors.count > 0)) {
         self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
         [self.disconnection waitUntilFinished];
+    } else {
+        for (CBService *service in self.peripheral.services) {
+            self.peripheral.servicesByUUID[service.UUID] = service;
+            service.characteristicsByUUID = HLPDictionary.strongToWeakDictionary;
+        }
     }
     
     [self updateState:HLPOperationStateDidEnd];
@@ -279,6 +285,10 @@
     if (self.cancelled || (self.errors.count > 0)) {
         self.disconnection = [self.parent disconnectPeripheral:self.service.peripheral];
         [self.disconnection waitUntilFinished];
+    } else {
+        for (CBCharacteristic *characteristic in self.service.characteristics) {
+            self.service.characteristicsByUUID[characteristic.UUID] = characteristic;
+        }
     }
     
     [self updateState:HLPOperationStateDidEnd];
@@ -424,6 +434,8 @@
     if (self.cancelled || (self.errors.count > 0)) {
         self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
         [self.disconnection waitUntilFinished];
+    } else {
+        self.peripheral.channelsByPSM[@(self.channel.PSM)] = self.channel;
     }
     
     [self updateState:HLPOperationStateDidEnd];
@@ -437,7 +449,7 @@
     if (error) {
         [self.errors addObject:error];
     } else {
-        self.peripheral.channelsByPSM[@(self.psm)] = self.channel = channel;
+        self.channel = channel;
     }
 }
 
@@ -692,6 +704,14 @@
     self.strongDictionary[NSStringFromSelector(@selector(rssi))] = rssi;
 }
 
+- (HLPDictionary<CBUUID *, CBService *> *)servicesByUUID {
+    return self.strongDictionary[NSStringFromSelector(@selector(servicesByUUID))];
+}
+
+- (void)setServicesByUUID:(HLPDictionary<CBUUID *, CBService *> *)servicesByUUID {
+    self.strongDictionary[NSStringFromSelector(@selector(servicesByUUID))] = servicesByUUID;
+}
+
 - (BLEPeripheralConnection *)connection {
     return self.weakDictionary[NSStringFromSelector(@selector(connection))];
 }
@@ -706,6 +726,27 @@
 
 - (void)setDisconnection:(BLEPeripheralDisconnection *)disconnection {
     self.weakDictionary[NSStringFromSelector(@selector(disconnection))] = disconnection;
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
+@implementation CBService (BLE)
+
+- (HLPDictionary<CBUUID *, CBCharacteristic *> *)characteristicsByUUID {
+    return self.strongDictionary[NSStringFromSelector(@selector(characteristicsByUUID))];
+}
+
+- (void)setCharacteristicsByUUID:(HLPDictionary<CBUUID *, CBCharacteristic *> *)characteristicsByUUID {
+    self.strongDictionary[NSStringFromSelector(@selector(characteristicsByUUID))] = characteristicsByUUID;
 }
 
 @end

@@ -279,7 +279,23 @@
 
 @property NSDictionary<NSString *, id> *advertisement;
 @property NSNumber *rssi;
+@property HLPDictionary<CBUUID *, CBService *> *servicesByUUID;
 @property BLEPeripheralConnection *connection;
 @property BLEPeripheralDisconnection *disconnection;
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface CBService (BLE)
+
+@property HLPDictionary<CBUUID *, CBCharacteristic *> *characteristicsByUUID;
 
 @end
