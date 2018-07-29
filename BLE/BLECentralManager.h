@@ -67,6 +67,7 @@
 @property (readonly) BLECentralManager *parent;
 @property (readonly) HLPArray<BLEPeripheralDisconnectionDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
+@property (readonly) HLPTimer *timer;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral;
 - (void)end;
