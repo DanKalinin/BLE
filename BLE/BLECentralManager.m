@@ -46,9 +46,10 @@
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
     
-    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
     self.peripheral.connection = self;
     [self.parent.central connectPeripheral:self.peripheral options:self.options];
+    
+    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
     [self.timer waitUntilFinished];
     if (self.cancelled) {
     } else if (!self.timer.cancelled) {
@@ -115,9 +116,10 @@
     [self updateState:HLPOperationStateDidBegin];
     
     if ((self.peripheral.state == CBPeripheralStateConnecting) || (self.peripheral.state == CBPeripheralStateConnected)) {
-        self.timer = [HLPClock.shared timerWithInterval:DBL_MAX repeats:1];
         self.peripheral.disconnection = self;
         [self.parent.central cancelPeripheralConnection:self.peripheral];
+        
+        self.timer = [HLPClock.shared timerWithInterval:DBL_MAX repeats:1];
         [self.timer waitUntilFinished];
     }
     
@@ -182,9 +184,10 @@
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
     
-    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
     self.peripheral.delegate = self.delegates;
     [self.peripheral discoverServices:self.services];
+    
+    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
     [self.timer waitUntilFinished];
     if (self.cancelled) {
     } else if (!self.timer.cancelled) {
@@ -260,9 +263,10 @@
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
     
-    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
     self.service.peripheral.delegate = self.delegates;
     [self.service.peripheral discoverCharacteristics:self.characteristics forService:self.service];
+    
+    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
     [self.timer waitUntilFinished];
     if (self.cancelled) {
     } else if (!self.timer.cancelled) {
@@ -335,9 +339,10 @@
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
     
-    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
     self.characteristic.service.peripheral.delegate = self.delegates;
     [self.characteristic.service.peripheral readValueForCharacteristic:self.characteristic];
+    
+    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
     [self.timer waitUntilFinished];
     if (self.cancelled) {
     } else if (!self.timer.cancelled) {
@@ -405,9 +410,10 @@
 - (void)main {
     [self updateState:HLPOperationStateDidBegin];
     
-    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
     self.peripheral.delegate = self.delegates;
     [self.peripheral openL2CAPChannel:self.psm];
+    
+    self.operation = self.timer = [HLPClock.shared timerWithInterval:self.timeout repeats:1];
     [self.timer waitUntilFinished];
     if (self.cancelled) {
     } else if (!self.timer.cancelled) {
