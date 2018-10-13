@@ -300,3 +300,113 @@
 @property HLPDictionary<CBUUID *, CBCharacteristic *> *characteristicsByUUID;
 
 @end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@class CBEPeripheral;
+@class CBECentralManager;
+
+
+
+
+
+
+
+
+
+
+@protocol CBEPeripheralDelegate <NSEOperationDelegate, CBPeripheralDelegate>
+
+@end
+
+
+
+@interface CBEPeripheral : NSEOperation <CBEPeripheralDelegate>
+
+@property (readonly) HLPArray<CBEPeripheralDelegate> *delegates;
+@property (readonly) CBPeripheral *peripheral;
+
+- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral;
+
+@end
+
+
+
+
+
+
+
+
+
+
+extern const NSEOperationState CBECentralManagerStateDidScanForPeripherals;
+
+
+
+@protocol CBECentralManagerDelegate <CBEPeripheralDelegate, CBCentralManagerDelegate>
+
+@end
+
+
+
+@interface CBECentralManager : NSEOperation <CBECentralManagerDelegate>
+
+@property (readonly) HLPArray<CBECentralManagerDelegate> *delegates;
+@property (readonly) NSDictionary<NSString *, id> *options;
+@property (readonly) CBCentralManager *central;
+@property (readonly) NSMutableDictionary<NSUUID *, CBEPeripheral *> *peripheralsByIdentifier;
+@property (readonly) NSMutableDictionary<NSString *, CBEPeripheral *> *peripheralsByName;
+
+- (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options;
+
+- (void)scanForPeripheralsWithServices:(NSArray<CBUUID *> *)serviceUUIDs options:(NSDictionary<NSString *, id> *)options;
+
+//scanForPeripheralsWithServices:(nullable NSArray<CBUUID *> *)serviceUUIDs options:(nullable NSDictionary<NSString *, id> *)options;
+
+//@property (readonly) HLPArray<BLECentralManagerDelegate> *delegates;
+//@property (readonly) NSDictionary<NSString *, id> *options;
+//@property (readonly) CBCentralManager *central;
+//@property (readonly) NSMutableDictionary<NSUUID *, CBPeripheral *> *peripheralsByIdentifier;
+//@property (readonly) NSMutableDictionary<NSString *, CBPeripheral *> *peripheralsByName;
+//
+//- (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options;
+//
+//- (BLEPeripheralConnection *)connectPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout;
+//- (BLEPeripheralConnection *)connectPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
+//
+//- (BLEPeripheralDisconnection *)disconnectPeripheral:(CBPeripheral *)peripheral;
+//- (BLEPeripheralDisconnection *)disconnectPeripheral:(CBPeripheral *)peripheral completion:(HLPVoidBlock)completion;
+//
+//- (BLEServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout;
+//- (BLEServicesDiscovery *)peripheral:(CBPeripheral *)peripheral discoverServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
+//
+//- (BLECharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout;
+//- (BLECharacteristicsDiscovery *)service:(CBService *)service discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
+//
+//- (BLECharacteristicReading *)readCharacteristic:(CBCharacteristic *)characteristic timeout:(NSTimeInterval)timeout;
+//- (BLECharacteristicReading *)readCharacteristic:(CBCharacteristic *)characteristic timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
+//
+//- (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout;
+//- (BLEL2CAPChannelOpening *)peripheral:(CBPeripheral *)peripheral openL2CAPChannel:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
+//
+//- (BLEL2CAPStreamsOpening *)openL2CAPStreams:(CBL2CAPChannel *)channel timeout:(NSTimeInterval)timeout;
+//- (BLEL2CAPStreamsOpening *)openL2CAPStreams:(CBL2CAPChannel *)channel timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
+
+@end

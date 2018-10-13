@@ -740,3 +740,135 @@
 }
 
 @end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@interface CBEPeripheral ()
+
+@property CBPeripheral *peripheral;
+
+@end
+
+
+
+@implementation CBEPeripheral
+
+@dynamic delegates;
+
+- (instancetype)initWithPeripheral:(CBPeripheral *)peripheral {
+    self = super.init;
+    if (self) {
+        self.peripheral = peripheral;
+        
+        peripheral.delegate = self.delegates;
+    }
+    return self;
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
+const NSEOperationState CBECentralManagerStateDidScanForPeripherals = 2;
+
+
+
+@interface CBECentralManager ()
+
+@property NSDictionary<NSString *, id> *options;
+@property CBCentralManager *central;
+@property NSMutableDictionary<NSUUID *, CBEPeripheral *> *peripheralsByIdentifier;
+@property NSMutableDictionary<NSString *, CBEPeripheral *> *peripheralsByName;
+
+@end
+
+
+
+@implementation CBECentralManager
+
+@dynamic delegates;
+
+- (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options {
+    self = super.init;
+    if (self) {
+        self.options = options;
+        
+        self.central = [CBCentralManager.alloc initWithDelegate:self.delegates queue:nil options:options];
+        
+        self.peripheralsByIdentifier = NSMutableDictionary.dictionary;
+        self.peripheralsByName = NSMutableDictionary.dictionary;
+    }
+    return self;
+}
+
+- (void)scanForPeripheralsWithServices:(NSArray<CBUUID *> *)serviceUUIDs options:(NSDictionary<NSString *, id> *)options {
+    [self.peripheralsByIdentifier removeAllObjects];
+    [self.peripheralsByName removeAllObjects];
+    
+    [self.central scanForPeripheralsWithServices:serviceUUIDs options:options];
+    
+    [self updateState:CBECentralManagerStateDidScanForPeripherals];
+}
+
+#pragma mark - Central manager
+
+- (void)centralManagerDidUpdateState:(CBCentralManager *)central {
+    
+}
+
+- (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *, id> *)advertisementData RSSI:(NSNumber *)RSSI {
+    CBEPeripheral *peripheral1 = [CBEPeripheral.alloc initWithPeripheral:peripheral];
+    self.peripheralsByIdentifier[peripheral.identifier] = peripheral1;
+    self.peripheralsByName[peripheral.name] = peripheral1;
+}
+
+//#pragma mark - Central manager
+//
+//- (void)centralManagerDidUpdateState:(CBCentralManager *)central {
+//}
+//
+//- (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *, id> *)advertisementData RSSI:(NSNumber *)RSSI {
+//    self.peripheralsByIdentifier[peripheral.identifier] = peripheral;
+//    self.peripheralsByName[peripheral.name] = peripheral;
+//
+//    peripheral.advertisement = advertisementData;
+//    peripheral.rssi = RSSI;
+//}
+//
+//- (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
+//    [peripheral.connection endWithError:nil];
+//}
+//
+//- (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
+//    [peripheral.disconnection end];
+//}
+//
+//- (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
+//    [peripheral.connection endWithError:error];
+//}
+
+@end
