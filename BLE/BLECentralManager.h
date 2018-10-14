@@ -321,6 +321,7 @@
 
 
 @class CBEPeripheralConnection;
+@class CBEPeripheralDisconnection;
 @class CBEPeripheral;
 @class CBECentralManager;
 
@@ -341,8 +342,10 @@
 
 @interface CBEPeripheralConnection : NSEOperation <CBEPeripheralConnectionDelegate>
 
+@property (readonly) CBEPeripheral *parent;
 @property (readonly) NSDictionary<NSString *, id> *options;
 @property (readonly) NSTimeInterval timeout;
+@property (readonly) NSETimer *timer;
 
 - (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout;
 
@@ -357,7 +360,26 @@
 
 
 
-@protocol CBEPeripheralDelegate <NSEOperationDelegate, CBPeripheralDelegate>
+@protocol CBEPeripheralDisconnectionDelegate <NSEOperationDelegate>
+
+@end
+
+
+
+@interface CBEPeripheralDisconnection : NSEOperation <CBEPeripheralDisconnectionDelegate>
+
+@end
+
+
+
+
+
+
+
+
+
+
+@protocol CBEPeripheralDelegate <CBEPeripheralConnectionDelegate, CBEPeripheralDisconnectionDelegate, CBPeripheralDelegate>
 
 @end
 
