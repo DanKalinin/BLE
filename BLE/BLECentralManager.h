@@ -340,11 +340,10 @@
 
 
 
-@interface CBEPeripheralConnection : NSEOperation <CBEPeripheralConnectionDelegate>
+@interface CBEPeripheralConnection : NSETimeoutOperation <CBEPeripheralConnectionDelegate>
 
 @property (readonly) CBEPeripheral *parent;
 @property (readonly) NSDictionary<NSString *, id> *options;
-@property (readonly) NSTimeInterval timeout;
 @property (readonly) NSETimer *timer;
 
 - (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout;
@@ -388,6 +387,10 @@
 
 
 @interface CBEPeripheral : NSEOperation <CBEPeripheralDelegate>
+
+@property NSDictionary<NSString *, id> *advertisement;
+@property NSNumber *rssi;
+@property HLPDictionary<CBUUID *, CBService *> *servicesByUUID;
 
 @property (weak) CBEPeripheralConnection *connection;
 @property (weak) CBEPeripheralDisconnection *disconnection;
