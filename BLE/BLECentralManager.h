@@ -278,9 +278,9 @@
 
 @interface CBPeripheral (BLE)
 
-//@property NSDictionary<NSString *, id> *advertisement;
-//@property NSNumber *rssi;
-//@property HLPDictionary<CBUUID *, CBService *> *servicesByUUID;
+@property NSDictionary<NSString *, id> *advertisement;
+@property NSNumber *rssi;
+@property HLPDictionary<CBUUID *, CBService *> *servicesByUUID;
 @property BLEPeripheralConnection *connection;
 @property BLEPeripheralDisconnection *disconnection;
 
@@ -340,11 +340,10 @@
 
 
 
-@interface CBEPeripheralConnection : NSETimeoutOperation <CBEPeripheralConnectionDelegate>
+@interface CBEPeripheralConnection : NSEOperation <CBEPeripheralConnectionDelegate>
 
 @property (readonly) CBEPeripheral *parent;
 @property (readonly) NSDictionary<NSString *, id> *options;
-@property (readonly) NSETimer *timer;
 
 - (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout;
 
@@ -462,22 +461,5 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 //
 //- (BLEL2CAPStreamsOpening *)openL2CAPStreams:(CBL2CAPChannel *)channel timeout:(NSTimeInterval)timeout;
 //- (BLEL2CAPStreamsOpening *)openL2CAPStreams:(CBL2CAPChannel *)channel timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
-
-@end
-
-
-
-
-
-
-
-
-
-
-@interface CBPeripheral (CBE)
-
-@property NSDictionary<NSString *, id> *advertisement;
-@property NSNumber *rssi;
-@property HLPDictionary<CBUUID *, CBService *> *servicesByUUID;
 
 @end

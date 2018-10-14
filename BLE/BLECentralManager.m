@@ -678,29 +678,29 @@
 
 @implementation CBPeripheral (BLE)
 
-//- (NSDictionary<NSString *, id> *)advertisement {
-//    return self.strongDictionary[NSStringFromSelector(@selector(advertisement))];
-//}
-//
-//- (void)setAdvertisement:(NSDictionary<NSString *, id> *)advertisement {
-//    self.strongDictionary[NSStringFromSelector(@selector(advertisement))] = advertisement;
-//}
-//
-//- (NSNumber *)rssi {
-//    return self.strongDictionary[NSStringFromSelector(@selector(rssi))];
-//}
-//
-//- (void)setRssi:(NSNumber *)rssi {
-//    self.strongDictionary[NSStringFromSelector(@selector(rssi))] = rssi;
-//}
-//
-//- (HLPDictionary<CBUUID *, CBService *> *)servicesByUUID {
-//    return self.strongDictionary[NSStringFromSelector(@selector(servicesByUUID))];
-//}
-//
-//- (void)setServicesByUUID:(HLPDictionary<CBUUID *, CBService *> *)servicesByUUID {
-//    self.strongDictionary[NSStringFromSelector(@selector(servicesByUUID))] = servicesByUUID;
-//}
+- (NSDictionary<NSString *, id> *)advertisement {
+    return self.strongDictionary[NSStringFromSelector(@selector(advertisement))];
+}
+
+- (void)setAdvertisement:(NSDictionary<NSString *, id> *)advertisement {
+    self.strongDictionary[NSStringFromSelector(@selector(advertisement))] = advertisement;
+}
+
+- (NSNumber *)rssi {
+    return self.strongDictionary[NSStringFromSelector(@selector(rssi))];
+}
+
+- (void)setRssi:(NSNumber *)rssi {
+    self.strongDictionary[NSStringFromSelector(@selector(rssi))] = rssi;
+}
+
+- (HLPDictionary<CBUUID *, CBService *> *)servicesByUUID {
+    return self.strongDictionary[NSStringFromSelector(@selector(servicesByUUID))];
+}
+
+- (void)setServicesByUUID:(HLPDictionary<CBUUID *, CBService *> *)servicesByUUID {
+    self.strongDictionary[NSStringFromSelector(@selector(servicesByUUID))] = servicesByUUID;
+}
 
 - (BLEPeripheralConnection *)connection {
     return self.weakDictionary[NSStringFromSelector(@selector(connection))];
@@ -784,7 +784,7 @@
 @dynamic parent;
 
 - (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout {
-    self = [super initWithTimeout:timeout];
+    self = super.init;
     if (self) {
         self.options = options;
     }
@@ -996,43 +996,6 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
         [cbePeripheral.connection.errors addObject:error];
         [cbePeripheral.connection finish];
     }
-}
-
-@end
-
-
-
-
-
-
-
-
-
-
-@implementation CBPeripheral (CBE)
-
-- (NSDictionary<NSString *, id> *)advertisement {
-    return self.strongDictionary[NSStringFromSelector(@selector(advertisement))];
-}
-
-- (void)setAdvertisement:(NSDictionary<NSString *, id> *)advertisement {
-    self.strongDictionary[NSStringFromSelector(@selector(advertisement))] = advertisement;
-}
-
-- (NSNumber *)rssi {
-    return self.strongDictionary[NSStringFromSelector(@selector(rssi))];
-}
-
-- (void)setRssi:(NSNumber *)rssi {
-    self.strongDictionary[NSStringFromSelector(@selector(rssi))] = rssi;
-}
-
-- (HLPDictionary<CBUUID *, CBService *> *)servicesByUUID {
-    return self.strongDictionary[NSStringFromSelector(@selector(servicesByUUID))];
-}
-
-- (void)setServicesByUUID:(HLPDictionary<CBUUID *, CBService *> *)servicesByUUID {
-    self.strongDictionary[NSStringFromSelector(@selector(servicesByUUID))] = servicesByUUID;
 }
 
 @end
