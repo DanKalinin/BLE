@@ -278,9 +278,9 @@
 
 @interface CBPeripheral (BLE)
 
-@property NSDictionary<NSString *, id> *advertisement;
-@property NSNumber *rssi;
-@property HLPDictionary<CBUUID *, CBService *> *servicesByUUID;
+//@property NSDictionary<NSString *, id> *advertisement;
+//@property NSNumber *rssi;
+//@property HLPDictionary<CBUUID *, CBService *> *servicesByUUID;
 @property BLEPeripheralConnection *connection;
 @property BLEPeripheralDisconnection *disconnection;
 
@@ -378,16 +378,6 @@ extern const NSEOperationState CBECentralManagerStateDidScanForPeripherals;
 
 - (void)scanForPeripheralsWithServices:(NSArray<CBUUID *> *)serviceUUIDs options:(NSDictionary<NSString *, id> *)options;
 
-//scanForPeripheralsWithServices:(nullable NSArray<CBUUID *> *)serviceUUIDs options:(nullable NSDictionary<NSString *, id> *)options;
-
-//@property (readonly) HLPArray<BLECentralManagerDelegate> *delegates;
-//@property (readonly) NSDictionary<NSString *, id> *options;
-//@property (readonly) CBCentralManager *central;
-//@property (readonly) NSMutableDictionary<NSUUID *, CBPeripheral *> *peripheralsByIdentifier;
-//@property (readonly) NSMutableDictionary<NSString *, CBPeripheral *> *peripheralsByName;
-//
-//- (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options;
-//
 //- (BLEPeripheralConnection *)connectPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout;
 //- (BLEPeripheralConnection *)connectPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
 //
@@ -408,5 +398,22 @@ extern const NSEOperationState CBECentralManagerStateDidScanForPeripherals;
 //
 //- (BLEL2CAPStreamsOpening *)openL2CAPStreams:(CBL2CAPChannel *)channel timeout:(NSTimeInterval)timeout;
 //- (BLEL2CAPStreamsOpening *)openL2CAPStreams:(CBL2CAPChannel *)channel timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface CBPeripheral (CBE)
+
+@property NSDictionary<NSString *, id> *advertisement;
+@property NSNumber *rssi;
+@property HLPDictionary<CBUUID *, CBService *> *servicesByUUID;
 
 @end

@@ -678,29 +678,29 @@
 
 @implementation CBPeripheral (BLE)
 
-- (NSDictionary<NSString *, id> *)advertisement {
-    return self.strongDictionary[NSStringFromSelector(@selector(advertisement))];
-}
-
-- (void)setAdvertisement:(NSDictionary<NSString *, id> *)advertisement {
-    self.strongDictionary[NSStringFromSelector(@selector(advertisement))] = advertisement;
-}
-
-- (NSNumber *)rssi {
-    return self.strongDictionary[NSStringFromSelector(@selector(rssi))];
-}
-
-- (void)setRssi:(NSNumber *)rssi {
-    self.strongDictionary[NSStringFromSelector(@selector(rssi))] = rssi;
-}
-
-- (HLPDictionary<CBUUID *, CBService *> *)servicesByUUID {
-    return self.strongDictionary[NSStringFromSelector(@selector(servicesByUUID))];
-}
-
-- (void)setServicesByUUID:(HLPDictionary<CBUUID *, CBService *> *)servicesByUUID {
-    self.strongDictionary[NSStringFromSelector(@selector(servicesByUUID))] = servicesByUUID;
-}
+//- (NSDictionary<NSString *, id> *)advertisement {
+//    return self.strongDictionary[NSStringFromSelector(@selector(advertisement))];
+//}
+//
+//- (void)setAdvertisement:(NSDictionary<NSString *, id> *)advertisement {
+//    self.strongDictionary[NSStringFromSelector(@selector(advertisement))] = advertisement;
+//}
+//
+//- (NSNumber *)rssi {
+//    return self.strongDictionary[NSStringFromSelector(@selector(rssi))];
+//}
+//
+//- (void)setRssi:(NSNumber *)rssi {
+//    self.strongDictionary[NSStringFromSelector(@selector(rssi))] = rssi;
+//}
+//
+//- (HLPDictionary<CBUUID *, CBService *> *)servicesByUUID {
+//    return self.strongDictionary[NSStringFromSelector(@selector(servicesByUUID))];
+//}
+//
+//- (void)setServicesByUUID:(HLPDictionary<CBUUID *, CBService *> *)servicesByUUID {
+//    self.strongDictionary[NSStringFromSelector(@selector(servicesByUUID))] = servicesByUUID;
+//}
 
 - (BLEPeripheralConnection *)connection {
     return self.weakDictionary[NSStringFromSelector(@selector(connection))];
@@ -841,9 +841,16 @@ const NSEOperationState CBECentralManagerStateDidScanForPeripherals = 2;
 }
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *, id> *)advertisementData RSSI:(NSNumber *)RSSI {
-    CBEPeripheral *peripheral1 = [CBEPeripheral.alloc initWithPeripheral:peripheral];
-    self.peripheralsByIdentifier[peripheral.identifier] = peripheral1;
-    self.peripheralsByName[peripheral.name] = peripheral1;
+    CBEPeripheral *cbePeripheral = self.peripheralsByIdentifier[peripheral.identifier];
+    if (cbePeripheral) {
+    } else {
+        cbePeripheral = [CBEPeripheral.alloc initWithPeripheral:peripheral];
+        self.peripheralsByIdentifier[peripheral.identifier] = cbePeripheral;
+        self.peripheralsByName[peripheral.name] = cbePeripheral;
+    }
+    
+    peripheral.advertisement = advertisementData;
+    peripheral.rssi = RSSI;
 }
 
 //#pragma mark - Central manager
@@ -870,5 +877,42 @@ const NSEOperationState CBECentralManagerStateDidScanForPeripherals = 2;
 //- (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
 //    [peripheral.connection endWithError:error];
 //}
+
+@end
+
+
+
+
+
+
+
+
+
+
+@implementation CBPeripheral (CBE)
+
+- (NSDictionary<NSString *, id> *)advertisement {
+    return self.strongDictionary[NSStringFromSelector(@selector(advertisement))];
+}
+
+- (void)setAdvertisement:(NSDictionary<NSString *, id> *)advertisement {
+    self.strongDictionary[NSStringFromSelector(@selector(advertisement))] = advertisement;
+}
+
+- (NSNumber *)rssi {
+    return self.strongDictionary[NSStringFromSelector(@selector(rssi))];
+}
+
+- (void)setRssi:(NSNumber *)rssi {
+    self.strongDictionary[NSStringFromSelector(@selector(rssi))] = rssi;
+}
+
+- (HLPDictionary<CBUUID *, CBService *> *)servicesByUUID {
+    return self.strongDictionary[NSStringFromSelector(@selector(servicesByUUID))];
+}
+
+- (void)setServicesByUUID:(HLPDictionary<CBUUID *, CBService *> *)servicesByUUID {
+    self.strongDictionary[NSStringFromSelector(@selector(servicesByUUID))] = servicesByUUID;
+}
 
 @end
