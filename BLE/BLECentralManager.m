@@ -795,13 +795,15 @@
 }
 
 - (void)main {
-    if ((self.parent.peripheral.state == CBPeripheralStateDisconnecting) || (self.parent.peripheral.state == CBPeripheralStateDisconnected)) {
+    if ((self.parent.peripheral.state == CBPeripheralStateDisconnecting) || (self.parent.peripheral.state == CBPeripheralStateDisconnected) || (self.parent.peripheral.state == CBPeripheralStateConnecting)) {
         self.parent.connection = self;
         [self.parent.parent.central connectPeripheral:self.parent.peripheral options:self.options];
     } else if (self.parent.peripheral.state == CBPeripheralStateConnecting) {
         self.parent.connection = self;
     } else if (self.parent.peripheral.state == CBPeripheralStateConnected) {
         [self finish];
+    } else {
+        
     }
 }
 
