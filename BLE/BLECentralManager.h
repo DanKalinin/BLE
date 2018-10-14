@@ -357,6 +357,7 @@
 
 
 extern const NSEOperationState CBECentralManagerStateDidScanForPeripherals;
+extern const NSEOperationState CBECentralManagerStateDidStopScan;
 
 
 
@@ -377,6 +378,7 @@ extern const NSEOperationState CBECentralManagerStateDidScanForPeripherals;
 - (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options;
 
 - (void)scanForPeripheralsWithServices:(NSArray<CBUUID *> *)serviceUUIDs options:(NSDictionary<NSString *, id> *)options;
+- (void)stopScan;
 
 //- (BLEPeripheralConnection *)connectPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout;
 //- (BLEPeripheralConnection *)connectPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;

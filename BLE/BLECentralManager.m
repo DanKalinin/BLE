@@ -794,6 +794,7 @@
 
 
 const NSEOperationState CBECentralManagerStateDidScanForPeripherals = 2;
+const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 
 
@@ -834,6 +835,12 @@ const NSEOperationState CBECentralManagerStateDidScanForPeripherals = 2;
     [self updateState:CBECentralManagerStateDidScanForPeripherals];
 }
 
+- (void)stopScan {
+    [self.central stopScan];
+    
+    [self updateState:CBECentralManagerStateDidStopScan];
+}
+
 #pragma mark - Central manager
 
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
@@ -853,19 +860,6 @@ const NSEOperationState CBECentralManagerStateDidScanForPeripherals = 2;
     peripheral.rssi = RSSI;
 }
 
-//#pragma mark - Central manager
-//
-//- (void)centralManagerDidUpdateState:(CBCentralManager *)central {
-//}
-//
-//- (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *, id> *)advertisementData RSSI:(NSNumber *)RSSI {
-//    self.peripheralsByIdentifier[peripheral.identifier] = peripheral;
-//    self.peripheralsByName[peripheral.name] = peripheral;
-//
-//    peripheral.advertisement = advertisementData;
-//    peripheral.rssi = RSSI;
-//}
-//
 //- (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
 //    [peripheral.connection endWithError:nil];
 //}
