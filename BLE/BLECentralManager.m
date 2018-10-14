@@ -760,6 +760,25 @@
 
 
 
+@interface CBEPeripheralConnection ()
+
+@end
+
+
+
+@implementation CBEPeripheralConnection
+
+@end
+
+
+
+
+
+
+
+
+
+
 @interface CBEPeripheral ()
 
 @property CBPeripheral *peripheral;
@@ -770,6 +789,7 @@
 
 @implementation CBEPeripheral
 
+@dynamic parent;
 @dynamic delegates;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral {
@@ -777,10 +797,14 @@
     if (self) {
         self.peripheral = peripheral;
         
-        peripheral.delegate = self.delegates;
+        self.peripheral.delegate = self.delegates;
     }
     return self;
 }
+
+//- (CBEPeripheralConnection *)connectWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout {
+//    
+//}
 
 @end
 
@@ -818,7 +842,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     if (self) {
         self.options = options;
         
-        self.central = [CBCentralManager.alloc initWithDelegate:self.delegates queue:nil options:options];
+        self.central = [CBCentralManager.alloc initWithDelegate:self.delegates queue:nil options:self.options];
         
         self.peripheralsByIdentifier = NSMutableDictionary.dictionary;
         self.peripheralsByName = NSMutableDictionary.dictionary;
@@ -852,6 +876,8 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     if (cbePeripheral) {
     } else {
         cbePeripheral = [CBEPeripheral.alloc initWithPeripheral:peripheral];
+        [self addOperation:cbePeripheral];
+        
         self.peripheralsByIdentifier[peripheral.identifier] = cbePeripheral;
         self.peripheralsByName[peripheral.name] = cbePeripheral;
     }

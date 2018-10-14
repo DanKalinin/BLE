@@ -320,8 +320,33 @@
 
 
 
+@class CBEPeripheralConnection;
 @class CBEPeripheral;
 @class CBECentralManager;
+
+
+
+
+
+
+
+
+
+
+@protocol CBEPeripheralConnectionDelegate <NSEOperationDelegate>
+
+@end
+
+
+
+@interface CBEPeripheralConnection : NSEOperation <CBEPeripheralConnectionDelegate>
+
+@property (readonly) NSDictionary<NSString *, id> *options;
+@property (readonly) NSTimeInterval timeout;
+
+- (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout;
+
+@end
 
 
 
@@ -340,10 +365,14 @@
 
 @interface CBEPeripheral : NSEOperation <CBEPeripheralDelegate>
 
+@property (readonly) CBECentralManager *parent;
 @property (readonly) HLPArray<CBEPeripheralDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral;
+
+- (CBEPeripheralConnection *)connectWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout;
+- (CBEPeripheralConnection *)connectWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
 
 @end
 
