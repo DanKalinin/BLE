@@ -795,9 +795,14 @@
 }
 
 - (void)main {
-    [self.parent.parent.central connectPeripheral:self.parent.peripheral options:self.options];
-    
-    self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
+    if ((self.parent.peripheral.state == CBPeripheralStateDisconnecting) || (self.parent.peripheral.state == CBPeripheralStateDisconnected)) {
+        self.parent.connection = self;
+        [self.parent.parent.central connectPeripheral:self.parent.peripheral options:self.options];
+    } else if (self.parent.peripheral.state == CBPeripheralStateConnecting) {
+        self.parent.connection = self;
+    } else if (self.parent.peripheral.state == CBPeripheralStateConnected) {
+        [self finish];
+    }
 }
 
 //- (void)main {
@@ -855,36 +860,18 @@
 
 @implementation CBEPeripheralDisconnection
 
-//- (void)main {
-//    [self updateState:HLPOperationStateDidBegin];
-//
-//    if ((self.peripheral.state == CBPeripheralStateConnecting) || (self.peripheral.state == CBPeripheralStateConnected)) {
-//        self.peripheral.disconnection = self;
-//        [self.parent.central cancelPeripheralConnection:self.peripheral];
-//
-//        self.tick = [HLPClock.shared tickWithInterval:DBL_MAX];
-//        [self.tick waitUntilFinished];
-//    }
-//
-//    [self updateState:HLPOperationStateDidEnd];
-//}
-//
-//#pragma mark - Helpers
-//
-//- (void)updateState:(HLPOperationState)state {
-//    [super updateState:state];
-//
-//    [self.delegates BLEPeripheralDisconnectionDidUpdateState:self];
-//    if (state == HLPOperationStateDidBegin) {
-//        [self.delegates BLEPeripheralDisconnectionDidBegin:self];
-//    } else if (state == HLPOperationStateDidEnd) {
-//        [self.delegates BLEPeripheralDisconnectionDidEnd:self];
-//    }
-//}
-//
-//- (void)end {
-//    [self.tick cancel];
-//}
+@dynamic parent;
+
+- (void)main {
+    if ((self.parent.peripheral.state == CBPeripheralStateConnecting) || (self.parent.peripheral.state == CBPeripheralStateConnected)) {
+        self.parent.disconnection = self;
+        [self.parent.parent.central cancelPeripheralConnection:self.parent.peripheral];
+    } else if (self.parent.peripheral.state == CBPeripheralStateDisconnecting) {
+        self.parent.disconnection = self;
+    } else if (self.parent.peripheral.state == CBPeripheralStateDisconnected) {
+        [self finish];
+    }
+}
 
 @end
 
@@ -920,9 +907,29 @@
     return self;
 }
 
-//- (CBEPeripheralConnection *)connectWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout {
-//    
-//}
+- (CBEPeripheralConnection *)connectWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout {
+    CBEPeripheralConnection *connection = [CBEPeripheralConnection.alloc initWithOptions:options timeout:timeout];
+    [self addOperation:connection];
+    return connection;
+}
+
+- (CBEPeripheralConnection *)connectWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
+    CBEPeripheralConnection *connection = [self connectWithOptions:options timeout:timeout];
+    connection.completionBlock = completion;
+    return connection;
+}
+
+- (CBEPeripheralDisconnection *)disconnect {
+    CBEPeripheralDisconnection *disconnection = CBEPeripheralDisconnection.new;
+    [self addOperation:disconnection];
+    return disconnection;
+}
+
+- (CBEPeripheralDisconnection *)disconnectWithCompletion:(HLPVoidBlock)completion {
+    CBEPeripheralDisconnection *disconnection = [self disconnect];
+    disconnection.completionBlock = completion;
+    return disconnection;
+}
 
 @end
 
@@ -1002,6 +1009,11 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     
     peripheral.advertisement = advertisementData;
     peripheral.rssi = RSSI;
+}
+
+- (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
+    CBEPeripheral *cbePeripheral = self.peripheralsByIdentifier[peripheral.identifier];
+    [cbePeripheral.disconnection finish];
 }
 
 //- (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {

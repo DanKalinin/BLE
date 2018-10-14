@@ -368,6 +368,8 @@
 
 @interface CBEPeripheralDisconnection : NSEOperation <CBEPeripheralDisconnectionDelegate>
 
+@property (readonly) CBEPeripheral *parent;
+
 @end
 
 
@@ -387,6 +389,9 @@
 
 @interface CBEPeripheral : NSEOperation <CBEPeripheralDelegate>
 
+@property (weak) CBEPeripheralConnection *connection;
+@property (weak) CBEPeripheralDisconnection *disconnection;
+
 @property (readonly) CBECentralManager *parent;
 @property (readonly) HLPArray<CBEPeripheralDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
@@ -395,6 +400,9 @@
 
 - (CBEPeripheralConnection *)connectWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout;
 - (CBEPeripheralConnection *)connectWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
+
+- (CBEPeripheralDisconnection *)disconnect;
+- (CBEPeripheralDisconnection *)disconnectWithCompletion:(HLPVoidBlock)completion;
 
 @end
 
