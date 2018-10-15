@@ -420,7 +420,7 @@
 
 
 
-extern const NSEOperationState CBECentralManagerStateDidScanForPeripherals;
+extern const NSEOperationState CBECentralManagerStateDidScan;
 extern const NSEOperationState CBECentralManagerStateDidStopScan;
 
 
@@ -438,8 +438,8 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 @property (readonly) HLPArray<CBECentralManagerDelegate> *delegates;
 @property (readonly) NSDictionary<NSString *, id> *options;
 @property (readonly) CBCentralManager *central;
-@property (readonly) NSMutableDictionary<NSUUID *, CBEPeripheral *> *peripheralsByIdentifier;
-@property (readonly) NSMutableDictionary<NSString *, CBEPeripheral *> *peripheralsByName;
+@property (readonly) NSMutableDictionary<NSUUID *, __kindof CBEPeripheral *> *peripheralsByIdentifier;
+@property (readonly) NSMutableDictionary<NSString *, __kindof CBEPeripheral *> *peripheralsByName;
 
 - (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options;
 
