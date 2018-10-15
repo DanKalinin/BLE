@@ -420,7 +420,7 @@
 
 
 
-extern const NSEOperationState CBECentralManagerStateDidScan;
+extern const NSEOperationState CBECentralManagerStateDidScanForPeripherals;
 extern const NSEOperationState CBECentralManagerStateDidStopScan;
 
 

@@ -935,7 +935,7 @@
 
 
 
-const NSEOperationState CBECentralManagerStateDidScan = 2;
+const NSEOperationState CBECentralManagerStateDidScanForPeripherals = 2;
 const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 
@@ -974,7 +974,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     
     [self.central scanForPeripheralsWithServices:serviceUUIDs options:options];
     
-    [self updateState:CBECentralManagerStateDidScan];
+    [self updateState:CBECentralManagerStateDidScanForPeripherals];
 }
 
 - (void)stopScan {
