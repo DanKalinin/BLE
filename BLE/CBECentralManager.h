@@ -390,17 +390,16 @@
 
 @interface CBEPeripheral : NSEOperation <CBEPeripheralDelegate>
 
-@property NSDictionary<NSString *, id> *advertisement;
-@property NSNumber *rssi;
-@property HLPDictionary<CBUUID *, CBService *> *servicesByUUID;
-@property (readonly) NSMutableDictionary<NSNumber *, CBL2CAPChannel *> *channelsByPSM;
-
 @property (weak) CBEPeripheralConnection *connection;
 @property (weak) CBEPeripheralDisconnection *disconnection;
 
 @property (readonly) CBECentralManager *parent;
 @property (readonly) HLPArray<CBEPeripheralDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
+@property (readonly) HLPDictionary<CBUUID *, CBService *> *servicesByUUID;
+@property (readonly) NSMutableDictionary<NSNumber *, CBL2CAPChannel *> *channelsByPSM;
+@property (readonly) NSDictionary<NSString *, id> *advertisement;
+@property (readonly) NSNumber *rssi;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral;
 

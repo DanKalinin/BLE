@@ -871,6 +871,10 @@
 @interface CBEPeripheral ()
 
 @property CBPeripheral *peripheral;
+@property HLPDictionary<CBUUID *, CBService *> *servicesByUUID;
+@property NSMutableDictionary<NSNumber *, CBL2CAPChannel *> *channelsByPSM;
+@property NSDictionary<NSString *, id> *advertisement;
+@property NSNumber *rssi;
 
 @end
 
@@ -885,8 +889,10 @@
     self = super.init;
     if (self) {
         self.peripheral = peripheral;
-        
         self.peripheral.delegate = self.delegates;
+        
+        self.servicesByUUID = HLPDictionary.strongToWeakDictionary;
+        self.channelsByPSM = NSMutableDictionary.dictionary;
     }
     return self;
 }
