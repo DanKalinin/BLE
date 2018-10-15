@@ -11,5 +11,5 @@
 FOUNDATION_EXPORT double BLEVersionNumber;
 FOUNDATION_EXPORT const unsigned char BLEVersionString[];
 
-#import <BLE/BLEMain.h>
-#import <BLE/BLECentralManager.h>
+#import <BLE/CBEMain.h>
+#import <BLE/CBECentralManager.h>
