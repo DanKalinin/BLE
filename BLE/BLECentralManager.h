@@ -433,6 +433,8 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 
 @interface CBECentralManager : NSEOperation <CBECentralManagerDelegate>
 
+@property Class peripheralClass;
+
 @property (readonly) HLPArray<CBECentralManagerDelegate> *delegates;
 @property (readonly) NSDictionary<NSString *, id> *options;
 @property (readonly) CBCentralManager *central;
