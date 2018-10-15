@@ -1015,6 +1015,10 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
     CBEPeripheral *cbePeripheral = self.peripheralsByIdentifier[peripheral.identifier];
+    
+    [cbePeripheral.servicesByUUID removeAllObjects];
+    [cbePeripheral.channelsByPSM removeAllObjects];
+    
     [cbePeripheral.disconnection finish];
 }
 
