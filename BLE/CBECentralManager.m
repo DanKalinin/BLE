@@ -960,8 +960,6 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     if (self) {
         self.options = options;
         
-        self.peripheralClass = CBEPeripheral.class;
-        
         self.central = [CBCentralManager.alloc initWithDelegate:self.delegates queue:nil options:self.options];
         
         self.peripheralsByIdentifier = NSMutableDictionary.dictionary;
@@ -995,7 +993,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     CBEPeripheral *cbePeripheral = self.peripheralsByIdentifier[peripheral.identifier];
     if (cbePeripheral) {
     } else {
-        cbePeripheral = [(CBEPeripheral *)self.peripheralClass.alloc initWithPeripheral:peripheral];
+        cbePeripheral = [CBEPeripheral.alloc initWithPeripheral:peripheral];
         [self addOperation:cbePeripheral];
         
         self.peripheralsByIdentifier[peripheral.identifier] = cbePeripheral;

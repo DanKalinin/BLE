@@ -433,13 +433,11 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 
 @interface CBECentralManager : NSEOperation <CBECentralManagerDelegate>
 
-@property Class peripheralClass;
-
 @property (readonly) HLPArray<CBECentralManagerDelegate> *delegates;
 @property (readonly) NSDictionary<NSString *, id> *options;
 @property (readonly) CBCentralManager *central;
-@property (readonly) NSMutableDictionary<NSUUID *, __kindof CBEPeripheral *> *peripheralsByIdentifier;
-@property (readonly) NSMutableDictionary<NSString *, __kindof CBEPeripheral *> *peripheralsByName;
+@property (readonly) NSMutableDictionary<NSUUID *, CBEPeripheral *> *peripheralsByIdentifier;
+@property (readonly) NSMutableDictionary<NSString *, CBEPeripheral *> *peripheralsByName;
 
 - (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options;
 
