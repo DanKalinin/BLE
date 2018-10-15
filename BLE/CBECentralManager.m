@@ -871,9 +871,9 @@
 @interface CBEPeripheral ()
 
 @property CBPeripheral *peripheral;
-@property HLPDictionary<CBUUID *, CBService *> *servicesByUUID;
-@property HLPDictionary<NSNumber *, CBL2CAPChannel *> *channelsByPSM;
-@property HLPDictionary<NSString *, id> *advertisement;
+@property NSMutableDictionary<CBUUID *, CBService *> *servicesByUUID;
+@property NSMutableDictionary<NSNumber *, CBL2CAPChannel *> *channelsByPSM;
+@property NSDictionary<NSString *, id> *advertisement;
 @property NSNumber *rssi;
 
 @end
@@ -892,8 +892,8 @@
         
         self.peripheral.delegate = self.delegates;
         
-        self.servicesByUUID = HLPDictionary.strongToWeakDictionary;
-        self.channelsByPSM = HLPDictionary.strongToStrongDictionary;
+        self.servicesByUUID = NSMutableDictionary.dictionary;
+        self.channelsByPSM = NSMutableDictionary.dictionary;
     }
     return self;
 }
@@ -942,10 +942,10 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 @interface CBECentralManager ()
 
-@property HLPDictionary<NSString *, id> *options;
+@property NSDictionary<NSString *, id> *options;
 @property CBCentralManager *central;
-@property HLPDictionary<NSUUID *, CBEPeripheral *> *peripheralsByIdentifier;
-@property HLPDictionary<NSString *, CBEPeripheral *> *peripheralsByName;
+@property NSMutableDictionary<NSUUID *, CBEPeripheral *> *peripheralsByIdentifier;
+@property NSMutableDictionary<NSString *, CBEPeripheral *> *peripheralsByName;
 
 @end
 
@@ -955,7 +955,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 @dynamic delegates;
 
-- (instancetype)initWithOptions:(HLPDictionary<NSString *, id> *)options {
+- (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options {
     self = super.init;
     if (self) {
         self.options = options;
@@ -964,13 +964,13 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
         
         self.central = [CBCentralManager.alloc initWithDelegate:self.delegates queue:nil options:self.options];
         
-        self.peripheralsByIdentifier = HLPDictionary.strongToStrongDictionary;
-        self.peripheralsByName = HLPDictionary.strongToStrongDictionary;
+        self.peripheralsByIdentifier = NSMutableDictionary.dictionary;
+        self.peripheralsByName = NSMutableDictionary.dictionary;
     }
     return self;
 }
 
-- (void)scanForPeripheralsWithServices:(HLPArray<CBUUID *> *)serviceUUIDs options:(HLPDictionary<NSString *,id> *)options {
+- (void)scanForPeripheralsWithServices:(NSArray<CBUUID *> *)serviceUUIDs options:(HLPDictionary<NSString *, id> *)options {
     [self.peripheralsByIdentifier removeAllObjects];
     [self.peripheralsByName removeAllObjects];
     
@@ -1002,7 +1002,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
         self.peripheralsByName[peripheral.name] = cbePeripheral;
     }
     
-    cbePeripheral.advertisement = advertisementData.strongToStrongDictionary;
+    cbePeripheral.advertisement = advertisementData;
     cbePeripheral.rssi = RSSI;
 }
 
@@ -1016,10 +1016,6 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
     CBEPeripheral *cbePeripheral = self.peripheralsByIdentifier[peripheral.identifier];
-    
-    [cbePeripheral.servicesByUUID removeAllObjects];
-    [cbePeripheral.channelsByPSM removeAllObjects];
-    
     [cbePeripheral.disconnection finish];
 }
 

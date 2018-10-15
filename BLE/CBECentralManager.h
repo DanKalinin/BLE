@@ -396,9 +396,9 @@
 @property (readonly) CBECentralManager *parent;
 @property (readonly) HLPArray<CBEPeripheralDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
-@property (readonly) HLPDictionary<CBUUID *, CBService *> *servicesByUUID;
-@property (readonly) HLPDictionary<NSNumber *, CBL2CAPChannel *> *channelsByPSM;
-@property (readonly) HLPDictionary<NSString *, id> *advertisement;
+@property (readonly) NSMutableDictionary<CBUUID *, CBService *> *servicesByUUID;
+@property (readonly) NSMutableDictionary<NSNumber *, CBL2CAPChannel *> *channelsByPSM;
+@property (readonly) NSDictionary<NSString *, id> *advertisement;
 @property (readonly) NSNumber *rssi;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral;
@@ -436,14 +436,14 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 @property Class peripheralClass;
 
 @property (readonly) HLPArray<CBECentralManagerDelegate> *delegates;
-@property (readonly) HLPDictionary<NSString *, id> *options;
+@property (readonly) NSDictionary<NSString *, id> *options;
 @property (readonly) CBCentralManager *central;
-@property (readonly) HLPDictionary<NSUUID *, __kindof CBEPeripheral *> *peripheralsByIdentifier;
-@property (readonly) HLPDictionary<NSString *, __kindof CBEPeripheral *> *peripheralsByName;
+@property (readonly) NSMutableDictionary<NSUUID *, __kindof CBEPeripheral *> *peripheralsByIdentifier;
+@property (readonly) NSMutableDictionary<NSString *, __kindof CBEPeripheral *> *peripheralsByName;
 
-- (instancetype)initWithOptions:(HLPDictionary<NSString *, id> *)options;
+- (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options;
 
-- (void)scanForPeripheralsWithServices:(HLPArray<CBUUID *> *)serviceUUIDs options:(HLPDictionary<NSString *, id> *)options;
+- (void)scanForPeripheralsWithServices:(NSArray<CBUUID *> *)serviceUUIDs options:(NSDictionary<NSString *, id> *)options;
 - (void)stopScan;
 
 //- (BLEPeripheralConnection *)connectPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout;
