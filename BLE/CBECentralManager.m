@@ -889,6 +889,7 @@
     self = super.init;
     if (self) {
         self.peripheral = peripheral;
+        
         self.peripheral.delegate = self.delegates;
         
         self.servicesByUUID = HLPDictionary.strongToWeakDictionary;
