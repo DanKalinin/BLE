@@ -344,6 +344,9 @@
 
 @property (readonly) CBEPeripheral *parent;
 @property (readonly) NSDictionary<NSString *, id> *options;
+@property (readonly) NSTimeInterval timeout;
+@property (readonly) NSETimer *timer;
+@property (readonly) CBEPeripheralDisconnection *disconnection;
 
 - (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout;
 

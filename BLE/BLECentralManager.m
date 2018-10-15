@@ -774,6 +774,9 @@
 @interface CBEPeripheralConnection ()
 
 @property NSDictionary<NSString *, id> *options;
+@property NSTimeInterval timeout;
+@property NSETimer *timer;
+@property CBEPeripheralDisconnection *disconnection;
 
 @end
 
@@ -787,19 +790,36 @@
     self = super.init;
     if (self) {
         self.options = options;
+        self.timeout = timeout;
     }
     return self;
 }
 
 - (void)main {
-    [super main];
-    
-    if ((self.parent.peripheral.state == CBPeripheralStateDisconnecting) || (self.parent.peripheral.state == CBPeripheralStateDisconnected)) {
+    if (self.parent.peripheral.state == CBPeripheralStateConnected) {
+        [self finish];
+    } else {
         self.parent.connection = self;
-        [self.parent.parent.central connectPeripheral:self.parent.peripheral options:self.options];
-    } else if (self.parent.peripheral.state == CBPeripheralStateConnecting) {
-        self.parent.connection = self;
-    } else if (self.parent.peripheral.state == CBPeripheralStateConnected) {
+        if (self.parent.peripheral.state == CBPeripheralStateConnecting) {
+        } else {
+            [self.parent.parent.central connectPeripheral:self.parent.peripheral options:self.options];
+        }
+        
+        self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
+        [self.operations addObject:self.timer];
+        [self.timer waitUntilFinished];
+        
+        if (self.timer.isCancelled) {
+        } else {
+            NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
+            [self.errors addObject:error];
+        }
+        
+        if (self.isCancelled || (self.errors.count > 0)) {
+            self.disconnection = [self.parent disconnect];
+            [self.disconnection waitUntilFinished];
+        }
+        
         [self finish];
     }
 }
@@ -826,13 +846,14 @@
 @dynamic parent;
 
 - (void)main {
-    if ((self.parent.peripheral.state == CBPeripheralStateConnecting) || (self.parent.peripheral.state == CBPeripheralStateConnected)) {
-        self.parent.disconnection = self;
-        [self.parent.parent.central cancelPeripheralConnection:self.parent.peripheral];
-    } else if (self.parent.peripheral.state == CBPeripheralStateDisconnecting) {
-        self.parent.disconnection = self;
-    } else if (self.parent.peripheral.state == CBPeripheralStateDisconnected) {
+    if (self.parent.peripheral.state == CBPeripheralStateDisconnected) {
         [self finish];
+    } else {
+        self.parent.disconnection = self;
+        if (self.parent.peripheral.state == CBPeripheralStateDisconnecting) {
+        } else {
+            [self.parent.parent.central cancelPeripheralConnection:self.parent.peripheral];
+        }
     }
 }
 
@@ -978,9 +999,9 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
     CBEPeripheral *cbePeripheral = self.peripheralsByIdentifier[peripheral.identifier];
-    if (cbePeripheral.connection.isFinished) {
+    if (cbePeripheral.connection.timer.isCancelled) {
     } else {
-        [cbePeripheral.connection finish];
+        [cbePeripheral.connection.timer cancel];
     }
 }
 
@@ -991,10 +1012,10 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
     CBEPeripheral *cbePeripheral = self.peripheralsByIdentifier[peripheral.identifier];
-    if (cbePeripheral.connection.isFinished) {
+    if (cbePeripheral.connection.timer.isCancelled) {
     } else {
         [cbePeripheral.connection.errors addObject:error];
-        [cbePeripheral.connection finish];
+        [cbePeripheral.connection.timer cancel];
     }
 }
 
