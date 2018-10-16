@@ -322,6 +322,7 @@
 
 @class CBEPeripheralConnection;
 @class CBEPeripheralDisconnection;
+@class CBEServicesDiscovery;
 @class CBEPeripheral;
 @class CBECentralManager;
 
@@ -388,7 +389,15 @@
 
 
 
-@interface CBEServicesDiscovery : NSEOperation
+@interface CBEServicesDiscovery : NSEOperation <CBEServicesDiscoveryDelegate>
+
+@property (readonly) CBEPeripheral *parent;
+@property (readonly) NSArray<CBUUID *> *services;
+@property (readonly) NSTimeInterval timeout;
+@property (readonly) NSETimer *timer;
+@property (readonly) CBEPeripheralDisconnection *disconnection;
+
+- (instancetype)initWithServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout;
 
 @end
 
@@ -427,6 +436,9 @@
 
 - (CBEPeripheralDisconnection *)disconnect;
 - (CBEPeripheralDisconnection *)disconnectWithCompletion:(HLPVoidBlock)completion;
+
+- (CBEServicesDiscovery *)discoverServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout;
+- (CBEServicesDiscovery *)discoverServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
 
 @end
 

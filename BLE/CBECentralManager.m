@@ -806,7 +806,6 @@
         
         self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
         [self.timer waitUntilFinished];
-        
         if (self.timer.isCancelled) {
         } else {
             NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
@@ -814,7 +813,7 @@
         }
         
         if (self.isCancelled || (self.errors.count > 0)) {
-            self.disconnection = [self.parent disconnect];
+            self.disconnection = self.parent.disconnect;
             [self.disconnection waitUntilFinished];
         }
     }
@@ -853,6 +852,112 @@
             [self.parent.parent.central cancelPeripheralConnection:self.parent.peripheral];
         }
     }
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface CBEServicesDiscovery ()
+
+@property NSArray<CBUUID *> *services;
+@property NSTimeInterval timeout;
+@property NSETimer *timer;
+@property CBEPeripheralDisconnection *disconnection;
+
+@end
+
+
+
+@implementation CBEServicesDiscovery
+
+@dynamic parent;
+
+- (instancetype)initWithServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout {
+    self = super.init;
+    if (self) {
+        self.services = services;
+        self.timeout = timeout;
+    }
+    return self;
+}
+
+- (void)main {
+    [self.parent.peripheral discoverServices:self.services];
+    
+    self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
+    [self.timer waitUntilFinished];
+    
+    if (self.isCancelled || (self.errors.count > 0)) {
+        self.disconnection = self.parent.disconnect;
+        [self.disconnection waitUntilFinished];
+    }
+    
+    [self finish];
+    
+    
+//    if (self.parent.peripheral.state == CBPeripheralStateConnected) {
+//    } else {
+//        self.parent.connection = self;
+//        if (self.parent.peripheral.state == CBPeripheralStateConnecting) {
+//        } else {
+//            [self.parent.parent.central connectPeripheral:self.parent.peripheral options:self.options];
+//        }
+//
+//        self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
+//        [self.timer waitUntilFinished];
+//        if (self.timer.isCancelled) {
+//        } else {
+//            NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
+//            [self.errors addObject:error];
+//        }
+//
+//        if (self.isCancelled || (self.errors.count > 0)) {
+//            self.disconnection = [self.parent disconnect];
+//            [self.disconnection waitUntilFinished];
+//        }
+//    }
+//
+//    [self finish];
+    
+    
+    
+    
+    //    [self updateState:HLPOperationStateDidBegin];
+    //
+    //    self.peripheral.delegate = self.delegates;
+    //    [self.peripheral discoverServices:self.services];
+    //
+    //    self.operation = self.tick = [HLPClock.shared tickWithInterval:self.timeout];
+    //    [self.tick waitUntilFinished];
+    //    if (self.cancelled) {
+    //    } else if (!self.tick.cancelled) {
+    //        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
+    //        [self.errors addObject:error];
+    //    } else if (self.errors.count > 0) {
+    //    } else if (self.peripheral.services.count < self.services.count) {
+    //        NSError *error = [NSError errorWithDomain:BLEErrorDomain code:BLEErrorLessServicesDiscovered userInfo:nil];
+    //        [self.errors addObject:error];
+    //    } else {
+    //        for (CBService *service in self.peripheral.services) {
+    //            self.peripheral.servicesByUUID[service.UUID] = service;
+    //            service.characteristicsByUUID = HLPDictionary.strongToWeakDictionary;
+    //        }
+    //    }
+    //
+    //    if (self.cancelled || (self.errors.count > 0)) {
+    //        self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
+    //        [self.disconnection waitUntilFinished];
+    //    }
+    //
+    //    [self updateState:HLPOperationStateDidEnd];
 }
 
 @end
@@ -918,6 +1023,18 @@
     CBEPeripheralDisconnection *disconnection = self.disconnect;
     disconnection.completionBlock = completion;
     return disconnection;
+}
+
+- (CBEServicesDiscovery *)discoverServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout {
+    CBEServicesDiscovery *discovery = [CBEServicesDiscovery.alloc initWithServices:services timeout:timeout];
+    [self addOperation:discovery];
+    return discovery;
+}
+
+- (CBEServicesDiscovery *)discoverServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
+    CBEServicesDiscovery *discovery = [self discoverServices:services timeout:timeout];
+    discovery.completionBlock = completion;
+    return discovery;
 }
 
 #pragma mark - Peripheral
@@ -1006,10 +1123,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
     CBEPeripheral *cbePeripheral = self.peripheralsByIdentifier[peripheral.identifier];
-    if (cbePeripheral.connection.timer.isCancelled) {
-    } else {
-        [cbePeripheral.connection.timer cancel];
-    }
+    [cbePeripheral.connection.timer cancel];
 }
 
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
@@ -1019,11 +1133,8 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
     CBEPeripheral *cbePeripheral = self.peripheralsByIdentifier[peripheral.identifier];
-    if (cbePeripheral.connection.timer.isCancelled) {
-    } else {
-        [cbePeripheral.connection.errors addObject:error];
-        [cbePeripheral.connection.timer cancel];
-    }
+    [cbePeripheral.connection.errors addObject:error];
+    [cbePeripheral.connection.timer cancel];
 }
 
 @end
