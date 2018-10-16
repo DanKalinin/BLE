@@ -944,8 +944,8 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 @property NSDictionary<NSString *, id> *options;
 @property CBCentralManager *central;
-@property NSMutableDictionary<NSUUID *, CBEPeripheral *> *peripheralsByIdentifier;
-@property NSMutableDictionary<NSString *, CBEPeripheral *> *peripheralsByName;
+@property NSMutableDictionary *peripheralsByIdentifier;
+@property NSMutableDictionary *peripheralsByName;
 
 @end
 
@@ -959,6 +959,8 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     self = super.init;
     if (self) {
         self.options = options;
+        
+        self.peripheralClass = CBEPeripheral.class;
         
         self.central = [CBCentralManager.alloc initWithDelegate:self.delegates queue:nil options:self.options];
         
@@ -993,7 +995,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     CBEPeripheral *cbePeripheral = self.peripheralsByIdentifier[peripheral.identifier];
     if (cbePeripheral) {
     } else {
-        cbePeripheral = [CBEPeripheral.alloc initWithPeripheral:peripheral];
+        cbePeripheral = [self.peripheralClass.alloc initWithPeripheral:peripheral];
         [self addOperation:cbePeripheral];
         
         self.peripheralsByIdentifier[peripheral.identifier] = cbePeripheral;
