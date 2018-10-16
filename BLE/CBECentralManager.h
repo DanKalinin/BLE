@@ -382,6 +382,25 @@
 
 
 
+@protocol CBEServicesDiscoveryDelegate <NSEOperationDelegate>
+
+@end
+
+
+
+@interface CBEServicesDiscovery : NSEOperation
+
+@end
+
+
+
+
+
+
+
+
+
+
 @protocol CBEPeripheralDelegate <CBEPeripheralConnectionDelegate, CBEPeripheralDisconnectionDelegate, CBPeripheralDelegate>
 
 @end

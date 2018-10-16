@@ -797,7 +797,6 @@
 
 - (void)main {
     if (self.parent.peripheral.state == CBPeripheralStateConnected) {
-        [self finish];
     } else {
         self.parent.connection = self;
         if (self.parent.peripheral.state == CBPeripheralStateConnecting) {
@@ -818,9 +817,9 @@
             self.disconnection = [self.parent disconnect];
             [self.disconnection waitUntilFinished];
         }
-        
-        [self finish];
     }
+    
+    [self finish];
 }
 
 @end
