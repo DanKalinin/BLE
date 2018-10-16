@@ -944,8 +944,8 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 @property NSDictionary<NSString *, id> *options;
 @property CBCentralManager *central;
-@property NSMutableDictionary *peripheralsByIdentifier;
-@property NSMutableDictionary *peripheralsByName;
+@property NSMutableDictionary<NSUUID *, CBEPeripheral *> *peripheralsByIdentifier;
+@property NSMutableDictionary<NSString *, CBEPeripheral *> *peripheralsByName;
 
 @end
 
