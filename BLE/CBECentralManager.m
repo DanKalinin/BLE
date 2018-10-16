@@ -805,8 +805,7 @@
             [self.parent.parent.central connectPeripheral:self.parent.peripheral options:self.options];
         }
         
-        self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
-        [self.operations addObject:self.timer];
+        self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
         [self.timer waitUntilFinished];
         
         if (self.timer.isCancelled) {
