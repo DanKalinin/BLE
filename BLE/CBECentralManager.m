@@ -778,6 +778,59 @@
 
 
 
+@interface CBECharacteristicReading ()
+
+@property NSTimeInterval timeout;
+@property NSETimer *timer;
+@property CBEPeripheralDisconnection *disconnection;
+
+@end
+
+
+
+@implementation CBECharacteristicReading
+
+@dynamic parent;
+
+- (instancetype)initWithTimeout:(NSTimeInterval)timeout {
+    self = super.init;
+    if (self) {
+        self.timeout = timeout;
+    }
+    return self;
+}
+
+- (void)main {
+    self.parent.reading = self;
+    [self.parent.parent.parent.peripheral readValueForCharacteristic:self.parent.characteristic];
+    
+    self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
+    [self.timer waitUntilFinished];
+    if (self.timer.isCancelled) {
+    } else {
+        NSError *error = [NSError errorWithDomain:CBEErrorDomain code:CBEErrorMissingCharacteristics userInfo:nil];
+        [self.errors addObject:error];
+    }
+    
+    if (self.isCancelled || (self.errors.count > 0)) {
+        self.disconnection = self.parent.parent.parent.disconnect;
+        [self.disconnection waitUntilFinished];
+    }
+    
+    [self finish];
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
 @interface CBECharacteristic ()
 
 @property CBCharacteristic *characteristic;
@@ -796,6 +849,18 @@
         self.characteristic = characteristic;
     }
     return self;
+}
+
+- (CBECharacteristicReading *)readWithTimeout:(NSTimeInterval)timeout {
+    CBECharacteristicReading *reading = [CBECharacteristicReading.alloc initWithTimeout:timeout];
+    [self addOperation:reading];
+    return reading;
+}
+
+- (CBECharacteristicReading *)readWithTimeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
+    CBECharacteristicReading *reading = [self readWithTimeout:timeout];
+    reading.completionBlock = completion;
+    return reading;
 }
 
 @end
@@ -941,6 +1006,35 @@
     CBECharacteristicsDiscovery *discovery = [self discoverCharacteristics:characteristics timeout:timeout];
     discovery.completionBlock = completion;
     return discovery;
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface CBEL2CAPChannel ()
+
+@property CBL2CAPChannel *channel;
+
+@end
+
+
+
+@implementation CBEL2CAPChannel
+
+- (instancetype)initWithChannel:(CBL2CAPChannel *)channel {
+    self = super.init;
+    if (self) {
+        self.channel = channel;
+    }
+    return self;
 }
 
 @end
@@ -1151,11 +1245,75 @@
 
 
 
+@interface CBEL2CAPChannelOpening ()
+
+@property CBL2CAPPSM psm;
+@property NSTimeInterval timeout;
+@property NSETimer *timer;
+@property CBL2CAPChannel *channel;
+@property CBEPeripheralDisconnection *disconnection;
+
+@end
+
+
+
+@implementation CBEL2CAPChannelOpening
+
+@dynamic parent;
+
+- (instancetype)initWithPSM:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout {
+    self = super.init;
+    if (self) {
+        self.psm = psm;
+        self.timeout = timeout;
+    }
+    return self;
+}
+
+- (void)main {
+    self.parent.channelOpening = self;
+    [self.parent.peripheral openL2CAPChannel:self.psm];
+    
+    self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
+    [self.timer waitUntilFinished];
+    if (self.timer.isCancelled) {
+        if (self.isCancelled) {
+        } else if (self.errors.count > 0) {
+        } else {
+            CBEL2CAPChannel *channel = [CBEL2CAPChannel.alloc initWithChannel:self.channel];
+            [self.parent addOperation:channel];
+            
+            self.parent.channelsByPSM[@(self.psm)] = channel;
+        }
+    } else {
+        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
+        [self.errors addObject:error];
+    }
+    
+    if (self.isCancelled || (self.errors.count > 0)) {
+        self.disconnection = self.parent.disconnect;
+        [self.disconnection waitUntilFinished];
+    }
+    
+    [self finish];
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
 @interface CBEPeripheral ()
 
 @property CBPeripheral *peripheral;
 @property NSMutableDictionary<CBUUID *, CBEService *> *servicesByUUID;
-@property NSMutableDictionary<NSNumber *, CBL2CAPChannel *> *channelsByPSM;
+@property NSMutableDictionary<NSNumber *, CBEL2CAPChannel *> *channelsByPSM;
 @property NSDictionary<NSString *, id> *advertisement;
 @property NSNumber *rssi;
 
@@ -1175,6 +1333,7 @@
         self.peripheral.delegate = self.delegates;
         
         self.serviceClass = CBEService.class;
+        self.channelClass = CBEL2CAPChannel.class;
         
         self.servicesByUUID = NSMutableDictionary.dictionary;
         self.channelsByPSM = NSMutableDictionary.dictionary;
@@ -1218,6 +1377,18 @@
     return discovery;
 }
 
+- (CBEL2CAPChannelOpening *)openL2CAPChannel:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout {
+    CBEL2CAPChannelOpening *opening = [CBEL2CAPChannelOpening.alloc initWithPSM:psm timeout:timeout];
+    [self addOperation:opening];
+    return opening;
+}
+
+- (CBEL2CAPChannelOpening *)openL2CAPChannel:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
+    CBEL2CAPChannelOpening *opening = [self openL2CAPChannel:psm timeout:timeout];
+    opening.completionBlock = completion;
+    return opening;
+}
+
 #pragma mark - Peripheral
 
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
@@ -1228,6 +1399,16 @@
     [self.servicesDiscovery.timer cancel];
 }
 
+- (void)peripheral:(CBPeripheral *)peripheral didOpenL2CAPChannel:(CBL2CAPChannel *)channel error:(NSError *)error {
+    if (error) {
+        [self.channelOpening.errors addObject:error];
+    } else {
+        self.channelOpening.channel = channel;
+    }
+    
+    [self.channelOpening.timer cancel];
+}
+
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
     CBEService *cbeService = self.servicesByUUID[service.UUID];
     
@@ -1236,6 +1417,16 @@
     }
     
     [cbeService.characteristicsDiscovery.timer cancel];
+}
+
+- (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
+    CBECharacteristic *cbeCharacteristic = self.servicesByUUID[characteristic.service.UUID].characteristicsByUUID[characteristic.UUID];
+    
+    if (error) {
+        [cbeCharacteristic.reading.errors addObject:error];
+    }
+    
+    [cbeCharacteristic.reading.timer cancel];
 }
 
 @end

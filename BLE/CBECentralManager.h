@@ -321,14 +321,19 @@
 
 
 
+@class CBECharacteristicReading;
 @class CBECharacteristic;
 
 @class CBECharacteristicsDiscovery;
 @class CBEService;
 
+// @class CBEL2CAPStramsOpening;
+@class CBEL2CAPChannel;
+
 @class CBEPeripheralConnection;
 @class CBEPeripheralDisconnection;
 @class CBEServicesDiscovery;
+// @class CBEL2CAPChannelOpening;
 @class CBEPeripheral;
 
 @class CBECentralManager;
@@ -342,7 +347,33 @@
 
 
 
-@protocol CBECharacteristicDelegate <NSEOperationDelegate>
+@protocol CBECharacteristicReadingDelegate <NSEOperationDelegate>
+
+@end
+
+
+
+@interface CBECharacteristicReading : NSEOperation <CBECharacteristicReadingDelegate>
+
+@property (readonly) CBECharacteristic *parent;
+@property (readonly) NSTimeInterval timeout;
+@property (readonly) NSETimer *timer;
+@property (readonly) CBEPeripheralDisconnection *disconnection;
+
+- (instancetype)initWithTimeout:(NSTimeInterval)timeout;
+
+@end
+
+
+
+
+
+
+
+
+
+
+@protocol CBECharacteristicDelegate <CBECharacteristicReadingDelegate>
 
 @end
 
@@ -350,10 +381,15 @@
 
 @interface CBECharacteristic : NSEOperation <CBECharacteristicDelegate>
 
+@property (weak) CBECharacteristicReading *reading;
+
 @property (readonly) CBEService *parent;
 @property (readonly) CBCharacteristic *characteristic;
 
 - (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic;
+
+- (CBECharacteristicReading *)readWithTimeout:(NSTimeInterval)timeout;
+- (CBECharacteristicReading *)readWithTimeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
 
 @end
 
@@ -417,6 +453,29 @@
 
 - (CBECharacteristicsDiscovery *)discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout;
 - (CBECharacteristicsDiscovery *)discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
+
+@end
+
+
+
+
+
+
+
+
+
+
+@protocol CBEL2CAPChannelDelegate <NSEOperationDelegate>
+
+@end
+
+
+
+@interface CBEL2CAPChannel : NSEOperation <CBEL2CAPChannelDelegate>
+
+@property (readonly) CBL2CAPChannel *channel;
+
+- (instancetype)initWithChannel:(CBL2CAPChannel *)channel;
 
 @end
 
@@ -508,7 +567,35 @@
 
 
 
-@protocol CBEPeripheralDelegate <CBEServiceDelegate, CBEPeripheralConnectionDelegate, CBEPeripheralDisconnectionDelegate, CBEServicesDiscoveryDelegate, CBPeripheralDelegate>
+@protocol CBEL2CAPChannelOpeningDelegate <NSEOperationDelegate>
+
+@end
+
+
+
+@interface CBEL2CAPChannelOpening : NSEOperation <CBEL2CAPChannelOpeningDelegate>
+
+@property (readonly) CBEPeripheral *parent;
+@property (readonly) CBL2CAPPSM psm;
+@property (readonly) NSTimeInterval timeout;
+@property (readonly) NSETimer *timer;
+@property (readonly) CBL2CAPChannel *channel;
+@property (readonly) CBEPeripheralDisconnection *disconnection;
+
+- (instancetype)initWithPSM:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout;
+
+@end
+
+
+
+
+
+
+
+
+
+
+@protocol CBEPeripheralDelegate <CBEServiceDelegate, CBEPeripheralConnectionDelegate, CBEPeripheralDisconnectionDelegate, CBEServicesDiscoveryDelegate, CBEL2CAPChannelOpeningDelegate, CBPeripheralDelegate>
 
 @end
 
@@ -517,16 +604,18 @@
 @interface CBEPeripheral : NSEOperation <CBEPeripheralDelegate>
 
 @property Class serviceClass;
+@property Class channelClass;
 
 @property (weak) CBEPeripheralConnection *connection;
 @property (weak) CBEPeripheralDisconnection *disconnection;
 @property (weak) CBEServicesDiscovery *servicesDiscovery;
+@property (weak) CBEL2CAPChannelOpening *channelOpening;
 
 @property (readonly) CBECentralManager *parent;
 @property (readonly) HLPArray<CBEPeripheralDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
 @property (readonly) NSMutableDictionary<CBUUID *, __kindof CBEService *> *servicesByUUID;
-@property (readonly) NSMutableDictionary<NSNumber *, CBL2CAPChannel *> *channelsByPSM;
+@property (readonly) NSMutableDictionary<NSNumber *, __kindof CBEL2CAPChannel *> *channelsByPSM;
 @property (readonly) NSDictionary<NSString *, id> *advertisement;
 @property (readonly) NSNumber *rssi;
 
@@ -540,6 +629,9 @@
 
 - (CBEServicesDiscovery *)discoverServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout;
 - (CBEServicesDiscovery *)discoverServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
+
+- (CBEL2CAPChannelOpening *)openL2CAPChannel:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout;
+- (CBEL2CAPChannelOpening *)openL2CAPChannel:(CBL2CAPPSM)psm timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
 
 @end
 
