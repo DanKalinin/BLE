@@ -403,7 +403,6 @@
 @property (readonly) NSMutableArray<CBUUID *> *cachedMissingServices;
 @property (readonly) NSMutableArray<CBService *> *discoveredServices;
 @property (readonly) NSMutableArray<CBService *> *cachedDiscoveredServices;
-@property (readonly) NSMutableDictionary<CBUUID *, CBEService *> *discoveredServicesByUUID;
 
 - (instancetype)initWithServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout;
 
@@ -435,7 +434,6 @@
 @property (readonly) NSMutableArray<CBUUID *> *cachedMissingCharacteristics;
 @property (readonly) NSMutableArray<CBCharacteristic *> *discoveredCharacteristics;
 @property (readonly) NSMutableArray<CBCharacteristic *> *cachedDiscoveredCharacteristics;
-@property (readonly) NSMutableDictionary<CBUUID *, CBECharacteristic *> *discoveredCharacteristicsByUUID;
 
 - (instancetype)initWithCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout;
 
@@ -488,7 +486,7 @@
 
 @property (readonly) CBEPeripheral *parent;
 @property (readonly) CBService *service;
-@property (readonly) NSMutableDictionary<CBUUID *, CBECharacteristic *> *characteristicsByUUID;
+@property (readonly) NSMutableDictionary<CBUUID *, __kindof CBECharacteristic *> *characteristicsByUUID;
 
 - (instancetype)initWithService:(CBService *)service;
 
@@ -523,7 +521,7 @@
 @property (readonly) CBECentralManager *parent;
 @property (readonly) HLPArray<CBEPeripheralDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
-@property (readonly) NSMutableDictionary<CBUUID *, CBEService *> *servicesByUUID;
+@property (readonly) NSMutableDictionary<CBUUID *, __kindof CBEService *> *servicesByUUID;
 @property (readonly) NSMutableDictionary<NSNumber *, CBL2CAPChannel *> *channelsByPSM;
 @property (readonly) NSDictionary<NSString *, id> *advertisement;
 @property (readonly) NSNumber *rssi;

@@ -879,7 +879,6 @@
 @property CBEPeripheralDisconnection *disconnection;
 @property NSMutableArray<CBUUID *> *cachedMissingServices;
 @property NSMutableArray<CBService *> *cachedDiscoveredServices;
-@property NSMutableDictionary<CBUUID *, CBEService *> *discoveredServicesByUUID;
 
 @end
 
@@ -894,8 +893,6 @@
     if (self) {
         self.services = services;
         self.timeout = timeout;
-        
-        self.discoveredServicesByUUID = NSMutableDictionary.dictionary;
     }
     return self;
 }
@@ -919,10 +916,9 @@
                     [self.errors addObject:error];
                 } else {
                     for (CBService *service in self.cachedDiscoveredServices) {
-                        CBEService *cbeService = [CBEService.alloc initWithService:service];
+                        CBEService *cbeService = [self.parent.serviceClass.alloc initWithService:service];
                         [self.parent addOperation:cbeService];
                         
-                        self.discoveredServicesByUUID[service.UUID] = cbeService;
                         self.parent.servicesByUUID[service.UUID] = cbeService;
                     }
                 }
@@ -980,7 +976,6 @@
 @property CBEPeripheralDisconnection *disconnection;
 @property NSMutableArray<CBUUID *> *cachedMissingCharacteristics;
 @property NSMutableArray<CBCharacteristic *> *cachedDiscoveredCharacteristics;
-@property NSMutableDictionary<CBUUID *, CBECharacteristic *> *discoveredCharacteristicsByUUID;
 
 @end
 
@@ -995,8 +990,6 @@
     if (self) {
         self.characteristics = characteristics;
         self.timeout = timeout;
-        
-        self.discoveredCharacteristicsByUUID = NSMutableDictionary.dictionary;
     }
     return self;
 }
@@ -1020,10 +1013,9 @@
                     [self.errors addObject:error];
                 } else {
                     for (CBCharacteristic *characteristic in self.cachedDiscoveredCharacteristics) {
-                        CBECharacteristic *cbeCharacteristic = [CBECharacteristic.alloc initWithCharacteristic:characteristic];
+                        CBECharacteristic *cbeCharacteristic = [self.parent.characteristicClass.alloc initWithCharacteristic:characteristic];
                         [self.parent addOperation:cbeCharacteristic];
                         
-                        self.discoveredCharacteristicsByUUID[characteristic.UUID] = cbeCharacteristic;
                         self.parent.characteristicsByUUID[characteristic.UUID] = cbeCharacteristic;
                     }
                 }
@@ -1122,6 +1114,8 @@
     if (self) {
         self.service = service;
         
+        self.characteristicClass = CBECharacteristic.class;
+        
         self.characteristicsByUUID = NSMutableDictionary.dictionary;
     }
     return self;
@@ -1171,8 +1165,9 @@
     self = super.init;
     if (self) {
         self.peripheral = peripheral;
-        
         self.peripheral.delegate = self.delegates;
+        
+        self.serviceClass = CBEService.class;
         
         self.servicesByUUID = NSMutableDictionary.dictionary;
         self.channelsByPSM = NSMutableDictionary.dictionary;
