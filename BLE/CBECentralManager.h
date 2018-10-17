@@ -320,14 +320,105 @@
 
 
 
+
+@class CBECharacteristic;
+
+@class CBECharacteristicsDiscovery;
+@class CBEService;
+
 @class CBEPeripheralConnection;
 @class CBEPeripheralDisconnection;
 @class CBEServicesDiscovery;
-@class CBECharacteristicsDiscovery;
-@class CBECharacteristic;
-@class CBEService;
 @class CBEPeripheral;
+
 @class CBECentralManager;
+
+
+
+
+
+
+
+
+
+
+@protocol CBECharacteristicDelegate <NSEOperationDelegate>
+
+@end
+
+
+
+@interface CBECharacteristic : NSEOperation <CBECharacteristicDelegate>
+
+@property (readonly) CBEService *parent;
+@property (readonly) CBCharacteristic *characteristic;
+
+- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic;
+
+@end
+
+
+
+
+
+
+
+
+
+
+@protocol CBECharacteristicsDiscoveryDelegate <NSEOperationDelegate>
+
+@end
+
+
+
+@interface CBECharacteristicsDiscovery : NSEOperation <CBECharacteristicsDiscoveryDelegate>
+
+@property (readonly) CBEService *parent;
+@property (readonly) NSArray<CBUUID *> *characteristics;
+@property (readonly) NSTimeInterval timeout;
+@property (readonly) NSETimer *timer;
+@property (readonly) CBEPeripheralDisconnection *disconnection;
+@property (readonly) NSMutableArray<CBUUID *> *missingCharacteristics;
+@property (readonly) NSMutableArray<CBUUID *> *cachedMissingCharacteristics;
+@property (readonly) NSMutableArray<CBCharacteristic *> *discoveredCharacteristics;
+@property (readonly) NSMutableArray<CBCharacteristic *> *cachedDiscoveredCharacteristics;
+
+- (instancetype)initWithCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout;
+
+@end
+
+
+
+
+
+
+
+
+
+
+@protocol CBEServiceDelegate <CBECharacteristicsDiscoveryDelegate>
+
+@end
+
+
+
+@interface CBEService : NSEOperation <CBEServiceDelegate>
+
+@property Class characteristicClass;
+
+@property (weak) CBECharacteristicsDiscovery *characteristicsDiscovery;
+
+@property (readonly) CBEPeripheral *parent;
+@property (readonly) CBService *service;
+@property (readonly) NSMutableDictionary<CBUUID *, __kindof CBECharacteristic *> *characteristicsByUUID;
+
+- (instancetype)initWithService:(CBService *)service;
+
+- (CBECharacteristicsDiscovery *)discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout;
+- (CBECharacteristicsDiscovery *)discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
+
+@end
 
 
 
@@ -405,93 +496,6 @@
 @property (readonly) NSMutableArray<CBService *> *cachedDiscoveredServices;
 
 - (instancetype)initWithServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout;
-
-@end
-
-
-
-
-
-
-
-
-
-
-@protocol CBECharacteristicsDiscoveryDelegate <NSEOperationDelegate>
-
-@end
-
-
-
-@interface CBECharacteristicsDiscovery : NSEOperation <CBECharacteristicsDiscoveryDelegate>
-
-@property (readonly) CBEService *parent;
-@property (readonly) NSArray<CBUUID *> *characteristics;
-@property (readonly) NSTimeInterval timeout;
-@property (readonly) NSETimer *timer;
-@property (readonly) CBEPeripheralDisconnection *disconnection;
-@property (readonly) NSMutableArray<CBUUID *> *missingCharacteristics;
-@property (readonly) NSMutableArray<CBUUID *> *cachedMissingCharacteristics;
-@property (readonly) NSMutableArray<CBCharacteristic *> *discoveredCharacteristics;
-@property (readonly) NSMutableArray<CBCharacteristic *> *cachedDiscoveredCharacteristics;
-
-- (instancetype)initWithCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout;
-
-@end
-
-
-
-
-
-
-
-
-
-
-@protocol CBECharacteristicDelegate <NSEOperationDelegate>
-
-@end
-
-
-
-@interface CBECharacteristic : NSEOperation <CBECharacteristicDelegate>
-
-@property (readonly) CBEService *parent;
-@property (readonly) CBCharacteristic *characteristic;
-
-- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic;
-
-@end
-
-
-
-
-
-
-
-
-
-
-@protocol CBEServiceDelegate <CBECharacteristicsDiscoveryDelegate>
-
-@end
-
-
-
-@interface CBEService : NSEOperation <CBEServiceDelegate>
-
-@property Class characteristicClass;
-
-@property (weak) CBECharacteristicsDiscovery *characteristicsDiscovery;
-
-@property (readonly) CBEPeripheral *parent;
-@property (readonly) CBService *service;
-@property (readonly) NSMutableDictionary<CBUUID *, __kindof CBECharacteristic *> *characteristicsByUUID;
-
-- (instancetype)initWithService:(CBService *)service;
-
-- (CBECharacteristicsDiscovery *)discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout;
-- (CBECharacteristicsDiscovery *)discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
 
 @end
 
