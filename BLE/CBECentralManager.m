@@ -878,7 +878,8 @@
 @property NSETimer *timer;
 @property CBEPeripheralDisconnection *disconnection;
 @property NSMutableArray<CBUUID *> *cachedMissingServices;
-@property HLPArray<CBService *> *cachedDiscoveredServices;
+@property NSMutableArray<CBService *> *cachedDiscoveredServices;
+@property NSMutableDictionary<CBUUID *, CBEService *> *discoveredServicesByUUID;
 
 @end
 
@@ -893,6 +894,8 @@
     if (self) {
         self.services = services;
         self.timeout = timeout;
+        
+        self.discoveredServicesByUUID = NSMutableDictionary.dictionary;
     }
     return self;
 }
@@ -919,6 +922,7 @@
                         CBEService *cbeService = [CBEService.alloc initWithService:service];
                         [self.parent addOperation:cbeService];
                         
+                        self.discoveredServicesByUUID[service.UUID] = cbeService;
                         self.parent.servicesByUUID[service.UUID] = cbeService;
                     }
                 }
@@ -947,8 +951,8 @@
     return missingServices;
 }
 
-- (HLPArray<CBService *> *)discoveredServices {
-    HLPArray<CBService *> *discoveredServices = HLPArray.weakArray;
+- (NSMutableArray<CBService *> *)discoveredServices {
+    NSMutableArray<CBService *> *discoveredServices = NSMutableArray.array;
     for (CBService *service in self.parent.peripheral.services) {
         if ([self.cachedMissingServices containsObject:service.UUID]) {
             [discoveredServices addObject:service];
@@ -970,11 +974,124 @@
 
 @interface CBECharacteristicsDiscovery ()
 
+@property NSArray<CBUUID *> *characteristics;
+@property NSTimeInterval timeout;
+@property NSETimer *timer;
+@property CBEPeripheralDisconnection *disconnection;
+@property NSMutableArray<CBUUID *> *cachedMissingCharacteristics;
+@property NSMutableArray<CBCharacteristic *> *cachedDiscoveredCharacteristics;
+@property NSMutableDictionary<CBUUID *, CBECharacteristic *> *discoveredCharacteristicsByUUID;
+
 @end
 
 
 
 @implementation CBECharacteristicsDiscovery
+
+@dynamic parent;
+
+- (instancetype)initWithCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout {
+    self = super.init;
+    if (self) {
+        self.characteristics = characteristics;
+        self.timeout = timeout;
+        
+        self.discoveredCharacteristicsByUUID = NSMutableDictionary.dictionary;
+    }
+    return self;
+}
+
+- (void)main {
+    self.cachedMissingCharacteristics = self.missingCharacteristics;
+    if (self.cachedMissingCharacteristics.count > 0) {
+        self.parent.characteristicsDiscovery = self;
+        [self.parent.parent.peripheral discoverCharacteristics:self.characteristics forService:self.parent.service];
+        
+        self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
+        [self.timer waitUntilFinished];
+        if (self.timer.isCancelled) {
+            if (self.isCancelled) {
+            } else if (self.errors.count > 0) {
+            } else {
+                self.cachedDiscoveredCharacteristics = self.discoveredCharacteristics;
+                self.cachedMissingCharacteristics = self.missingCharacteristics;
+                if (self.cachedMissingCharacteristics.count > 0) {
+                    NSError *error = [NSError errorWithDomain:CBEErrorDomain code:CBEErrorMissingCharacteristics userInfo:nil];
+                    [self.errors addObject:error];
+                } else {
+                    for (CBCharacteristic *characteristic in self.cachedDiscoveredCharacteristics) {
+                        CBECharacteristic *cbeCharacteristic = [CBECharacteristic.alloc initWithCharacteristic:characteristic];
+                        [self.parent addOperation:cbeCharacteristic];
+                        
+                        self.discoveredCharacteristicsByUUID[characteristic.UUID] = cbeCharacteristic;
+                        self.parent.characteristicsByUUID[characteristic.UUID] = cbeCharacteristic;
+                    }
+                }
+            }
+        } else {
+            NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
+            [self.errors addObject:error];
+        }
+        
+        if (self.isCancelled || (self.errors.count > 0)) {
+            self.disconnection = self.parent.parent.disconnect;
+            [self.disconnection waitUntilFinished];
+        }
+    }
+    
+    [self finish];
+}
+
+#pragma mark - Accessors
+
+- (NSMutableArray<CBUUID *> *)missingCharacteristics {
+    NSMutableArray<CBUUID *> *missingCharacteristics = self.characteristics.mutableCopy;
+    for (CBCharacteristic *characteristic in self.parent.service.characteristics) {
+        [missingCharacteristics removeObject:characteristic.UUID];
+    }
+    return missingCharacteristics;
+}
+
+- (NSMutableArray<CBCharacteristic *> *)discoveredCharacteristics {
+    NSMutableArray<CBCharacteristic *> *discoveredCharacteristics = NSMutableArray.array;
+    for (CBCharacteristic *characteristic in self.parent.service.characteristics) {
+        if ([self.cachedMissingCharacteristics containsObject:characteristic.UUID]) {
+            [discoveredCharacteristics addObject:characteristic];
+        }
+    }
+    return discoveredCharacteristics;
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface CBECharacteristic ()
+
+@property CBCharacteristic *characteristic;
+
+@end
+
+
+
+@implementation CBECharacteristic
+
+@dynamic parent;
+
+- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic {
+    self = super.init;
+    if (self) {
+        self.characteristic = characteristic;
+    }
+    return self;
+}
 
 @end
 
@@ -990,6 +1107,7 @@
 @interface CBEService ()
 
 @property CBService *service;
+@property NSMutableDictionary<CBUUID *, CBECharacteristic *> *characteristicsByUUID;
 
 @end
 
@@ -997,12 +1115,28 @@
 
 @implementation CBEService
 
+@dynamic parent;
+
 - (instancetype)initWithService:(CBService *)service {
     self = super.init;
     if (self) {
         self.service = service;
+        
+        self.characteristicsByUUID = NSMutableDictionary.dictionary;
     }
     return self;
+}
+
+- (CBECharacteristicsDiscovery *)discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout {
+    CBECharacteristicsDiscovery *discovery = [CBECharacteristicsDiscovery.alloc initWithCharacteristics:characteristics timeout:timeout];
+    [self addOperation:discovery];
+    return discovery;
+}
+
+- (CBECharacteristicsDiscovery *)discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
+    CBECharacteristicsDiscovery *discovery = [self discoverCharacteristics:characteristics timeout:timeout];
+    discovery.completionBlock = completion;
+    return discovery;
 }
 
 @end
@@ -1090,6 +1224,16 @@
     }
     
     [self.servicesDiscovery.timer cancel];
+}
+
+- (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
+    CBEService *cbeService = self.servicesByUUID[service.UUID];
+    
+    if (error) {
+        [cbeService.characteristicsDiscovery.errors addObject:error];
+    }
+    
+    [cbeService.characteristicsDiscovery.timer cancel];
 }
 
 @end

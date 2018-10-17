@@ -323,6 +323,8 @@
 @class CBEPeripheralConnection;
 @class CBEPeripheralDisconnection;
 @class CBEServicesDiscovery;
+@class CBECharacteristicsDiscovery;
+@class CBECharacteristic;
 @class CBEService;
 @class CBEPeripheral;
 @class CBECentralManager;
@@ -399,8 +401,9 @@
 @property (readonly) CBEPeripheralDisconnection *disconnection;
 @property (readonly) NSMutableArray<CBUUID *> *missingServices;
 @property (readonly) NSMutableArray<CBUUID *> *cachedMissingServices;
-@property (readonly) HLPArray<CBService *> *discoveredServices;
-@property (readonly) HLPArray<CBService *> *cachedDiscoveredServices;
+@property (readonly) NSMutableArray<CBService *> *discoveredServices;
+@property (readonly) NSMutableArray<CBService *> *cachedDiscoveredServices;
+@property (readonly) NSMutableDictionary<CBUUID *, CBEService *> *discoveredServicesByUUID;
 
 - (instancetype)initWithServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout;
 
@@ -423,6 +426,43 @@
 
 @interface CBECharacteristicsDiscovery : NSEOperation <CBECharacteristicsDiscoveryDelegate>
 
+@property (readonly) CBEService *parent;
+@property (readonly) NSArray<CBUUID *> *characteristics;
+@property (readonly) NSTimeInterval timeout;
+@property (readonly) NSETimer *timer;
+@property (readonly) CBEPeripheralDisconnection *disconnection;
+@property (readonly) NSMutableArray<CBUUID *> *missingCharacteristics;
+@property (readonly) NSMutableArray<CBUUID *> *cachedMissingCharacteristics;
+@property (readonly) NSMutableArray<CBCharacteristic *> *discoveredCharacteristics;
+@property (readonly) NSMutableArray<CBCharacteristic *> *cachedDiscoveredCharacteristics;
+@property (readonly) NSMutableDictionary<CBUUID *, CBECharacteristic *> *discoveredCharacteristicsByUUID;
+
+- (instancetype)initWithCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout;
+
+@end
+
+
+
+
+
+
+
+
+
+
+@protocol CBECharacteristicDelegate <NSEOperationDelegate>
+
+@end
+
+
+
+@interface CBECharacteristic : NSEOperation <CBECharacteristicDelegate>
+
+@property (readonly) CBEService *parent;
+@property (readonly) CBCharacteristic *characteristic;
+
+- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic;
+
 @end
 
 
@@ -442,7 +482,13 @@
 
 @interface CBEService : NSEOperation <CBEServiceDelegate>
 
+@property Class characteristicClass;
+
+@property (weak) CBECharacteristicsDiscovery *characteristicsDiscovery;
+
+@property (readonly) CBEPeripheral *parent;
 @property (readonly) CBService *service;
+@property (readonly) NSMutableDictionary<CBUUID *, CBECharacteristic *> *characteristicsByUUID;
 
 - (instancetype)initWithService:(CBService *)service;
 
@@ -467,6 +513,8 @@
 
 
 @interface CBEPeripheral : NSEOperation <CBEPeripheralDelegate>
+
+@property Class serviceClass;
 
 @property (weak) CBEPeripheralConnection *connection;
 @property (weak) CBEPeripheralDisconnection *disconnection;
