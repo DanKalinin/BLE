@@ -807,6 +807,12 @@
         self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
         [self.timer waitUntilFinished];
         if (self.timer.isCancelled) {
+            if (self.isCancelled) {
+            } else if (self.errors.count > 0) {
+            } else {
+                self.parent.parent.connectedPeripheralsByIdentifier[self.parent.peripheral.identifier] = self.parent;
+                self.parent.parent.connectedPeripheralsByName[self.parent.peripheral.name] = self.parent;
+            }
         } else {
             NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
             [self.errors addObject:error];
@@ -1086,6 +1092,8 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 @property CBCentralManager *central;
 @property NSMutableDictionary<NSUUID *, CBEPeripheral *> *peripheralsByIdentifier;
 @property NSMutableDictionary<NSString *, CBEPeripheral *> *peripheralsByName;
+@property NSMutableDictionary<NSUUID *, CBEPeripheral *> *connectedPeripheralsByIdentifier;
+@property NSMutableDictionary<NSString *, CBEPeripheral *> *connectedPeripheralsByName;
 
 @end
 
@@ -1106,6 +1114,8 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
         
         self.peripheralsByIdentifier = NSMutableDictionary.dictionary;
         self.peripheralsByName = NSMutableDictionary.dictionary;
+        self.connectedPeripheralsByIdentifier = NSMutableDictionary.dictionary;
+        self.connectedPeripheralsByName = NSMutableDictionary.dictionary;
     }
     return self;
 }

@@ -500,6 +500,8 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 @property (readonly) CBCentralManager *central;
 @property (readonly) NSMutableDictionary<NSUUID *, __kindof CBEPeripheral *> *peripheralsByIdentifier;
 @property (readonly) NSMutableDictionary<NSString *, __kindof CBEPeripheral *> *peripheralsByName;
+@property (readonly) NSMutableDictionary<NSUUID *, __kindof CBEPeripheral *> *connectedPeripheralsByIdentifier;
+@property (readonly) NSMutableDictionary<NSString *, __kindof CBEPeripheral *> *connectedPeripheralsByName;
 
 - (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options;
 
