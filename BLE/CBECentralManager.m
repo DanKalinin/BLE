@@ -910,8 +910,7 @@
                     [self.errors addObject:error];
                 } else {
                     for (CBService *service in self.cachedDiscoveredServices) {
-                        self.parent.servicesByUUID[service.UUID] = service;
-                        service.characteristicsByUUID = HLPDictionary.strongToWeakDictionary;
+                        self.parent.servicesByUUID[service.UUID] = [CBEService.alloc initWithService:service];
                     }
                 }
             }
@@ -960,10 +959,39 @@
 
 
 
+@interface CBEService ()
+
+@property CBService *service;
+
+@end
+
+
+
+@implementation CBEService
+
+- (instancetype)initWithService:(CBService *)service {
+    self = super.init;
+    if (self) {
+        self.service = service;
+    }
+    return self;
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
 @interface CBEPeripheral ()
 
 @property CBPeripheral *peripheral;
-@property HLPDictionary<CBUUID *, CBService *> *servicesByUUID;
+@property NSMutableDictionary<CBUUID *, CBEService *> *servicesByUUID;
 @property NSMutableDictionary<NSNumber *, CBL2CAPChannel *> *channelsByPSM;
 @property NSDictionary<NSString *, id> *advertisement;
 @property NSNumber *rssi;
@@ -984,7 +1012,7 @@
         
         self.peripheral.delegate = self.delegates;
         
-        self.servicesByUUID = HLPDictionary.strongToWeakDictionary;
+        self.servicesByUUID = NSMutableDictionary.dictionary;
         self.channelsByPSM = NSMutableDictionary.dictionary;
     }
     return self;
@@ -1132,27 +1160,6 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     CBEPeripheral *cbePeripheral = self.peripheralsByIdentifier[peripheral.identifier];
     [cbePeripheral.connection.errors addObject:error];
     [cbePeripheral.connection.timer cancel];
-}
-
-@end
-
-
-
-
-
-
-
-
-
-
-@implementation CBService (CBE)
-
-- (HLPDictionary<CBUUID *,CBCharacteristic *> *)characteristicsByUUID {
-    return self.strongDictionary[NSStringFromSelector(@selector(characteristicsByUUID))];
-}
-
-- (void)setCharacteristicsByUUID:(HLPDictionary<CBUUID *,CBCharacteristic *> *)characteristicsByUUID {
-    self.strongDictionary[NSStringFromSelector(@selector(characteristicsByUUID))] = characteristicsByUUID;
 }
 
 @end

@@ -323,6 +323,7 @@
 @class CBEPeripheralConnection;
 @class CBEPeripheralDisconnection;
 @class CBEServicesDiscovery;
+@class CBEService;
 @class CBEPeripheral;
 @class CBECentralManager;
 
@@ -414,6 +415,29 @@
 
 
 
+@protocol CBEServiceDelegate <NSEOperationDelegate>
+
+@end
+
+
+
+@interface CBEService : NSEOperation <CBEServiceDelegate>
+
+@property (readonly) CBService *service;
+
+- (instancetype)initWithService:(CBService *)service;
+
+@end
+
+
+
+
+
+
+
+
+
+
 @protocol CBEPeripheralDelegate <CBEPeripheralConnectionDelegate, CBEPeripheralDisconnectionDelegate, CBPeripheralDelegate>
 
 @end
@@ -429,7 +453,7 @@
 @property (readonly) CBECentralManager *parent;
 @property (readonly) HLPArray<CBEPeripheralDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
-@property (readonly) HLPDictionary<CBUUID *, CBService *> *servicesByUUID;
+@property (readonly) NSMutableDictionary<CBUUID *, CBEService *> *servicesByUUID;
 @property (readonly) NSMutableDictionary<NSNumber *, CBL2CAPChannel *> *channelsByPSM;
 @property (readonly) NSDictionary<NSString *, id> *advertisement;
 @property (readonly) NSNumber *rssi;
@@ -502,20 +526,5 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 //
 //- (BLEL2CAPStreamsOpening *)openL2CAPStreams:(CBL2CAPChannel *)channel timeout:(NSTimeInterval)timeout;
 //- (BLEL2CAPStreamsOpening *)openL2CAPStreams:(CBL2CAPChannel *)channel timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
-
-@end
-
-
-
-
-
-
-
-
-
-
-@interface CBService (CBE)
-
-@property HLPDictionary<CBUUID *, CBCharacteristic *> *characteristicsByUUID;
 
 @end
