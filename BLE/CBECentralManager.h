@@ -396,6 +396,8 @@
 @property (readonly) NSTimeInterval timeout;
 @property (readonly) NSETimer *timer;
 @property (readonly) CBEPeripheralDisconnection *disconnection;
+@property (readonly) NSMutableArray<CBUUID *> *cachedMissingServices;
+@property (readonly) NSMutableArray<CBUUID *> *missingServices;
 
 - (instancetype)initWithServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout;
 

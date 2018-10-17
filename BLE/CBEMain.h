@@ -12,6 +12,6 @@ extern NSErrorDomain const CBEErrorDomain;
 
 NS_ERROR_ENUM(CBEErrorDomain) {
     CBEErrorUnknown,
-    CBEErrorLessServicesDiscovered,
-    CBEErrorLessCharacteristicsDiscovered
+    CBEErrorMissingServices,
+    CBEErrorMissingCharacteristics
 };

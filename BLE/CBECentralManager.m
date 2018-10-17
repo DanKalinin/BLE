@@ -871,6 +871,7 @@
 @property NSTimeInterval timeout;
 @property NSETimer *timer;
 @property CBEPeripheralDisconnection *disconnection;
+@property NSMutableArray<CBUUID *> *cachedMissingServices;
 
 @end
 
@@ -890,23 +891,57 @@
 }
 
 - (void)main {
-    self.parent.servicesDiscovery = self;
-    [self.parent.peripheral discoverServices:self.services];
-    
-    self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
-    [self.timer waitUntilFinished];
-    if (self.timer.isCancelled) {
-    } else {
-        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
-        [self.errors addObject:error];
-    }
-    
-    if (self.isCancelled || (self.errors.count > 0)) {
-        self.disconnection = self.parent.disconnect;
-        [self.disconnection waitUntilFinished];
+    self.cachedMissingServices = self.missingServices;
+    if (self.cachedMissingServices.count > 0) {
+        self.parent.servicesDiscovery = self;
+        [self.parent.peripheral discoverServices:self.services];
+        
+        self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
+        [self.timer waitUntilFinished];
+        if (self.timer.isCancelled) {
+            if (self.isCancelled) {
+            } else if (self.errors.count > 0) {
+            } else {
+                self.cachedMissingServices = self.missingServices;
+                if (self.cachedMissingServices.count > 0) {
+                    NSError *error = [NSError errorWithDomain:CBEErrorDomain code:CBEErrorMissingServices userInfo:nil];
+                    [self.errors addObject:error];
+                } else {
+                    // Assign services
+                }
+            }
+        } else {
+            NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
+            [self.errors addObject:error];
+        }
+        
+        if (self.isCancelled || (self.errors.count > 0)) {
+            self.disconnection = self.parent.disconnect;
+            [self.disconnection waitUntilFinished];
+        }
     }
     
     [self finish];
+    
+//    [self finish];
+    
+//    self.parent.servicesDiscovery = self;
+//    [self.parent.peripheral discoverServices:self.services];
+//
+//    self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
+//    [self.timer waitUntilFinished];
+//    if (self.timer.isCancelled) {
+//    } else {
+//        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
+//        [self.errors addObject:error];
+//    }
+//
+//    if (self.isCancelled || (self.errors.count > 0)) {
+//        self.disconnection = self.parent.disconnect;
+//        [self.disconnection waitUntilFinished];
+//    }
+//
+//    [self finish];
     
     
 //    if (self.parent.peripheral.state == CBPeripheralStateConnected) {
@@ -964,6 +999,16 @@
     //    }
     //
     //    [self updateState:HLPOperationStateDidEnd];
+}
+
+#pragma mark - Accessors
+
+- (NSMutableArray<CBUUID *> *)missingServices {
+    NSMutableArray<CBUUID *> *missingServices = self.services.mutableCopy;
+    for (CBService *service in self.parent.peripheral.services) {
+        [missingServices removeObject:service.UUID];
+    }
+    return missingServices;
 }
 
 @end
