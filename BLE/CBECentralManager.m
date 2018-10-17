@@ -916,7 +916,10 @@
                     [self.errors addObject:error];
                 } else {
                     for (CBService *service in self.cachedDiscoveredServices) {
-                        self.parent.servicesByUUID[service.UUID] = [CBEService.alloc initWithService:service];
+                        CBEService *cbeService = [CBEService.alloc initWithService:service];
+                        [self.parent addOperation:cbeService];
+                        
+                        self.parent.servicesByUUID[service.UUID] = cbeService;
                     }
                 }
             }
@@ -953,6 +956,25 @@
     }
     return discoveredServices;
 }
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface CBECharacteristicsDiscovery ()
+
+@end
+
+
+
+@implementation CBECharacteristicsDiscovery
 
 @end
 

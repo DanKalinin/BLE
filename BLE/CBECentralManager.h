@@ -415,7 +415,26 @@
 
 
 
-@protocol CBEServiceDelegate <NSEOperationDelegate>
+@protocol CBECharacteristicsDiscoveryDelegate <NSEOperationDelegate>
+
+@end
+
+
+
+@interface CBECharacteristicsDiscovery : NSEOperation <CBECharacteristicsDiscoveryDelegate>
+
+@end
+
+
+
+
+
+
+
+
+
+
+@protocol CBEServiceDelegate <CBECharacteristicsDiscoveryDelegate>
 
 @end
 
@@ -427,6 +446,9 @@
 
 - (instancetype)initWithService:(CBService *)service;
 
+- (CBECharacteristicsDiscovery *)discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout;
+- (CBECharacteristicsDiscovery *)discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
+
 @end
 
 
@@ -438,7 +460,7 @@
 
 
 
-@protocol CBEPeripheralDelegate <CBEPeripheralConnectionDelegate, CBEPeripheralDisconnectionDelegate, CBPeripheralDelegate>
+@protocol CBEPeripheralDelegate <CBEServiceDelegate, CBEPeripheralConnectionDelegate, CBEPeripheralDisconnectionDelegate, CBEServicesDiscoveryDelegate, CBPeripheralDelegate>
 
 @end
 
