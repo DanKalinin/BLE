@@ -396,8 +396,10 @@
 @property (readonly) NSTimeInterval timeout;
 @property (readonly) NSETimer *timer;
 @property (readonly) CBEPeripheralDisconnection *disconnection;
-@property (readonly) NSMutableArray<CBUUID *> *cachedMissingServices;
 @property (readonly) NSMutableArray<CBUUID *> *missingServices;
+@property (readonly) NSMutableArray<CBUUID *> *cachedMissingServices;
+@property (readonly) HLPArray<CBService *> *discoveredServices;
+@property (readonly) HLPArray<CBService *> *cachedDiscoveredServices;
 
 - (instancetype)initWithServices:(NSArray<CBUUID *> *)services timeout:(NSTimeInterval)timeout;
 
@@ -427,7 +429,7 @@
 @property (readonly) CBECentralManager *parent;
 @property (readonly) HLPArray<CBEPeripheralDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
-@property (readonly) NSMutableDictionary<CBUUID *, CBService *> *servicesByUUID;
+@property (readonly) HLPDictionary<CBUUID *, CBService *> *servicesByUUID;
 @property (readonly) NSMutableDictionary<NSNumber *, CBL2CAPChannel *> *channelsByPSM;
 @property (readonly) NSDictionary<NSString *, id> *advertisement;
 @property (readonly) NSNumber *rssi;
@@ -500,5 +502,20 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 //
 //- (BLEL2CAPStreamsOpening *)openL2CAPStreams:(CBL2CAPChannel *)channel timeout:(NSTimeInterval)timeout;
 //- (BLEL2CAPStreamsOpening *)openL2CAPStreams:(CBL2CAPChannel *)channel timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface CBService (CBE)
+
+@property HLPDictionary<CBUUID *, CBCharacteristic *> *characteristicsByUUID;
 
 @end

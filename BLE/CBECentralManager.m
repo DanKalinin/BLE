@@ -872,6 +872,7 @@
 @property NSETimer *timer;
 @property CBEPeripheralDisconnection *disconnection;
 @property NSMutableArray<CBUUID *> *cachedMissingServices;
+@property HLPArray<CBService *> *cachedDiscoveredServices;
 
 @end
 
@@ -902,12 +903,16 @@
             if (self.isCancelled) {
             } else if (self.errors.count > 0) {
             } else {
+                self.cachedDiscoveredServices = self.discoveredServices;
                 self.cachedMissingServices = self.missingServices;
                 if (self.cachedMissingServices.count > 0) {
                     NSError *error = [NSError errorWithDomain:CBEErrorDomain code:CBEErrorMissingServices userInfo:nil];
                     [self.errors addObject:error];
                 } else {
-                    // Assign services
+                    for (CBService *service in self.cachedDiscoveredServices) {
+                        self.parent.servicesByUUID[service.UUID] = service;
+                        service.characteristicsByUUID = HLPDictionary.strongToWeakDictionary;
+                    }
                 }
             }
         } else {
@@ -922,83 +927,6 @@
     }
     
     [self finish];
-    
-//    [self finish];
-    
-//    self.parent.servicesDiscovery = self;
-//    [self.parent.peripheral discoverServices:self.services];
-//
-//    self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
-//    [self.timer waitUntilFinished];
-//    if (self.timer.isCancelled) {
-//    } else {
-//        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
-//        [self.errors addObject:error];
-//    }
-//
-//    if (self.isCancelled || (self.errors.count > 0)) {
-//        self.disconnection = self.parent.disconnect;
-//        [self.disconnection waitUntilFinished];
-//    }
-//
-//    [self finish];
-    
-    
-//    if (self.parent.peripheral.state == CBPeripheralStateConnected) {
-//    } else {
-//        self.parent.connection = self;
-//        if (self.parent.peripheral.state == CBPeripheralStateConnecting) {
-//        } else {
-//            [self.parent.parent.central connectPeripheral:self.parent.peripheral options:self.options];
-//        }
-//
-//        self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
-//        [self.timer waitUntilFinished];
-//        if (self.timer.isCancelled) {
-//        } else {
-//            NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
-//            [self.errors addObject:error];
-//        }
-//
-//        if (self.isCancelled || (self.errors.count > 0)) {
-//            self.disconnection = [self.parent disconnect];
-//            [self.disconnection waitUntilFinished];
-//        }
-//    }
-//
-//    [self finish];
-    
-    
-    
-    
-    //    [self updateState:HLPOperationStateDidBegin];
-    //
-    //    self.peripheral.delegate = self.delegates;
-    //    [self.peripheral discoverServices:self.services];
-    //
-    //    self.operation = self.tick = [HLPClock.shared tickWithInterval:self.timeout];
-    //    [self.tick waitUntilFinished];
-    //    if (self.cancelled) {
-    //    } else if (!self.tick.cancelled) {
-    //        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
-    //        [self.errors addObject:error];
-    //    } else if (self.errors.count > 0) {
-    //    } else if (self.peripheral.services.count < self.services.count) {
-    //        NSError *error = [NSError errorWithDomain:BLEErrorDomain code:BLEErrorLessServicesDiscovered userInfo:nil];
-    //        [self.errors addObject:error];
-    //    } else {
-    //        for (CBService *service in self.peripheral.services) {
-    //            self.peripheral.servicesByUUID[service.UUID] = service;
-    //            service.characteristicsByUUID = HLPDictionary.strongToWeakDictionary;
-    //        }
-    //    }
-    //
-    //    if (self.cancelled || (self.errors.count > 0)) {
-    //        self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
-    //        [self.disconnection waitUntilFinished];
-    //    }
-    //
-    //    [self updateState:HLPOperationStateDidEnd];
 }
 
 #pragma mark - Accessors
@@ -1009,6 +937,16 @@
         [missingServices removeObject:service.UUID];
     }
     return missingServices;
+}
+
+- (HLPArray<CBService *> *)discoveredServices {
+    HLPArray<CBService *> *discoveredServices = HLPArray.weakArray;
+    for (CBService *service in self.parent.peripheral.services) {
+        if ([self.cachedMissingServices containsObject:service.UUID]) {
+            [discoveredServices addObject:service];
+        }
+    }
+    return discoveredServices;
 }
 
 @end
@@ -1025,7 +963,7 @@
 @interface CBEPeripheral ()
 
 @property CBPeripheral *peripheral;
-@property NSMutableDictionary<CBUUID *, CBService *> *servicesByUUID;
+@property HLPDictionary<CBUUID *, CBService *> *servicesByUUID;
 @property NSMutableDictionary<NSNumber *, CBL2CAPChannel *> *channelsByPSM;
 @property NSDictionary<NSString *, id> *advertisement;
 @property NSNumber *rssi;
@@ -1046,7 +984,7 @@
         
         self.peripheral.delegate = self.delegates;
         
-        self.servicesByUUID = NSMutableDictionary.dictionary;
+        self.servicesByUUID = HLPDictionary.strongToWeakDictionary;
         self.channelsByPSM = NSMutableDictionary.dictionary;
     }
     return self;
@@ -1194,6 +1132,27 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     CBEPeripheral *cbePeripheral = self.peripheralsByIdentifier[peripheral.identifier];
     [cbePeripheral.connection.errors addObject:error];
     [cbePeripheral.connection.timer cancel];
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
+@implementation CBService (CBE)
+
+- (HLPDictionary<CBUUID *,CBCharacteristic *> *)characteristicsByUUID {
+    return self.strongDictionary[NSStringFromSelector(@selector(characteristicsByUUID))];
+}
+
+- (void)setCharacteristicsByUUID:(HLPDictionary<CBUUID *,CBCharacteristic *> *)characteristicsByUUID {
+    self.strongDictionary[NSStringFromSelector(@selector(characteristicsByUUID))] = characteristicsByUUID;
 }
 
 @end
