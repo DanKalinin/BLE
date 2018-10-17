@@ -420,6 +420,7 @@
 
 @property (weak) CBEPeripheralConnection *connection;
 @property (weak) CBEPeripheralDisconnection *disconnection;
+@property (weak) CBEServicesDiscovery *servicesDiscovery;
 
 @property (readonly) CBECentralManager *parent;
 @property (readonly) HLPArray<CBEPeripheralDelegate> *delegates;

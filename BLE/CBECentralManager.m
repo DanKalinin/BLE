@@ -890,10 +890,16 @@
 }
 
 - (void)main {
+    self.parent.servicesDiscovery = self;
     [self.parent.peripheral discoverServices:self.services];
     
     self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
     [self.timer waitUntilFinished];
+    if (self.timer.isCancelled) {
+    } else {
+        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
+        [self.errors addObject:error];
+    }
     
     if (self.isCancelled || (self.errors.count > 0)) {
         self.disconnection = self.parent.disconnect;
@@ -1038,6 +1044,14 @@
 }
 
 #pragma mark - Peripheral
+
+- (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
+    if (error) {
+        [self.servicesDiscovery.errors addObject:error];
+    }
+    
+    [self.servicesDiscovery.timer cancel];
+}
 
 @end
 
