@@ -1019,6 +1019,35 @@
 
 
 
+@interface CBEL2CAPStreamsOpening ()
+
+@property NSTimeInterval timeout;
+
+@end
+
+
+
+@implementation CBEL2CAPStreamsOpening
+
+- (instancetype)initWithTimeout:(NSTimeInterval)timeout {
+    self = super.init;
+    if (self) {
+        self.timeout = timeout;
+    }
+    return self;
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
 @interface CBEL2CAPChannel ()
 
 @property CBL2CAPChannel *channel;
@@ -1035,6 +1064,18 @@
         self.channel = channel;
     }
     return self;
+}
+
+- (CBEL2CAPStreamsOpening *)openStreamsWithTimeout:(NSTimeInterval)timeout {
+    CBEL2CAPStreamsOpening *opening = [CBEL2CAPStreamsOpening.alloc initWithTimeout:timeout];
+    [self addOperation:opening];
+    return opening;
+}
+
+- (CBEL2CAPStreamsOpening *)openStreamsWithTimeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
+    CBEL2CAPStreamsOpening *opening = [self openStreamsWithTimeout:timeout];
+    opening.completionBlock = completion;
+    return opening;
 }
 
 @end

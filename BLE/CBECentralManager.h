@@ -327,7 +327,7 @@
 @class CBECharacteristicsDiscovery;
 @class CBEService;
 
-// @class CBEL2CAPStramsOpening;
+@class CBEL2CAPStreamsOpening;
 @class CBEL2CAPChannel;
 
 @class CBEPeripheralConnection;
@@ -465,7 +465,30 @@
 
 
 
-@protocol CBEL2CAPChannelDelegate <NSEOperationDelegate>
+@protocol CBEL2CAPStreamsOpeningDelegate <NSEOperationDelegate>
+
+@end
+
+
+
+@interface CBEL2CAPStreamsOpening : NSEOperation <CBEL2CAPStreamsOpeningDelegate>
+
+@property (readonly) NSTimeInterval timeout;
+
+- (instancetype)initWithTimeout:(NSTimeInterval)timeout;
+
+@end
+
+
+
+
+
+
+
+
+
+
+@protocol CBEL2CAPChannelDelegate <CBEL2CAPStreamsOpeningDelegate>
 
 @end
 
@@ -476,6 +499,9 @@
 @property (readonly) CBL2CAPChannel *channel;
 
 - (instancetype)initWithChannel:(CBL2CAPChannel *)channel;
+
+- (CBEL2CAPStreamsOpening *)openStreamsWithTimeout:(NSTimeInterval)timeout;
+- (CBEL2CAPStreamsOpening *)openStreamsWithTimeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
 
 @end
 
