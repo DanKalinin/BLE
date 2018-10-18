@@ -1497,7 +1497,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 #pragma mark - Central manager
 
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
-    
+    [self.delegates CBECentralManagerDidUpdateState:self];
 }
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *, id> *)advertisementData RSSI:(NSNumber *)RSSI {
@@ -1513,6 +1513,8 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     
     cbePeripheral.advertisement = advertisementData;
     cbePeripheral.rssi = RSSI;
+    
+    [self.delegates CBECentralManager:self didDiscoverPeripheral:cbePeripheral];
 }
 
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
@@ -1521,8 +1523,14 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 }
 
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
-    CBEPeripheral *cbePeripheral = self.peripheralsByIdentifier[peripheral.identifier];
+    CBEPeripheral *cbePeripheral = self.connectedPeripheralsByIdentifier[peripheral.identifier];
+    
+    self.connectedPeripheralsByIdentifier[peripheral.identifier] = nil;
+    self.connectedPeripheralsByName[peripheral.name] = nil;
+    
     [cbePeripheral.disconnection finish];
+    
+    [self.delegates CBECentralManager:self didDisconnectPeripheral:cbePeripheral error:error];
 }
 
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
