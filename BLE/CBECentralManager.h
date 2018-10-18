@@ -652,7 +652,7 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 @protocol CBECentralManagerDelegate <CBEPeripheralDelegate, CBCentralManagerDelegate>
 
 @optional
-- (void)CBECentralManagerDidUpdateState:(CBECentralManager *)central;
+- (void)CBECentralManagerDidUpdateStatus:(CBECentralManager *)central;
 - (void)CBECentralManager:(CBECentralManager *)central didDiscoverPeripheral:(CBEPeripheral *)peripheral;
 - (void)CBECentralManager:(CBECentralManager *)central didDisconnectPeripheral:(CBEPeripheral *)peripheral error:(NSError *)error;
 

@@ -1497,7 +1497,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 #pragma mark - Central manager
 
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
-    [self.delegates CBECentralManagerDidUpdateState:self];
+    [self.delegates CBECentralManagerDidUpdateStatus:self];
 }
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *, id> *)advertisementData RSSI:(NSNumber *)RSSI {
@@ -1524,11 +1524,10 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
     CBEPeripheral *cbePeripheral = self.connectedPeripheralsByIdentifier[peripheral.identifier];
+    [cbePeripheral.disconnection finish];
     
     self.connectedPeripheralsByIdentifier[peripheral.identifier] = nil;
     self.connectedPeripheralsByName[peripheral.name] = nil;
-    
-    [cbePeripheral.disconnection finish];
     
     [self.delegates CBECentralManager:self didDisconnectPeripheral:cbePeripheral error:error];
 }
