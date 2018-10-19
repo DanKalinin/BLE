@@ -623,6 +623,9 @@
 
 @protocol CBEPeripheralDelegate <CBEServiceDelegate, CBEPeripheralConnectionDelegate, CBEPeripheralDisconnectionDelegate, CBEServicesDiscoveryDelegate, CBEL2CAPChannelOpeningDelegate, CBPeripheralDelegate>
 
+@optional
+- (void)CBEPeripheralDidDisconnectWithError:(NSError *)error;
+
 @end
 
 
@@ -680,7 +683,6 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 @optional
 - (void)CBECentralManagerDidUpdateStatus:(CBECentralManager *)central;
 - (void)CBECentralManager:(CBECentralManager *)central didDiscoverPeripheral:(CBEPeripheral *)peripheral;
-- (void)CBECentralManager:(CBECentralManager *)central didDisconnectPeripheral:(CBEPeripheral *)peripheral error:(NSError *)error;
 
 @end
 

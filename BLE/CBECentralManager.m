@@ -1570,7 +1570,9 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     self.connectedPeripheralsByIdentifier[peripheral.identifier] = nil;
     self.connectedPeripheralsByName[peripheral.name] = nil;
     
-    [self.delegates CBECentralManager:self didDisconnectPeripheral:cbePeripheral error:error];
+    if (error) {
+        [cbePeripheral.delegates CBEPeripheralDidDisconnectWithError:error];
+    }
 }
 
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
