@@ -624,7 +624,7 @@
 @protocol CBEPeripheralDelegate <CBEServiceDelegate, CBEPeripheralConnectionDelegate, CBEPeripheralDisconnectionDelegate, CBEServicesDiscoveryDelegate, CBEL2CAPChannelOpeningDelegate, CBPeripheralDelegate>
 
 @optional
-- (void)CBEPeripheralDidDisconnectWithError:(NSError *)error;
+- (void)CBEPeripheralDidDisconnect;
 
 @end
 
