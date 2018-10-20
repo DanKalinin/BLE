@@ -808,11 +808,10 @@
     [self.timer waitUntilFinished];
     if (self.timer.isCancelled) {
     } else {
-        NSError *error = [NSError errorWithDomain:CBEErrorDomain code:CBEErrorMissingCharacteristics userInfo:nil];
-        [self.errors addObject:error];
+        self.error = [NSError errorWithDomain:CBEErrorDomain code:CBEErrorMissingCharacteristics userInfo:nil];
     }
     
-    if (self.isCancelled || (self.errors.count > 0)) {
+    if (self.isCancelled || self.error) {
         self.disconnection = self.parent.parent.parent.disconnect;
         [self.disconnection waitUntilFinished];
     }
@@ -910,13 +909,12 @@
         [self.timer waitUntilFinished];
         if (self.timer.isCancelled) {
             if (self.isCancelled) {
-            } else if (self.errors.count > 0) {
+            } else if (self.error) {
             } else {
                 self.cachedDiscoveredCharacteristics = self.discoveredCharacteristics;
                 self.cachedMissingCharacteristics = self.missingCharacteristics;
                 if (self.cachedMissingCharacteristics.count > 0) {
-                    NSError *error = [NSError errorWithDomain:CBEErrorDomain code:CBEErrorMissingCharacteristics userInfo:nil];
-                    [self.errors addObject:error];
+                    self.error = [NSError errorWithDomain:CBEErrorDomain code:CBEErrorMissingCharacteristics userInfo:nil];
                 } else {
                     for (CBCharacteristic *characteristic in self.cachedDiscoveredCharacteristics) {
                         CBECharacteristic *cbeCharacteristic = [self.parent.characteristicClass.alloc initWithCharacteristic:characteristic];
@@ -927,11 +925,10 @@
                 }
             }
         } else {
-            NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
-            [self.errors addObject:error];
+            self.error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
         }
         
-        if (self.isCancelled || (self.errors.count > 0)) {
+        if (self.isCancelled || self.error) {
             self.disconnection = self.parent.parent.disconnect;
             [self.disconnection waitUntilFinished];
         }
@@ -1126,17 +1123,16 @@
         [self.timer waitUntilFinished];
         if (self.timer.isCancelled) {
             if (self.isCancelled) {
-            } else if (self.errors.count > 0) {
+            } else if (self.error) {
             } else {
                 self.parent.parent.connectedPeripheralsByIdentifier[self.parent.peripheral.identifier] = self.parent;
                 self.parent.parent.connectedPeripheralsByName[self.parent.peripheral.name] = self.parent;
             }
         } else {
-            NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
-            [self.errors addObject:error];
+            self.error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
         }
         
-        if (self.isCancelled || (self.errors.count > 0)) {
+        if (self.isCancelled || self.error) {
             self.disconnection = self.parent.disconnect;
             [self.disconnection waitUntilFinished];
         }
@@ -1225,13 +1221,12 @@
         [self.timer waitUntilFinished];
         if (self.timer.isCancelled) {
             if (self.isCancelled) {
-            } else if (self.errors.count > 0) {
+            } else if (self.error) {
             } else {
                 self.cachedDiscoveredServices = self.discoveredServices;
                 self.cachedMissingServices = self.missingServices;
                 if (self.cachedMissingServices.count > 0) {
-                    NSError *error = [NSError errorWithDomain:CBEErrorDomain code:CBEErrorMissingServices userInfo:nil];
-                    [self.errors addObject:error];
+                    self.error = [NSError errorWithDomain:CBEErrorDomain code:CBEErrorMissingServices userInfo:nil];
                 } else {
                     for (CBService *service in self.cachedDiscoveredServices) {
                         CBEService *cbeService = [self.parent.serviceClass.alloc initWithService:service];
@@ -1242,11 +1237,10 @@
                 }
             }
         } else {
-            NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
-            [self.errors addObject:error];
+            self.error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
         }
         
-        if (self.isCancelled || (self.errors.count > 0)) {
+        if (self.isCancelled || self.error) {
             self.disconnection = self.parent.disconnect;
             [self.disconnection waitUntilFinished];
         }
@@ -1319,7 +1313,7 @@
     [self.timer waitUntilFinished];
     if (self.timer.isCancelled) {
         if (self.isCancelled) {
-        } else if (self.errors.count > 0) {
+        } else if (self.error) {
         } else {
             CBEL2CAPChannel *channel = [CBEL2CAPChannel.alloc initWithChannel:self.channel];
             [self.parent addOperation:channel];
@@ -1327,11 +1321,10 @@
             self.parent.channelsByPSM[@(self.psm)] = channel;
         }
     } else {
-        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
-        [self.errors addObject:error];
+        self.error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
     }
     
-    if (self.isCancelled || (self.errors.count > 0)) {
+    if (self.isCancelled || self.error) {
         self.disconnection = self.parent.disconnect;
         [self.disconnection waitUntilFinished];
     }
@@ -1433,40 +1426,25 @@
 #pragma mark - Peripheral
 
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
-    if (error) {
-        [self.servicesDiscovery.errors addObject:error];
-    }
-    
+    self.servicesDiscovery.error = error;
     [self.servicesDiscovery.timer cancel];
 }
 
 - (void)peripheral:(CBPeripheral *)peripheral didOpenL2CAPChannel:(CBL2CAPChannel *)channel error:(NSError *)error {
-    if (error) {
-        [self.channelOpening.errors addObject:error];
-    } else {
-        self.channelOpening.channel = channel;
-    }
-    
+    self.channelOpening.channel = channel;
+    self.channelOpening.error = error;
     [self.channelOpening.timer cancel];
 }
 
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
     CBEService *cbeService = self.servicesByUUID[service.UUID];
-    
-    if (error) {
-        [cbeService.characteristicsDiscovery.errors addObject:error];
-    }
-    
+    cbeService.characteristicsDiscovery.error = error;
     [cbeService.characteristicsDiscovery.timer cancel];
 }
 
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
     CBECharacteristic *cbeCharacteristic = self.servicesByUUID[characteristic.service.UUID].characteristicsByUUID[characteristic.UUID];
-    
-    if (error) {
-        [cbeCharacteristic.reading.errors addObject:error];
-    }
-    
+    cbeCharacteristic.reading.error = error;
     [cbeCharacteristic.reading.timer cancel];
 }
 
@@ -1577,7 +1555,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
     CBEPeripheral *cbePeripheral = self.peripheralsByIdentifier[peripheral.identifier];
-    [cbePeripheral.connection.errors addObject:error];
+    cbePeripheral.connection.error = error;
     [cbePeripheral.connection.timer cancel];
 }
 
