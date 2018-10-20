@@ -918,7 +918,7 @@
                 } else {
                     for (CBCharacteristic *characteristic in self.cachedDiscoveredCharacteristics) {
                         CBECharacteristic *cbeCharacteristic = [self.parent.characteristicClass.alloc initWithCharacteristic:characteristic];
-                        [self.parent addOperation:cbeCharacteristic];
+                        [cbeCharacteristic.delegates addObject:self.parent.delegates];
                         
                         self.parent.characteristicsByUUID[characteristic.UUID] = cbeCharacteristic;
                     }
@@ -1230,7 +1230,7 @@
                 } else {
                     for (CBService *service in self.cachedDiscoveredServices) {
                         CBEService *cbeService = [self.parent.serviceClass.alloc initWithService:service];
-                        [self.parent addOperation:cbeService];
+                        [cbeService.delegates addObject:self.parent.delegates];
                         
                         self.parent.servicesByUUID[service.UUID] = cbeService;
                     }
@@ -1316,7 +1316,7 @@
         } else if (self.error) {
         } else {
             CBEL2CAPChannel *channel = [CBEL2CAPChannel.alloc initWithChannel:self.channel];
-            [self.parent addOperation:channel];
+            [channel.delegates addObject:self.parent.delegates];
             
             self.parent.channelsByPSM[@(self.psm)] = channel;
         }
@@ -1524,7 +1524,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     if (cbePeripheral) {
     } else {
         cbePeripheral = [self.peripheralClass.alloc initWithPeripheral:peripheral];
-        [self addOperation:cbePeripheral];
+        [cbePeripheral.delegates addObject:self.delegates];
         
         self.peripheralsByIdentifier[peripheral.identifier] = cbePeripheral;
         self.peripheralsByName[peripheral.name] = cbePeripheral;
