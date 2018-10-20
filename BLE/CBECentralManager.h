@@ -624,7 +624,7 @@
 @protocol CBEPeripheralDelegate <CBEServiceDelegate, CBEPeripheralConnectionDelegate, CBEPeripheralDisconnectionDelegate, CBEServicesDiscoveryDelegate, CBEL2CAPChannelOpeningDelegate, CBPeripheralDelegate>
 
 @optional
-- (void)CBEPeripheralDidDisconnect;
+- (void)CBEPeripheralDidDisconnect:(CBEPeripheral *)peripheral;
 
 @end
 

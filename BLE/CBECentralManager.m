@@ -1572,7 +1572,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     
     if (error) {
         cbePeripheral.error = error;
-        [cbePeripheral.delegates CBEPeripheralDidDisconnect];
+        [cbePeripheral.delegates CBEPeripheralDidDisconnect:cbePeripheral];
     }
 }
 
