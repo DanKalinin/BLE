@@ -334,8 +334,10 @@
 @class CBEPeripheralDisconnection;
 @class CBEServicesDiscovery;
 @class CBEL2CAPChannelOpening;
+@class CBEPeripheralDidDisconnectInfo;
 @class CBEPeripheral;
 
+@class CBECentralManagerDidDiscoverPeripheralInfo;
 @class CBECentralManager;
 
 
@@ -621,10 +623,27 @@
 
 
 
+@interface CBEPeripheralDidDisconnectInfo : HLPObject
+
+@property (readonly) NSError *error;
+
+- (instancetype)initWithError:(NSError *)error;
+
+@end
+
+
+
+
+
+
+
+
+
+
 @protocol CBEPeripheralDelegate <CBEServiceDelegate, CBEPeripheralConnectionDelegate, CBEPeripheralDisconnectionDelegate, CBEServicesDiscoveryDelegate, CBEL2CAPChannelOpeningDelegate, CBPeripheralDelegate>
 
 @optional
-- (void)CBEPeripheral:(CBEPeripheral *)peripheral didDisconnectWithError:(NSError *)error;
+- (void)CBEPeripheralDidDisconnect:(CBEPeripheral *)peripheral;
 
 @end
 
@@ -647,6 +666,7 @@
 @property (readonly) NSMutableDictionary<NSNumber *, __kindof CBEL2CAPChannel *> *channelsByPSM;
 @property (readonly) NSDictionary<NSString *, id> *advertisement;
 @property (readonly) NSNumber *rssi;
+@property (readonly) CBEPeripheralDidDisconnectInfo *didDisconnectInfo;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral;
 
@@ -678,11 +698,37 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 
 
 
+
+
+
+
+
+
+
+@interface CBECentralManagerDidDiscoverPeripheralInfo : HLPObject
+
+@property (readonly) __kindof CBEPeripheral *peripheral;
+@property (readonly) NSDictionary<NSString *, id> *advertisement;
+@property (readonly) NSNumber *rssi;
+
+- (instancetype)initWithPeripheral:(CBEPeripheral *)peripheral advertisement:(NSDictionary<NSString *, id> *)advertisement rssi:(NSNumber *)rssi;
+
+@end
+
+
+
+
+
+
+
+
+
+
 @protocol CBECentralManagerDelegate <CBEPeripheralDelegate, CBCentralManagerDelegate>
 
 @optional
 - (void)CBECentralManagerDidUpdateStatus:(CBECentralManager *)central;
-- (void)CBECentralManager:(CBECentralManager *)central didDiscoverPeripheral:(CBEPeripheral *)peripheral;
+- (void)CBECentralManagerDidDiscoverPeripheral:(CBECentralManager *)central;
 
 @end
 
@@ -699,6 +745,7 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 @property (readonly) NSMutableDictionary<NSString *, __kindof CBEPeripheral *> *peripheralsByName;
 @property (readonly) NSMutableDictionary<NSUUID *, __kindof CBEPeripheral *> *connectedPeripheralsByIdentifier;
 @property (readonly) NSMutableDictionary<NSString *, __kindof CBEPeripheral *> *connectedPeripheralsByName;
+@property (readonly) CBECentralManagerDidDiscoverPeripheralInfo *didDiscoverPeripheralInfo;
 
 - (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options;
 

@@ -1343,6 +1343,35 @@
 
 
 
+@interface CBEPeripheralDidDisconnectInfo ()
+
+@property NSError *error;
+
+@end
+
+
+
+@implementation CBEPeripheralDidDisconnectInfo
+
+- (instancetype)initWithError:(NSError *)error {
+    self = super.init;
+    if (self) {
+        self.error = error;
+    }
+    return self;
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
 @interface CBEPeripheral ()
 
 @property CBPeripheral *peripheral;
@@ -1350,6 +1379,7 @@
 @property NSMutableDictionary<NSNumber *, CBEL2CAPChannel *> *channelsByPSM;
 @property NSDictionary<NSString *, id> *advertisement;
 @property NSNumber *rssi;
+@property CBEPeripheralDidDisconnectInfo *didDisconnectInfo;
 
 @end
 
@@ -1464,6 +1494,46 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 
 
+
+
+
+
+
+
+
+@interface CBECentralManagerDidDiscoverPeripheralInfo ()
+
+@property CBEPeripheral *peripheral;
+@property NSDictionary<NSString *, id> *advertisement;
+@property NSNumber *rssi;
+
+@end
+
+
+
+@implementation CBECentralManagerDidDiscoverPeripheralInfo
+
+- (instancetype)initWithPeripheral:(CBEPeripheral *)peripheral advertisement:(NSDictionary<NSString *, id> *)advertisement rssi:(NSNumber *)rssi {
+    self = super.init;
+    if (self) {
+        self.peripheral = peripheral;
+        self.advertisement = advertisement;
+        self.rssi = rssi;
+    }
+    return self;
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
 @interface CBECentralManager ()
 
 @property NSDictionary<NSString *, id> *options;
@@ -1472,6 +1542,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 @property NSMutableDictionary<NSString *, CBEPeripheral *> *peripheralsByName;
 @property NSMutableDictionary<NSUUID *, CBEPeripheral *> *connectedPeripheralsByIdentifier;
 @property NSMutableDictionary<NSString *, CBEPeripheral *> *connectedPeripheralsByName;
+@property CBECentralManagerDidDiscoverPeripheralInfo *didDiscoverPeripheralInfo;
 
 @end
 
@@ -1533,7 +1604,8 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     cbePeripheral.advertisement = advertisementData;
     cbePeripheral.rssi = RSSI;
     
-    [self.delegates CBECentralManager:self didDiscoverPeripheral:cbePeripheral];
+    self.didDiscoverPeripheralInfo = [CBECentralManagerDidDiscoverPeripheralInfo.alloc initWithPeripheral:cbePeripheral advertisement:advertisementData rssi:RSSI];
+    [self.delegates CBECentralManagerDidDiscoverPeripheral:self];
 }
 
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
@@ -1549,7 +1621,8 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     self.connectedPeripheralsByName[peripheral.name] = nil;
     
     if (error) {
-        [cbePeripheral.delegates CBEPeripheral:cbePeripheral didDisconnectWithError:error];
+        cbePeripheral.didDisconnectInfo = [CBEPeripheralDidDisconnectInfo.alloc initWithError:error];
+        [cbePeripheral.delegates CBEPeripheralDidDisconnect:cbePeripheral];
     }
 }
 
