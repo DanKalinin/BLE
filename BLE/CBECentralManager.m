@@ -767,7 +767,70 @@
 
 
 
+const NSEOperationState CBECentralManagerStateDidScanForPeripherals = 2;
+const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
+
+
+
+
+
+
+
+
+
+@interface CBEPeripheralDidDisconnectInfo ()
+
+@property NSError *error;
+
+@end
+
+
+
+@implementation CBEPeripheralDidDisconnectInfo
+
+- (instancetype)initWithError:(NSError *)error {
+    self = super.init;
+    if (self) {
+        self.error = error;
+    }
+    return self;
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface CBECentralManagerDidDiscoverPeripheralInfo ()
+
+@property CBEPeripheral *peripheral;
+@property NSDictionary<NSString *, id> *advertisement;
+@property NSNumber *rssi;
+
+@end
+
+
+
+@implementation CBECentralManagerDidDiscoverPeripheralInfo
+
+- (instancetype)initWithPeripheral:(CBEPeripheral *)peripheral advertisement:(NSDictionary<NSString *, id> *)advertisement rssi:(NSNumber *)rssi {
+    self = super.init;
+    if (self) {
+        self.peripheral = peripheral;
+        self.advertisement = advertisement;
+        self.rssi = rssi;
+    }
+    return self;
+}
+
+@end
 
 
 
@@ -817,49 +880,6 @@
     }
     
     [self finish];
-}
-
-@end
-
-
-
-
-
-
-
-
-
-
-@interface CBECharacteristic ()
-
-@property CBCharacteristic *characteristic;
-
-@end
-
-
-
-@implementation CBECharacteristic
-
-@dynamic parent;
-
-- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic {
-    self = super.init;
-    if (self) {
-        self.characteristic = characteristic;
-    }
-    return self;
-}
-
-- (CBECharacteristicReading *)readWithTimeout:(NSTimeInterval)timeout {
-    CBECharacteristicReading *reading = [CBECharacteristicReading.alloc initWithTimeout:timeout];
-    [self addOperation:reading];
-    return reading;
-}
-
-- (CBECharacteristicReading *)readWithTimeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
-    CBECharacteristicReading *reading = [self readWithTimeout:timeout];
-    reading.completionBlock = completion;
-    return reading;
 }
 
 @end
@@ -968,54 +988,6 @@
 
 
 
-@interface CBEService ()
-
-@property CBService *service;
-@property NSMutableDictionary<CBUUID *, CBECharacteristic *> *characteristicsByUUID;
-
-@end
-
-
-
-@implementation CBEService
-
-@dynamic parent;
-
-- (instancetype)initWithService:(CBService *)service {
-    self = super.init;
-    if (self) {
-        self.service = service;
-        
-        self.characteristicClass = CBECharacteristic.class;
-        
-        self.characteristicsByUUID = NSMutableDictionary.dictionary;
-    }
-    return self;
-}
-
-- (CBECharacteristicsDiscovery *)discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout {
-    CBECharacteristicsDiscovery *discovery = [CBECharacteristicsDiscovery.alloc initWithCharacteristics:characteristics timeout:timeout];
-    [self addOperation:discovery];
-    return discovery;
-}
-
-- (CBECharacteristicsDiscovery *)discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
-    CBECharacteristicsDiscovery *discovery = [self discoverCharacteristics:characteristics timeout:timeout];
-    discovery.completionBlock = completion;
-    return discovery;
-}
-
-@end
-
-
-
-
-
-
-
-
-
-
 @interface CBEL2CAPStreamsOpening ()
 
 @property NSTimeInterval timeout;
@@ -1032,47 +1004,6 @@
         self.timeout = timeout;
     }
     return self;
-}
-
-@end
-
-
-
-
-
-
-
-
-
-
-@interface CBEL2CAPChannel ()
-
-@property CBL2CAPChannel *channel;
-
-@end
-
-
-
-@implementation CBEL2CAPChannel
-
-- (instancetype)initWithChannel:(CBL2CAPChannel *)channel {
-    self = super.init;
-    if (self) {
-        self.channel = channel;
-    }
-    return self;
-}
-
-- (CBEL2CAPStreamsOpening *)openStreamsWithTimeout:(NSTimeInterval)timeout {
-    CBEL2CAPStreamsOpening *opening = [CBEL2CAPStreamsOpening.alloc initWithTimeout:timeout];
-    [self addOperation:opening];
-    return opening;
-}
-
-- (CBEL2CAPStreamsOpening *)openStreamsWithTimeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
-    CBEL2CAPStreamsOpening *opening = [self openStreamsWithTimeout:timeout];
-    opening.completionBlock = completion;
-    return opening;
 }
 
 @end
@@ -1343,22 +1274,125 @@
 
 
 
-@interface CBEPeripheralDidDisconnectInfo ()
+@interface CBECharacteristic ()
 
-@property NSError *error;
+@property CBCharacteristic *characteristic;
 
 @end
 
 
 
-@implementation CBEPeripheralDidDisconnectInfo
+@implementation CBECharacteristic
 
-- (instancetype)initWithError:(NSError *)error {
+@dynamic parent;
+
+- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic {
     self = super.init;
     if (self) {
-        self.error = error;
+        self.characteristic = characteristic;
     }
     return self;
+}
+
+- (CBECharacteristicReading *)readWithTimeout:(NSTimeInterval)timeout {
+    CBECharacteristicReading *reading = [CBECharacteristicReading.alloc initWithTimeout:timeout];
+    [self addOperation:reading];
+    return reading;
+}
+
+- (CBECharacteristicReading *)readWithTimeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
+    CBECharacteristicReading *reading = [self readWithTimeout:timeout];
+    reading.completionBlock = completion;
+    return reading;
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface CBEService ()
+
+@property CBService *service;
+@property NSMutableDictionary<CBUUID *, CBECharacteristic *> *characteristicsByUUID;
+
+@end
+
+
+
+@implementation CBEService
+
+@dynamic parent;
+
+- (instancetype)initWithService:(CBService *)service {
+    self = super.init;
+    if (self) {
+        self.service = service;
+        
+        self.characteristicClass = CBECharacteristic.class;
+        
+        self.characteristicsByUUID = NSMutableDictionary.dictionary;
+    }
+    return self;
+}
+
+- (CBECharacteristicsDiscovery *)discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout {
+    CBECharacteristicsDiscovery *discovery = [CBECharacteristicsDiscovery.alloc initWithCharacteristics:characteristics timeout:timeout];
+    [self addOperation:discovery];
+    return discovery;
+}
+
+- (CBECharacteristicsDiscovery *)discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
+    CBECharacteristicsDiscovery *discovery = [self discoverCharacteristics:characteristics timeout:timeout];
+    discovery.completionBlock = completion;
+    return discovery;
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface CBEL2CAPChannel ()
+
+@property CBL2CAPChannel *channel;
+
+@end
+
+
+
+@implementation CBEL2CAPChannel
+
+- (instancetype)initWithChannel:(CBL2CAPChannel *)channel {
+    self = super.init;
+    if (self) {
+        self.channel = channel;
+    }
+    return self;
+}
+
+- (CBEL2CAPStreamsOpening *)openStreamsWithTimeout:(NSTimeInterval)timeout {
+    CBEL2CAPStreamsOpening *opening = [CBEL2CAPStreamsOpening.alloc initWithTimeout:timeout];
+    [self addOperation:opening];
+    return opening;
+}
+
+- (CBEL2CAPStreamsOpening *)openStreamsWithTimeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
+    CBEL2CAPStreamsOpening *opening = [self openStreamsWithTimeout:timeout];
+    opening.completionBlock = completion;
+    return opening;
 }
 
 @end
@@ -1476,51 +1510,6 @@
     CBECharacteristic *cbeCharacteristic = self.servicesByUUID[characteristic.service.UUID].characteristicsByUUID[characteristic.UUID];
     cbeCharacteristic.reading.error = error;
     [cbeCharacteristic.reading.timer cancel];
-}
-
-@end
-
-
-
-
-
-
-
-
-
-
-const NSEOperationState CBECentralManagerStateDidScanForPeripherals = 2;
-const NSEOperationState CBECentralManagerStateDidStopScan = 3;
-
-
-
-
-
-
-
-
-
-
-@interface CBECentralManagerDidDiscoverPeripheralInfo ()
-
-@property CBEPeripheral *peripheral;
-@property NSDictionary<NSString *, id> *advertisement;
-@property NSNumber *rssi;
-
-@end
-
-
-
-@implementation CBECentralManagerDidDiscoverPeripheralInfo
-
-- (instancetype)initWithPeripheral:(CBEPeripheral *)peripheral advertisement:(NSDictionary<NSString *, id> *)advertisement rssi:(NSNumber *)rssi {
-    self = super.init;
-    if (self) {
-        self.peripheral = peripheral;
-        self.advertisement = advertisement;
-        self.rssi = rssi;
-    }
-    return self;
 }
 
 @end
