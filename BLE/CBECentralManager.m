@@ -864,10 +864,11 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 }
 
 - (void)main {
+    self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
+    
     self.parent.reading = self;
     [self.parent.parent.parent.peripheral readValueForCharacteristic:self.parent.characteristic];
     
-    self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
     [self.timer waitUntilFinished];
     if (self.timer.isCancelled) {
     } else {
@@ -922,10 +923,11 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 - (void)main {
     self.cachedMissingCharacteristics = self.missingCharacteristics;
     if (self.cachedMissingCharacteristics.count > 0) {
+        self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
+        
         self.parent.characteristicsDiscovery = self;
         [self.parent.parent.peripheral discoverCharacteristics:self.characteristics forService:self.parent.service];
         
-        self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
         [self.timer waitUntilFinished];
         if (self.timer.isCancelled) {
             if (self.isCancelled) {
@@ -1044,13 +1046,14 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 - (void)main {
     if (self.parent.peripheral.state == CBPeripheralStateConnected) {
     } else {
+        self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
+        
         self.parent.connection = self;
         if (self.parent.peripheral.state == CBPeripheralStateConnecting) {
         } else {
             [self.parent.parent.central connectPeripheral:self.parent.peripheral options:self.options];
         }
         
-        self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
         [self.timer waitUntilFinished];
         if (self.timer.isCancelled) {
             if (self.isCancelled) {
@@ -1145,10 +1148,11 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 - (void)main {
     self.cachedMissingServices = self.missingServices;
     if (self.cachedMissingServices.count > 0) {
+        self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
+        
         self.parent.servicesDiscovery = self;
         [self.parent.peripheral discoverServices:self.services];
         
-        self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
         [self.timer waitUntilFinished];
         if (self.timer.isCancelled) {
             if (self.isCancelled) {
@@ -1237,10 +1241,11 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 }
 
 - (void)main {
+    self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
+    
     self.parent.channelOpening = self;
     [self.parent.peripheral openL2CAPChannel:self.psm];
     
-    self.operation = self.timer = [NSEClock.shared timerWithInterval:self.timeout repeats:1];
     [self.timer waitUntilFinished];
     if (self.timer.isCancelled) {
         if (self.isCancelled) {
