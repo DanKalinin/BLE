@@ -341,6 +341,7 @@
 //@class CBECentralManager;
 
 @class CBEPeripheralDidDisconnectInfo;
+@class CBEAdvertisement;
 @class CBECentralManagerDidDiscoverPeripheralInfo;
 @class CBECharacteristicReading;
 @class CBECharacteristicsDiscovery;
@@ -384,13 +385,30 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 
 
 
+@interface CBEAdvertisement : HLPObject
+
+@property (readonly) NSString *localName;
+
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary;
+
+@end
+
+
+
+
+
+
+
+
+
+
 @interface CBECentralManagerDidDiscoverPeripheralInfo : HLPObject
 
 @property (readonly) __kindof CBEPeripheral *peripheral;
-@property (readonly) NSDictionary<NSString *, id> *advertisement;
+@property (readonly) CBEAdvertisement *advertisement;
 @property (readonly) NSNumber *rssi;
 
-- (instancetype)initWithPeripheral:(CBEPeripheral *)peripheral advertisement:(NSDictionary<NSString *, id> *)advertisement rssi:(NSNumber *)rssi;
+- (instancetype)initWithPeripheral:(CBEPeripheral *)peripheral advertisement:(CBEAdvertisement *)advertisement rssi:(NSNumber *)rssi;
 
 @end
 
@@ -468,7 +486,10 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 
 @interface CBEL2CAPStreamsOpening : NSEOperation <CBEL2CAPStreamsOpeningDelegate>
 
+@property (readonly) CBEL2CAPChannel *parent;
 @property (readonly) NSTimeInterval timeout;
+@property (readonly) NSEStreamsOpening *opening;
+@property (readonly) CBEPeripheralDisconnection *disconnection;
 
 - (instancetype)initWithTimeout:(NSTimeInterval)timeout;
 
@@ -492,12 +513,12 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 @interface CBEPeripheralConnection : NSEOperation <CBEPeripheralConnectionDelegate>
 
 @property (readonly) CBEPeripheral *parent;
-@property (readonly) NSDictionary<NSString *, id> *options;
+@property (readonly) NSDictionary *options;
 @property (readonly) NSTimeInterval timeout;
 @property (readonly) NSETimer *timer;
 @property (readonly) CBEPeripheralDisconnection *disconnection;
 
-- (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout;
+- (instancetype)initWithOptions:(NSDictionary *)options timeout:(NSTimeInterval)timeout;
 
 @end
 
@@ -659,7 +680,9 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 
 @interface CBEL2CAPChannel : NSEOperation <CBEL2CAPChannelDelegate>
 
+@property (readonly) CBEPeripheral *parent;
 @property (readonly) CBL2CAPChannel *channel;
+@property (readonly) NSEStreams *streams;
 
 - (instancetype)initWithChannel:(CBL2CAPChannel *)channel;
 
@@ -701,14 +724,14 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 @property (readonly) CBPeripheral *peripheral;
 @property (readonly) NSMutableDictionary<CBUUID *, __kindof CBEService *> *servicesByUUID;
 @property (readonly) NSMutableDictionary<NSNumber *, __kindof CBEL2CAPChannel *> *channelsByPSM;
-@property (readonly) NSDictionary<NSString *, id> *advertisement;
+@property (readonly) CBEAdvertisement *advertisement;
 @property (readonly) NSNumber *rssi;
 @property (readonly) CBEPeripheralDidDisconnectInfo *didDisconnectInfo;
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral;
 
-- (CBEPeripheralConnection *)connectWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout;
-- (CBEPeripheralConnection *)connectWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
+- (CBEPeripheralConnection *)connectWithOptions:(NSDictionary *)options timeout:(NSTimeInterval)timeout;
+- (CBEPeripheralConnection *)connectWithOptions:(NSDictionary *)options timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion;
 
 - (CBEPeripheralDisconnection *)disconnect;
 - (CBEPeripheralDisconnection *)disconnectWithCompletion:(HLPVoidBlock)completion;
@@ -745,7 +768,7 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 @property Class peripheralClass;
 
 @property (readonly) HLPArray<CBECentralManagerDelegate> *delegates;
-@property (readonly) NSDictionary<NSString *, id> *options;
+@property (readonly) NSDictionary *options;
 @property (readonly) CBCentralManager *central;
 @property (readonly) NSMutableDictionary<NSUUID *, __kindof CBEPeripheral *> *peripheralsByIdentifier;
 @property (readonly) NSMutableDictionary<NSString *, __kindof CBEPeripheral *> *peripheralsByName;
@@ -753,9 +776,9 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 @property (readonly) NSMutableDictionary<NSString *, __kindof CBEPeripheral *> *connectedPeripheralsByName;
 @property (readonly) CBECentralManagerDidDiscoverPeripheralInfo *didDiscoverPeripheralInfo;
 
-- (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options;
+- (instancetype)initWithOptions:(NSDictionary *)options;
 
-- (void)scanForPeripheralsWithServices:(NSArray<CBUUID *> *)serviceUUIDs options:(NSDictionary<NSString *, id> *)options;
+- (void)scanForPeripheralsWithServices:(NSArray<CBUUID *> *)serviceUUIDs options:(NSDictionary *)options;
 - (void)stopScan;
 
 //- (BLEPeripheralConnection *)connectPeripheral:(CBPeripheral *)peripheral options:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout;

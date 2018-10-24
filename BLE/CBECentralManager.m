@@ -808,10 +808,39 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 
 
+@interface CBEAdvertisement ()
+
+@property NSString *localName;
+
+@end
+
+
+
+@implementation CBEAdvertisement
+
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
+    self = super.init;
+    if (self) {
+        self.localName = dictionary[CBAdvertisementDataLocalNameKey];
+    }
+    return self;
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
 @interface CBECentralManagerDidDiscoverPeripheralInfo ()
 
 @property CBEPeripheral *peripheral;
-@property NSDictionary<NSString *, id> *advertisement;
+@property CBEAdvertisement *advertisement;
 @property NSNumber *rssi;
 
 @end
@@ -820,7 +849,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 @implementation CBECentralManagerDidDiscoverPeripheralInfo
 
-- (instancetype)initWithPeripheral:(CBEPeripheral *)peripheral advertisement:(NSDictionary<NSString *, id> *)advertisement rssi:(NSNumber *)rssi {
+- (instancetype)initWithPeripheral:(CBEPeripheral *)peripheral advertisement:(CBEAdvertisement *)advertisement rssi:(NSNumber *)rssi {
     self = super.init;
     if (self) {
         self.peripheral = peripheral;
@@ -993,6 +1022,8 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 @interface CBEL2CAPStreamsOpening ()
 
 @property NSTimeInterval timeout;
+@property NSEStreamsOpening *opening;
+@property CBEPeripheralDisconnection *disconnection;
 
 @end
 
@@ -1000,12 +1031,30 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 @implementation CBEL2CAPStreamsOpening
 
+@dynamic parent;
+
 - (instancetype)initWithTimeout:(NSTimeInterval)timeout {
     self = super.init;
     if (self) {
         self.timeout = timeout;
     }
     return self;
+}
+
+- (void)main {
+    self.operation = self.opening = [self.parent.streams openWithTimeout:self.timeout];
+    [self.opening waitUntilFinished];
+    if (self.opening.isCancelled) {
+    } else if (self.opening.error) {
+        self.error = self.opening.error;
+    }
+    
+    if (self.isCancelled || self.error) {
+        self.disconnection = self.parent.parent.disconnect;
+        [self.disconnection waitUntilFinished];
+    }
+    
+    [self finish];
 }
 
 @end
@@ -1021,7 +1070,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 @interface CBEPeripheralConnection ()
 
-@property NSDictionary<NSString *, id> *options;
+@property NSDictionary *options;
 @property NSTimeInterval timeout;
 @property NSETimer *timer;
 @property CBEPeripheralDisconnection *disconnection;
@@ -1034,7 +1083,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 @dynamic parent;
 
-- (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout {
+- (instancetype)initWithOptions:(NSDictionary *)options timeout:(NSTimeInterval)timeout {
     self = super.init;
     if (self) {
         self.options = options;
@@ -1373,6 +1422,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 @interface CBEL2CAPChannel ()
 
 @property CBL2CAPChannel *channel;
+@property NSEStreams *streams;
 
 @end
 
@@ -1380,10 +1430,14 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 @implementation CBEL2CAPChannel
 
+@dynamic parent;
+
 - (instancetype)initWithChannel:(CBL2CAPChannel *)channel {
     self = super.init;
     if (self) {
         self.channel = channel;
+        
+        self.streams = [NSEStreams streamsWithInputStream:self.channel.inputStream outputStream:self.channel.outputStream];
     }
     return self;
 }
@@ -1416,7 +1470,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 @property CBPeripheral *peripheral;
 @property NSMutableDictionary<CBUUID *, CBEService *> *servicesByUUID;
 @property NSMutableDictionary<NSNumber *, CBEL2CAPChannel *> *channelsByPSM;
-@property NSDictionary<NSString *, id> *advertisement;
+@property CBEAdvertisement *advertisement;
 @property NSNumber *rssi;
 @property CBEPeripheralDidDisconnectInfo *didDisconnectInfo;
 
@@ -1444,13 +1498,13 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     return self;
 }
 
-- (CBEPeripheralConnection *)connectWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout {
+- (CBEPeripheralConnection *)connectWithOptions:(NSDictionary *)options timeout:(NSTimeInterval)timeout {
     CBEPeripheralConnection *connection = [CBEPeripheralConnection.alloc initWithOptions:options timeout:timeout];
     [self addOperation:connection];
     return connection;
 }
 
-- (CBEPeripheralConnection *)connectWithOptions:(NSDictionary<NSString *, id> *)options timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
+- (CBEPeripheralConnection *)connectWithOptions:(NSDictionary *)options timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
     CBEPeripheralConnection *connection = [self connectWithOptions:options timeout:timeout];
     connection.completionBlock = completion;
     return connection;
@@ -1530,7 +1584,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 @interface CBECentralManager ()
 
-@property NSDictionary<NSString *, id> *options;
+@property NSDictionary *options;
 @property CBCentralManager *central;
 @property NSMutableDictionary<NSUUID *, CBEPeripheral *> *peripheralsByIdentifier;
 @property NSMutableDictionary<NSString *, CBEPeripheral *> *peripheralsByName;
@@ -1546,7 +1600,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 @dynamic delegates;
 
-- (instancetype)initWithOptions:(NSDictionary<NSString *, id> *)options {
+- (instancetype)initWithOptions:(NSDictionary *)options {
     self = super.init;
     if (self) {
         self.options = options;
@@ -1584,7 +1638,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     [self.delegates CBECentralManagerDidUpdateStatus:self];
 }
 
-- (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *, id> *)advertisementData RSSI:(NSNumber *)RSSI {
+- (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI {
     CBEPeripheral *cbePeripheral = self.peripheralsByIdentifier[peripheral.identifier];
     if (cbePeripheral) {
     } else {
@@ -1595,10 +1649,10 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
         self.peripheralsByName[peripheral.name] = cbePeripheral;
     }
     
-    cbePeripheral.advertisement = advertisementData;
+    cbePeripheral.advertisement = [CBEAdvertisement.alloc initWithDictionary:advertisementData];
     cbePeripheral.rssi = RSSI;
     
-    self.didDiscoverPeripheralInfo = [CBECentralManagerDidDiscoverPeripheralInfo.alloc initWithPeripheral:cbePeripheral advertisement:advertisementData rssi:RSSI];
+    self.didDiscoverPeripheralInfo = [CBECentralManagerDidDiscoverPeripheralInfo.alloc initWithPeripheral:cbePeripheral advertisement:cbePeripheral.advertisement rssi:RSSI];
     [self.delegates CBECentralManagerDidDiscoverPeripheral:self];
 }
 
