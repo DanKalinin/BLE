@@ -840,8 +840,6 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 @interface CBECentralManagerDidDiscoverPeripheralInfo ()
 
 @property CBEPeripheral *peripheral;
-@property CBEAdvertisement *advertisement;
-@property NSNumber *rssi;
 
 @end
 
@@ -849,12 +847,10 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 @implementation CBECentralManagerDidDiscoverPeripheralInfo
 
-- (instancetype)initWithPeripheral:(CBEPeripheral *)peripheral advertisement:(CBEAdvertisement *)advertisement rssi:(NSNumber *)rssi {
+- (instancetype)initWithPeripheral:(CBEPeripheral *)peripheral {
     self = super.init;
     if (self) {
         self.peripheral = peripheral;
-        self.advertisement = advertisement;
-        self.rssi = rssi;
     }
     return self;
 }
@@ -1652,7 +1648,7 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     cbePeripheral.advertisement = [CBEAdvertisement.alloc initWithDictionary:advertisementData];
     cbePeripheral.rssi = RSSI;
     
-    self.didDiscoverPeripheralInfo = [CBECentralManagerDidDiscoverPeripheralInfo.alloc initWithPeripheral:cbePeripheral advertisement:cbePeripheral.advertisement rssi:RSSI];
+    self.didDiscoverPeripheralInfo = [CBECentralManagerDidDiscoverPeripheralInfo.alloc initWithPeripheral:cbePeripheral];
     [self.delegates CBECentralManagerDidDiscoverPeripheral:self];
 }
 

@@ -405,10 +405,8 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 @interface CBECentralManagerDidDiscoverPeripheralInfo : HLPObject
 
 @property (readonly) __kindof CBEPeripheral *peripheral;
-@property (readonly) CBEAdvertisement *advertisement;
-@property (readonly) NSNumber *rssi;
 
-- (instancetype)initWithPeripheral:(CBEPeripheral *)peripheral advertisement:(CBEAdvertisement *)advertisement rssi:(NSNumber *)rssi;
+- (instancetype)initWithPeripheral:(CBEPeripheral *)peripheral;
 
 @end
 
