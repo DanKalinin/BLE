@@ -714,6 +714,8 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 @optional
 - (void)CBEPeripheralDidDisconnect:(CBEPeripheral *)peripheral;
 
+- (void)CBEPeripheral:(CBEPeripheral *)peripheral didDisconnectWithError:(NSError *)error;
+
 @end
 
 
@@ -767,6 +769,8 @@ extern const NSEOperationState CBECentralManagerStateDidStopScan;
 @optional
 - (void)CBECentralManagerDidUpdateStatus:(CBECentralManager *)central;
 - (void)CBECentralManagerDidDiscoverPeripheral:(CBECentralManager *)central;
+
+- (void)CBECentralManager:(CBECentralManager *)central didDiscoverPeripheral:(CBEPeripheral *)peripheral;
 
 @end
 
