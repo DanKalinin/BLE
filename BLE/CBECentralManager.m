@@ -1659,7 +1659,6 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
     CBEPeripheral *cbePeripheral = self.connectedPeripheralsByIdentifier[peripheral.identifier];
-    [cbePeripheral.disconnection finish];
     
     self.connectedPeripheralsByIdentifier[peripheral.identifier] = nil;
     self.connectedPeripheralsByName[peripheral.name] = nil;
@@ -1667,6 +1666,8 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     if (error) {
         cbePeripheral.didDisconnectInfo = [CBEPeripheralDidDisconnectInfo.alloc initWithError:error];
         [cbePeripheral.delegates CBEPeripheralDidDisconnect:cbePeripheral];
+    } else {
+        [cbePeripheral.disconnection finish];
     }
 }
 
