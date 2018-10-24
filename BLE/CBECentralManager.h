@@ -340,20 +340,31 @@
 //@class CBECentralManagerDidDiscoverPeripheralInfo;
 //@class CBECentralManager;
 
-@class CBEPeripheralDidDisconnectInfo;
-@class CBEAdvertisement;
-@class CBECentralManagerDidDiscoverPeripheralInfo;
+
+
+
+
+
+
+
 @class CBECharacteristicReading;
+@class CBECharacteristic;
+
 @class CBECharacteristicsDiscovery;
+@class CBEService;
+
 @class CBEL2CAPStreamsOpening;
+@class CBEL2CAPChannel;
+
 @class CBEPeripheralConnection;
 @class CBEPeripheralDisconnection;
 @class CBEServicesDiscovery;
 @class CBEL2CAPChannelOpening;
-@class CBECharacteristic;
-@class CBEService;
-@class CBEL2CAPChannel;
+@class CBEPeripheralDidDisconnectInfo;
 @class CBEPeripheral;
+
+@class CBECentralManagerDidDiscoverPeripheralInfo;
+@class CBEAdvertisement;
 @class CBECentralManager;
 
 extern const NSEOperationState CBECentralManagerStateDidScanForPeripherals;
