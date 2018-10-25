@@ -1236,6 +1236,32 @@
     [self finish];
 }
 
+//- (void)main {
+//    [self updateState:HLPOperationStateDidBegin];
+//
+//    self.peripheral.connection = self;
+//    [self.parent.central connectPeripheral:self.peripheral options:self.options];
+//
+//    self.operation = self.tick = [HLPClock.shared tickWithInterval:self.timeout];
+//    [self.tick waitUntilFinished];
+//    if (self.cancelled) {
+//    } else if (!self.tick.cancelled) {
+//        NSError *error = [NSError errorWithDomain:CBErrorDomain code:CBErrorConnectionTimeout userInfo:nil];
+//        [self.errors addObject:error];
+//    } else if (self.errors.count > 0) {
+//    } else {
+//        self.peripheral.servicesByUUID = HLPDictionary.strongToWeakDictionary;
+//        self.peripheral.channelsByPSM = NSMutableDictionary.dictionary;
+//    }
+//
+//    if (self.cancelled || (self.errors.count > 0)) {
+//        self.disconnection = [self.parent disconnectPeripheral:self.peripheral];
+//        [self.disconnection waitUntilFinished];
+//    }
+//
+//    [self updateState:HLPOperationStateDidEnd];
+//}
+
 @end
 
 
@@ -1268,6 +1294,20 @@
         }
     }
 }
+
+//- (void)main {
+//    [self updateState:HLPOperationStateDidBegin];
+//
+//    if ((self.peripheral.state == CBPeripheralStateConnecting) || (self.peripheral.state == CBPeripheralStateConnected)) {
+//        self.peripheral.disconnection = self;
+//        [self.parent.central cancelPeripheralConnection:self.peripheral];
+//
+//        self.tick = [HLPClock.shared tickWithInterval:DBL_MAX];
+//        [self.tick waitUntilFinished];
+//    }
+//
+//    [self updateState:HLPOperationStateDidEnd];
+//}
 
 @end
 
