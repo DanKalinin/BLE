@@ -767,8 +767,6 @@
 
 
 
-const NSEOperationState CBECentralManagerStateDidScanForPeripherals = 2;
-const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 
 
@@ -779,83 +777,6 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 
 
-@interface CBEPeripheralDidDisconnectInfo ()
-
-@property NSError *error;
-
-@end
-
-
-
-@implementation CBEPeripheralDidDisconnectInfo
-
-- (instancetype)initWithError:(NSError *)error {
-    self = super.init;
-    if (self) {
-        self.error = error;
-    }
-    return self;
-}
-
-@end
-
-
-
-
-
-
-
-
-
-
-@interface CBEAdvertisement ()
-
-@property NSString *localName;
-
-@end
-
-
-
-@implementation CBEAdvertisement
-
-- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
-    self = super.init;
-    if (self) {
-        self.localName = dictionary[CBAdvertisementDataLocalNameKey];
-    }
-    return self;
-}
-
-@end
-
-
-
-
-
-
-
-
-
-
-@interface CBECentralManagerDidDiscoverPeripheralInfo ()
-
-@property CBEPeripheral *peripheral;
-
-@end
-
-
-
-@implementation CBECentralManagerDidDiscoverPeripheralInfo
-
-- (instancetype)initWithPeripheral:(CBEPeripheral *)peripheral {
-    self = super.init;
-    if (self) {
-        self.peripheral = peripheral;
-    }
-    return self;
-}
-
-@end
 
 
 
@@ -906,6 +827,49 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     }
     
     [self finish];
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface CBECharacteristic ()
+
+@property CBCharacteristic *characteristic;
+
+@end
+
+
+
+@implementation CBECharacteristic
+
+@dynamic parent;
+
+- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic {
+    self = super.init;
+    if (self) {
+        self.characteristic = characteristic;
+    }
+    return self;
+}
+
+- (CBECharacteristicReading *)readWithTimeout:(NSTimeInterval)timeout {
+    CBECharacteristicReading *reading = [CBECharacteristicReading.alloc initWithTimeout:timeout];
+    [self addOperation:reading];
+    return reading;
+}
+
+- (CBECharacteristicReading *)readWithTimeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
+    CBECharacteristicReading *reading = [self readWithTimeout:timeout];
+    reading.completionBlock = completion;
+    return reading;
 }
 
 @end
@@ -1015,6 +979,54 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 
 
+@interface CBEService ()
+
+@property CBService *service;
+@property NSMutableDictionary<CBUUID *, CBECharacteristic *> *characteristicsByUUID;
+
+@end
+
+
+
+@implementation CBEService
+
+@dynamic parent;
+
+- (instancetype)initWithService:(CBService *)service {
+    self = super.init;
+    if (self) {
+        self.service = service;
+        
+        self.characteristicClass = CBECharacteristic.class;
+        
+        self.characteristicsByUUID = NSMutableDictionary.dictionary;
+    }
+    return self;
+}
+
+- (CBECharacteristicsDiscovery *)discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout {
+    CBECharacteristicsDiscovery *discovery = [CBECharacteristicsDiscovery.alloc initWithCharacteristics:characteristics timeout:timeout];
+    [self addOperation:discovery];
+    return discovery;
+}
+
+- (CBECharacteristicsDiscovery *)discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
+    CBECharacteristicsDiscovery *discovery = [self discoverCharacteristics:characteristics timeout:timeout];
+    discovery.completionBlock = completion;
+    return discovery;
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
 @interface CBEL2CAPStreamsOpening ()
 
 @property NSTimeInterval timeout;
@@ -1051,6 +1063,110 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     }
     
     [self finish];
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface CBEL2CAPChannel ()
+
+@property CBL2CAPChannel *channel;
+@property NSEStreams *streams;
+
+@end
+
+
+
+@implementation CBEL2CAPChannel
+
+@dynamic parent;
+
+- (instancetype)initWithChannel:(CBL2CAPChannel *)channel {
+    self = super.init;
+    if (self) {
+        self.channel = channel;
+        
+        self.streams = [NSEStreams streamsWithInputStream:self.channel.inputStream outputStream:self.channel.outputStream];
+    }
+    return self;
+}
+
+- (CBEL2CAPStreamsOpening *)openStreamsWithTimeout:(NSTimeInterval)timeout {
+    CBEL2CAPStreamsOpening *opening = [CBEL2CAPStreamsOpening.alloc initWithTimeout:timeout];
+    [self addOperation:opening];
+    return opening;
+}
+
+- (CBEL2CAPStreamsOpening *)openStreamsWithTimeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
+    CBEL2CAPStreamsOpening *opening = [self openStreamsWithTimeout:timeout];
+    opening.completionBlock = completion;
+    return opening;
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface CBEAdvertisement ()
+
+@property NSString *localName;
+
+@end
+
+
+
+@implementation CBEAdvertisement
+
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
+    self = super.init;
+    if (self) {
+        self.localName = dictionary[CBAdvertisementDataLocalNameKey];
+    }
+    return self;
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface CBEPeripheralDidDisconnectInfo ()
+
+@property NSError *error;
+
+@end
+
+
+
+@implementation CBEPeripheralDidDisconnectInfo
+
+- (instancetype)initWithError:(NSError *)error {
+    self = super.init;
+    if (self) {
+        self.error = error;
+    }
+    return self;
 }
 
 @end
@@ -1324,143 +1440,6 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 
 
-@interface CBECharacteristic ()
-
-@property CBCharacteristic *characteristic;
-
-@end
-
-
-
-@implementation CBECharacteristic
-
-@dynamic parent;
-
-- (instancetype)initWithCharacteristic:(CBCharacteristic *)characteristic {
-    self = super.init;
-    if (self) {
-        self.characteristic = characteristic;
-    }
-    return self;
-}
-
-- (CBECharacteristicReading *)readWithTimeout:(NSTimeInterval)timeout {
-    CBECharacteristicReading *reading = [CBECharacteristicReading.alloc initWithTimeout:timeout];
-    [self addOperation:reading];
-    return reading;
-}
-
-- (CBECharacteristicReading *)readWithTimeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
-    CBECharacteristicReading *reading = [self readWithTimeout:timeout];
-    reading.completionBlock = completion;
-    return reading;
-}
-
-@end
-
-
-
-
-
-
-
-
-
-
-@interface CBEService ()
-
-@property CBService *service;
-@property NSMutableDictionary<CBUUID *, CBECharacteristic *> *characteristicsByUUID;
-
-@end
-
-
-
-@implementation CBEService
-
-@dynamic parent;
-
-- (instancetype)initWithService:(CBService *)service {
-    self = super.init;
-    if (self) {
-        self.service = service;
-        
-        self.characteristicClass = CBECharacteristic.class;
-        
-        self.characteristicsByUUID = NSMutableDictionary.dictionary;
-    }
-    return self;
-}
-
-- (CBECharacteristicsDiscovery *)discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout {
-    CBECharacteristicsDiscovery *discovery = [CBECharacteristicsDiscovery.alloc initWithCharacteristics:characteristics timeout:timeout];
-    [self addOperation:discovery];
-    return discovery;
-}
-
-- (CBECharacteristicsDiscovery *)discoverCharacteristics:(NSArray<CBUUID *> *)characteristics timeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
-    CBECharacteristicsDiscovery *discovery = [self discoverCharacteristics:characteristics timeout:timeout];
-    discovery.completionBlock = completion;
-    return discovery;
-}
-
-@end
-
-
-
-
-
-
-
-
-
-
-@interface CBEL2CAPChannel ()
-
-@property CBL2CAPChannel *channel;
-@property NSEStreams *streams;
-
-@end
-
-
-
-@implementation CBEL2CAPChannel
-
-@dynamic parent;
-
-- (instancetype)initWithChannel:(CBL2CAPChannel *)channel {
-    self = super.init;
-    if (self) {
-        self.channel = channel;
-        
-        self.streams = [NSEStreams streamsWithInputStream:self.channel.inputStream outputStream:self.channel.outputStream];
-    }
-    return self;
-}
-
-- (CBEL2CAPStreamsOpening *)openStreamsWithTimeout:(NSTimeInterval)timeout {
-    CBEL2CAPStreamsOpening *opening = [CBEL2CAPStreamsOpening.alloc initWithTimeout:timeout];
-    [self addOperation:opening];
-    return opening;
-}
-
-- (CBEL2CAPStreamsOpening *)openStreamsWithTimeout:(NSTimeInterval)timeout completion:(HLPVoidBlock)completion {
-    CBEL2CAPStreamsOpening *opening = [self openStreamsWithTimeout:timeout];
-    opening.completionBlock = completion;
-    return opening;
-}
-
-@end
-
-
-
-
-
-
-
-
-
-
 @interface CBEPeripheral ()
 
 @property CBPeripheral *peripheral;
@@ -1578,6 +1557,35 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 
 
+@interface CBECentralManagerDidDiscoverPeripheralInfo ()
+
+@property CBEPeripheral *peripheral;
+
+@end
+
+
+
+@implementation CBECentralManagerDidDiscoverPeripheralInfo
+
+- (instancetype)initWithPeripheral:(CBEPeripheral *)peripheral {
+    self = super.init;
+    if (self) {
+        self.peripheral = peripheral;
+    }
+    return self;
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
 @interface CBECentralManager ()
 
 @property NSDictionary *options;
@@ -1593,6 +1601,9 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 
 @implementation CBECentralManager
+
+const NSEOperationState CBECentralManagerStateDidScanForPeripherals = 2;
+const NSEOperationState CBECentralManagerStateDidStopScan = 3;
 
 @dynamic delegates;
 
