@@ -771,9 +771,6 @@
 
 @interface CBECentralManager : NSEOperation <CBECentralManagerDelegate>
 
-extern const NSEOperationState CBECentralManagerStateDidStartScan;
-extern const NSEOperationState CBECentralManagerStateDidFinishScan;
-
 @property Class peripheralClass;
 
 @property (readonly) HLPArray<CBECentralManagerDelegate> *delegates;

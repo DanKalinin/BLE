@@ -1642,9 +1642,6 @@
 
 @implementation CBECentralManager
 
-const NSEOperationState CBECentralManagerStateDidStartScan = 2;
-const NSEOperationState CBECentralManagerStateDidFinishScan = 3;
-
 @dynamic delegates;
 
 - (instancetype)initWithOptions:(NSDictionary *)options {
@@ -1669,14 +1666,10 @@ const NSEOperationState CBECentralManagerStateDidFinishScan = 3;
     [self.peripheralsByName removeAllObjects];
     
     [self.central scanForPeripheralsWithServices:serviceUUIDs options:options];
-    
-    [self updateState:CBECentralManagerStateDidStartScan];
 }
 
 - (void)stopScan {
     [self.central stopScan];
-    
-    [self updateState:CBECentralManagerStateDidFinishScan];
 }
 
 #pragma mark - Central manager
