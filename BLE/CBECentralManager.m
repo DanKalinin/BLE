@@ -1282,6 +1282,7 @@
 @implementation CBEPeripheralDisconnection
 
 @dynamic parent;
+@dynamic delegates;
 
 - (void)main {
     if (self.parent.peripheral.state == CBPeripheralStateDisconnected) {
@@ -1308,6 +1309,19 @@
 //
 //    [self updateState:HLPOperationStateDidEnd];
 //}
+
+#pragma mark - Helpers
+
+- (void)updateState:(NSEOperationState)state {
+    [super updateState:state];
+    
+    [self.delegates CBEPeripheralDisconnectionDidUpdateState:self];
+    if (state == NSEOperationStateDidStart) {
+        [self.delegates CBEPeripheralDisconnectionDidStart:self];
+    } else if (state == NSEOperationStateDidFinish) {
+        [self.delegates CBEPeripheralDisconnectionDidFinish:self];
+    }
+}
 
 @end
 
@@ -1713,6 +1727,8 @@
     } else {
         [cbePeripheral.disconnection finish];
     }
+    
+    NSLog(@"error - %@", error);
 }
 
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {

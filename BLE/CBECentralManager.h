@@ -611,6 +611,11 @@
 
 @protocol CBEPeripheralDisconnectionDelegate <NSEOperationDelegate>
 
+@optional
+- (void)CBEPeripheralDisconnectionDidUpdateState:(CBEPeripheralDisconnection *)disconnection;
+- (void)CBEPeripheralDisconnectionDidStart:(CBEPeripheralDisconnection *)disconnection;
+- (void)CBEPeripheralDisconnectionDidFinish:(CBEPeripheralDisconnection *)disconnection;
+
 @end
 
 
@@ -618,6 +623,7 @@
 @interface CBEPeripheralDisconnection : NSEOperation <CBEPeripheralDisconnectionDelegate>
 
 @property (readonly) CBEPeripheral *parent;
+@property (readonly) HLPArray<CBEPeripheralDisconnectionDelegate> *delegates;
 
 @end
 
