@@ -771,8 +771,8 @@
 
 @interface CBECentralManager : NSEOperation <CBECentralManagerDelegate>
 
-extern const NSEOperationState CBECentralManagerStateDidScanForPeripherals;
-extern const NSEOperationState CBECentralManagerStateDidStopScan;
+extern const NSEOperationState CBECentralManagerStateDidStartScan;
+extern const NSEOperationState CBECentralManagerStateDidFinishScan;
 
 @property Class peripheralClass;
 

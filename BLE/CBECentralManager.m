@@ -1602,8 +1602,8 @@
 
 @implementation CBECentralManager
 
-const NSEOperationState CBECentralManagerStateDidScanForPeripherals = 2;
-const NSEOperationState CBECentralManagerStateDidStopScan = 3;
+const NSEOperationState CBECentralManagerStateDidStartScan = 2;
+const NSEOperationState CBECentralManagerStateDidFinishScan = 3;
 
 @dynamic delegates;
 
@@ -1630,13 +1630,13 @@ const NSEOperationState CBECentralManagerStateDidStopScan = 3;
     
     [self.central scanForPeripheralsWithServices:serviceUUIDs options:options];
     
-    [self updateState:CBECentralManagerStateDidScanForPeripherals];
+    [self updateState:CBECentralManagerStateDidStartScan];
 }
 
 - (void)stopScan {
     [self.central stopScan];
     
-    [self updateState:CBECentralManagerStateDidStopScan];
+    [self updateState:CBECentralManagerStateDidFinishScan];
 }
 
 #pragma mark - Central manager
