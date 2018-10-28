@@ -1,6 +1,6 @@
 //
 //  CBEMain.m
-//  CBE
+//  CoreBluetoothExt
 //
 //  Created by Dan Kalinin on 6/11/18.
 //
