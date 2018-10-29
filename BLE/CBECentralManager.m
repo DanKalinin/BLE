@@ -323,7 +323,7 @@
     if (self) {
         self.channel = channel;
         
-        self.streams = [NSEStreams streamsWithInputStream:self.channel.inputStream outputStream:self.channel.outputStream];
+        self.streams = [NSEStreams.alloc initWithInputStream:self.channel.inputStream outputStream:self.channel.outputStream];
     }
     return self;
 }
