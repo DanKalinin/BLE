@@ -180,7 +180,7 @@
 #pragma mark - Accessors
 
 - (NSMutableArray<CBUUID *> *)missingCharacteristics {
-    NSMutableArray<CBUUID *> *missingCharacteristics = self.characteristics.mutableCopy;
+    NSMutableArray *missingCharacteristics = self.characteristics.mutableCopy;
     for (CBCharacteristic *characteristic in self.parent.service.characteristics) {
         [missingCharacteristics removeObject:characteristic.UUID];
     }
@@ -188,7 +188,7 @@
 }
 
 - (NSMutableArray<CBCharacteristic *> *)discoveredCharacteristics {
-    NSMutableArray<CBCharacteristic *> *discoveredCharacteristics = NSMutableArray.array;
+    NSMutableArray *discoveredCharacteristics = NSMutableArray.array;
     for (CBCharacteristic *characteristic in self.parent.service.characteristics) {
         if ([self.cachedMissingCharacteristics containsObject:characteristic.UUID]) {
             [discoveredCharacteristics addObject:characteristic];
@@ -585,7 +585,7 @@
 #pragma mark - Accessors
 
 - (NSMutableArray<CBUUID *> *)missingServices {
-    NSMutableArray<CBUUID *> *missingServices = self.services.mutableCopy;
+    NSMutableArray *missingServices = self.services.mutableCopy;
     for (CBService *service in self.parent.peripheral.services) {
         [missingServices removeObject:service.UUID];
     }
@@ -593,7 +593,7 @@
 }
 
 - (NSMutableArray<CBService *> *)discoveredServices {
-    NSMutableArray<CBService *> *discoveredServices = NSMutableArray.array;
+    NSMutableArray *discoveredServices = NSMutableArray.array;
     for (CBService *service in self.parent.peripheral.services) {
         if ([self.cachedMissingServices containsObject:service.UUID]) {
             [discoveredServices addObject:service];
