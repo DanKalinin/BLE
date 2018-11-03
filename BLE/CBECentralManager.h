@@ -138,7 +138,7 @@
 
 @property (readonly) CBEPeripheral *parent;
 @property (readonly) CBService *service;
-@property (readonly) NSMutableDictionary<CBUUID *, __kindof CBECharacteristic *> *characteristicsByUUID;
+@property (readonly) NSMutableDictionary<CBUUID *, CBECharacteristic *> *characteristicsByUUID;
 
 - (instancetype)initWithService:(CBService *)service;
 
@@ -379,8 +379,8 @@
 @property (readonly) CBECentralManager *parent;
 @property (readonly) HLPArray<CBEPeripheralDelegate> *delegates;
 @property (readonly) CBPeripheral *peripheral;
-@property (readonly) NSMutableDictionary<CBUUID *, __kindof CBEService *> *servicesByUUID;
-@property (readonly) NSMutableDictionary<NSNumber *, __kindof CBEL2CAPChannel *> *channelsByPSM;
+@property (readonly) NSMutableDictionary<CBUUID *, CBEService *> *servicesByUUID;
+@property (readonly) NSMutableDictionary<NSNumber *, CBEL2CAPChannel *> *channelsByPSM;
 @property (readonly) CBEAdvertisement *advertisement;
 @property (readonly) NSNumber *rssi;
 @property (readonly) CBEPeripheralDidDisconnectInfo *didDisconnectInfo;
@@ -412,7 +412,7 @@
 
 @interface CBECentralManagerDidDiscoverPeripheralInfo : HLPObject
 
-@property (readonly) __kindof CBEPeripheral *peripheral;
+@property (readonly) CBEPeripheral *peripheral;
 
 - (instancetype)initWithPeripheral:(CBEPeripheral *)peripheral;
 
@@ -444,8 +444,8 @@
 @property (readonly) HLPArray<CBECentralManagerDelegate> *delegates;
 @property (readonly) NSDictionary *options;
 @property (readonly) CBCentralManager *central;
-@property (readonly) NSMutableDictionary<NSUUID *, __kindof CBEPeripheral *> *peripheralsByIdentifier;
-@property (readonly) NSMutableDictionary<NSString *, __kindof CBEPeripheral *> *peripheralsByName;
+@property (readonly) NSMutableDictionary<NSUUID *, CBEPeripheral *> *peripheralsByIdentifier;
+@property (readonly) NSMutableDictionary<NSString *, CBEPeripheral *> *peripheralsByName;
 @property (readonly) CBECentralManagerDidDiscoverPeripheralInfo *didDiscoverPeripheralInfo;
 
 - (instancetype)initWithOptions:(NSDictionary *)options;
